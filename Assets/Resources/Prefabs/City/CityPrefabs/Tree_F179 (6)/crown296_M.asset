@@ -1,0 +1,130 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!43 &4300000
+Mesh:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: crown296_M
+  serializedVersion: 8
+  m_SubMeshes:
+  - serializedVersion: 2
+    firstByte: 0
+    indexCount: 147
+    topology: 0
+    firstVertex: 0
+    vertexCount: 32
+    localAABB:
+      m_Center: {x: -1.0747864, y: 21.262663, z: -1.0322913}
+      m_Extent: {x: 2.4201238, y: 1.095171, z: 2.4574614}
+  m_Shapes:
+    vertices: []
+    shapes: []
+    channels: []
+    fullWeights: []
+  m_BindPose: []
+  m_BoneNameHashes: 
+  m_RootBoneNameHash: 0
+  m_MeshCompression: 0
+  m_IsReadable: 1
+  m_KeepVertices: 1
+  m_KeepIndices: 1
+  m_IndexBuffer: 02000000010003000000020004000000030005000000040006000000050002000100060006000700020003000200070007000800030004000300080008000900040005000400090009000a000500070006000b000b000c000700080007000c000c000d000800090008000d000d000e0009000a0009000e000e000f000a000c000b001000100011000c000d000c001100110012000d000e000d001200120013000e000f000e001300130014000f00110010001500150016001100120011001600160017001200130012001700170018001300140013001800180019001400160015001a001a001b001600170016001b001b001c001700180017001c001c001d001800190018001d001d001e0019001a001f001b001b001f001c001c001f001d001d001f001e00
+  m_Skin: []
+  m_VertexData:
+    m_CurrentChannels: 11
+    m_VertexCount: 32
+    m_Channels:
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 3
+    - stream: 0
+      offset: 12
+      format: 0
+      dimension: 3
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 24
+      format: 0
+      dimension: 2
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    m_DataSize: 1024
+    _typelessdata: 012580bf0657a1414d4b69bf269c89b277d57ebff941c33d012580bf0657a141dce8d53e0657a1414d4b69bf66a13a3e52fe74bfa113673e0000000000000000012580bf0657a141ec53703e5a9b003e885f75bfbe0f833e0000803e000000009cd202c00657a1414f4b69bf91cf72becc1577bff049e23d0000003f00000000012580bf0657a1415cb119c097c9e7bd5b1977bf774871be0000403f00000000dce8d53e0657a141494b69bf96ef963e714970bfe16c37be0000803f000000006349a63f30d8a4414d4b69bf335e093f3ca6fbbebf982f3f0000000000000000022580bf30d8a441fa6bb63fcf331e3d7faaf6be401d603f0000803e000000005e5e54c030d8a441504b69bf7c3166bfb2d2debe5d92393d0000003f00000000012580bf30d8a441e63b4dc07b90d3bcd64f97bed47974bf0000403f000000006349a63f30d8a441464b69bfc689363f4b792c3de62933bf0000803f00000000ceb3313f5a59a8414d4b69bfed61273f675dc23e108e273f0000000000000000022580bf5a59a841654f433fea8a1bbc2324af3df40c7f3f0000803e0000000037e62ac05a59a8414f4b69bff0f37bbfaab334be034b773c0000003f00000000012580bf5a59a84150052fc0d2b7bebca577a2be4cb272bf0000403f00000000ceb3313f5a59a841484b69bf5258283fd024e5be83241bbf0000803f000000000334ac3f84daab414d4b69bf4527303fde56e3bd4292373f0000000000000000022580bf84daab41c486a83f05d202bc9d68b43d22ff7e3f0000803e000000009cac5fc084daab41514b69bfb28e7fbff6cc6d3d8b4916bc0000003f00000000012580bf84daab411c585fc038b8153d9571d23e373069bf0000403f000000000334ac3f84daab41464b69bf73ea1c3f481c083fc39f15bf0000803f000000002040ef3eae5baf414d4b69bfd7c1ff3e18a5363f1096fb3e0000000000000000022580bfae5baf419301293f82c05dbd4995413f0af1263f0000803e00000000f63f23c0ae5baf414f4b69bfcf3301bf30425c3f251791bd0000003f00000000012580bfae5baf4157d30dc0b466853dc0c1543f0b650dbf0000403f000000002040ef3eae5baf41494b69bf252f1f3f61afed3e8e7821bf0000803f00000000b0963f3ed8dcb2414d4b69bf3a9ee73e97d94b3fa59dcd3e0000000000000000022580bfd8dcb2411583023fd7cf16bea1a36b3fa559b93e0000803e000000009d1008c0d8dcb2414f4b69bfac95c9be7957683fb85b15be0000003f00000000012580bfd8dcb241989517c05999193e1b52633f6c97debe0000403f00000000b0963f3ed8dcb2414a4b69bf198c8e3e2de96e3fa27868be0000803f00000000012580bfd8dcb2414d4b69bf000000000000803f00000000012580bfd8dcb241
+  m_CompressedMesh:
+    m_Vertices:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_UV:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Normals:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Tangents:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Weights:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_NormalSigns:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_TangentSigns:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_FloatColors:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_BoneIndices:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Triangles:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_UVInfo: 0
+  m_LocalAABB:
+    m_Center: {x: -1.0747864, y: 21.262663, z: -1.0322913}
+    m_Extent: {x: 2.4201238, y: 1.095171, z: 2.4574614}
+  m_MeshUsageFlags: 0
+  m_BakedConvexCollisionMesh: 
+  m_BakedTriangleCollisionMesh: 
+  m_MeshOptimized: 0
