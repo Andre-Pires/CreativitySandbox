@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Assets.Scripts.Scripts;
-using Assets.Scripts.Scripts.SoundInput;
 using UnityEngine;
 
 namespace Assets.Scripts.Classes

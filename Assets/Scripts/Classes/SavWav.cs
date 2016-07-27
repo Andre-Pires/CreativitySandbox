@@ -31,7 +31,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace Assets.Scripts.Scripts.SoundInput
+namespace Assets.Scripts.Classes
 {
     public static class SavWav
     {

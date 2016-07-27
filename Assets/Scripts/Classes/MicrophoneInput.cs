@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Scripts.Scripts.SoundInput
+namespace Assets.Scripts.Classes
 {
     [RequireComponent(typeof(AudioSource))]
     public class MicrophoneInput : MonoBehaviour

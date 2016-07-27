@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Assets.Scripts.Scripts.UI;
 using UnityEngine;
 
@@ -29,12 +30,9 @@ namespace Assets.Scripts.Classes
             _pieces.ForEach(p => p.Update());
         }
 
-        public void AddNewComponent(Configuration.Personality personality)
+        public void AddNewComponent(Configuration.Personality personality, Configuration.Size size)
         {
-            Debug.Log("Pers " + personality);
-
-            //TODO ao adicionar aqui o tipo de peça que é para criar ver se está available
-            _pieces.Add(new Piece("Piece" + _pieces.Count));
+            _pieces.Add(new Piece("Piece" + _pieces.Count, personality, size));
         }
 
         public void OnDrawGizmos()

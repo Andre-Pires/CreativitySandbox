@@ -8,11 +8,16 @@ namespace Assets.Scripts.Scripts.UI
 {
     public class CreateAgentPiece : MonoBehaviour
     {
-        public delegate void OnSelectEvent(Configuration.Personality personality);
+        public delegate void OnSelectEvent(Configuration.Personality personality, Configuration.Size size);
         public event OnSelectEvent OnSelect;
 
         public Configuration.Personality Personality;
         public List<GameObject> SizeSelectionButtons;
+        public GameObject PageTitle;
+
+        // to check size selection through mouse input
+        private RaycastHit _hit;
+        private Ray _ray;
 
         // Construct 	
         public void Start()
@@ -25,21 +30,15 @@ namespace Assets.Scripts.Scripts.UI
 
                 Sprite sprite = Resources.Load<Sprite>("Images/Agent/" + Configuration.Instance.AvailableSizes[imageIndex]);
                 SizeSelectionButtons[imageIndex].GetComponent<Image>().sprite = sprite;
+
+                Button button = SizeSelectionButtons[imageIndex].GetComponent<Button>();
+                //necessary otherwise all closures would get executed with the last value of the cicle
+                var index = imageIndex;
+                button.onClick.AddListener(() => OnSelect(Personality, Configuration.Instance.AvailableSizes[index]));
             }
+
+            PageTitle.GetComponent<Text>().text = Constants.Instance.GetPersonalityString(Personality);
         }
-
-
-        // Handle our Ray and Hit
-        void Update()
-        {
-        }
-
-        public void OnClick()
-        {
-            // Notify of the event!
-            OnSelect(Personality);
-        }
-
     }
 }
  

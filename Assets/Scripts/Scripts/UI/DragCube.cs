@@ -75,7 +75,7 @@ namespace Assets.Scripts.Scripts.UI
 
         private bool IsColliding(Vector3 position)
         {
-            Collider[] hitColliders = Physics.OverlapSphere(position, 1);//1 is purely chosen arbitrarly
+            Collider[] hitColliders = Physics.OverlapSphere(position, _objectToDrag.localScale.x/2);
             int numberOfCollidersHit = hitColliders.Length;
 
             foreach (Collider collider in _collidersToIgnore)

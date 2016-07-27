@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Assets.Scripts.Scripts;
-using Assets.Scripts.Scripts.SoundInput;
 using Assets.Scripts.Scripts.UI;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -14,40 +13,53 @@ namespace Assets.Scripts.Classes
         public string Name { get; set; }
         private GameObject _cubeObject;
         private GameObject _root;
-        private const float InitialPlacementRadius = 15.0f;
+        
 
-        //TODO: to be added in the future
+        //TODO: should be integrated into a body and mind structure
         // it should allow to apply abstract behaviors to the cube
         //private Mind personality;
+        private Configuration.Personality _personality;
+        private Body _body;
 
         private MicrophoneInput _micInput;
         private AudioSource _clipPlayer;
-        private readonly List<AudioClip> _clips;
+        private List<AudioClip> _clips;
         private int _maxNumberOfStoredClips = 3;
         private int _currentClipIndex = 0;
 
         // Check for mouse input for speech recording
         private RaycastHit _hit;
-        private readonly Transform _speechButton;
+        private Transform _speechButton;
         private Ray _ray;
 
-        public Piece(string name)
+        public Piece(string name, Configuration.Personality personality, Configuration.Size size)
         {
-            Debug.Log("New agent part added: part " + name);
+            Debug.Log("New agent part added: part " + name + ". " + size + " size and " + personality + " personality");
+            //TODO criar um body que inicializa tamanho, cor, etc
+            //TODO criar uma mente em pôr a personalidade por enquanto
 
-            this.Name = name;
+            _personality = personality;
+            Name = name;
+
             _root = GameObject.Find("Scene");
             _cubeObject = Object.Instantiate(Resources.Load("Prefabs/Cube")) as GameObject;
-            if (_cubeObject != null)
-            {
-                _cubeObject.name = name;
-                _cubeObject.tag = "Cube";
-                _cubeObject.transform.parent = _root.transform;
-                _cubeObject.gameObject.AddComponent<DragCube>();
-                _speechButton = GetChild(_cubeObject, "Button").transform;
+            SetupPiecePrefab(_cubeObject);
 
-                //place cube in a vacant position
-                PlaceNewCube(_cubeObject);
+            _body = new Body(size, Color.cyan, _cubeObject.transform);
+        }
+
+        private void SetupPiecePrefab(GameObject cubePrefab)
+        {
+            
+            if (cubePrefab != null)
+            {
+                cubePrefab.name = Name;
+                cubePrefab.tag = "Cube";
+                cubePrefab.transform.parent = _root.transform;
+                cubePrefab.gameObject.AddComponent<DragCube>();
+                _speechButton = GetChild(cubePrefab, "Button").transform;
+
+                
 
                 //get recording script
                 _micInput = _root.GetComponent<MicrophoneInput>();
@@ -55,8 +67,8 @@ namespace Assets.Scripts.Classes
                 _clips.Capacity = 3;
 
                 //for accurate sound clip playback
-                _cubeObject.AddComponent<AudioSource>();
-                _clipPlayer = _cubeObject.GetComponent<AudioSource>();
+                cubePrefab.AddComponent<AudioSource>();
+                _clipPlayer = cubePrefab.GetComponent<AudioSource>();
             }
             else
             {
@@ -66,6 +78,7 @@ namespace Assets.Scripts.Classes
 
         public void Update()
         {
+            //TODO should be removed eventually
             Color colorStart = Color.red;
             Color colorEnd = Color.green;
             float duration = 1.0f;
@@ -122,37 +135,7 @@ namespace Assets.Scripts.Classes
             }
         }
 
-        private void PlaceNewCube(GameObject cube)
-        {
-            float cubeHeight = cube.transform.localScale.y;
-            bool clearPosition = false;
-            Vector3 position = Vector3.one;
-            //to avoid infinite loops
-            int safetyCounter = 0;
-
-            while (!clearPosition)
-            {
-                position = new Vector3(Random.Range(0.0f, InitialPlacementRadius), cubeHeight + 1.0f, Random.Range(0.0f, InitialPlacementRadius));
-
-                Collider[] hitColliders = Physics.OverlapSphere(position, 1);
-
-                if (hitColliders.Length <= 1) //You haven't hit someone with a collider here, excluding ours
-                {
-                    //Debug.Log("clear");
-                    clearPosition = true;
-                }
-
-                //safety clause
-                safetyCounter++;
-                if (safetyCounter > 100)
-                {
-                    break;
-                }
-            }
-
-            cube.transform.position = position;
-
-        }
+        
 
         private GameObject GetChild(GameObject parent, string name)
         {
@@ -175,6 +158,8 @@ namespace Assets.Scripts.Classes
             Gizmos.color = new Color(1, 0, 0, 0.5F);
             Gizmos.DrawCube(cubeObject.transform.position + Vector3.up * 10, new Vector3(1, 1, 1));
             */
+            _body.OnDrawGizmos();
+
         }
 
     }
