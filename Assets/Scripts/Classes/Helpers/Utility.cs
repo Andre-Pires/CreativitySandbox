@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Scripts.Classes
+namespace Assets.Scripts.Classes.Helpers
 {
     public static class Utility
     {
@@ -17,10 +17,7 @@ namespace Assets.Scripts.Classes
                 }
                 return bounds;
             }
-            else
-            {
-                return new Bounds();
-            }
+            return new Bounds();
         }
 
         public static void PlaceNewGameObject(Transform transform, Vector3 startPosition, float placementRadius)

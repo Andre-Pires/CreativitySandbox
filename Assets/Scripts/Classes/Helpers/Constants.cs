@@ -1,7 +1,6 @@
 ﻿using System;
-using UnityEngine;
 
-namespace Assets.Scripts.Classes
+namespace Assets.Scripts.Classes.Helpers
 {
     public class Constants
     {

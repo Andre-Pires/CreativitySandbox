@@ -5,7 +5,7 @@ using Assets.Scripts.Scripts.UI;
 using UnityEditor;
 using UnityEngine;
 
-namespace Assets.Scripts.Classes
+namespace Assets.Scripts.Classes.IO
 {
     public class ScreenRecorder : MonoBehaviour
     {
@@ -128,6 +128,7 @@ namespace Assets.Scripts.Classes
             _rect = new Rect(0, 0, Screen.width, Screen.height);
         }
 
+        // ReSharper disable once InconsistentNaming
         public void OnGUI()
         {
             if (_numberOfShots > 0)

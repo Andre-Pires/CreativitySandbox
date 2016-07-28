@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using Assets.Scripts.Classes.Helpers;
+using Assets.Scripts.Classes.IO;
 using Assets.Scripts.Scripts;
 using UnityEngine;
 
@@ -7,7 +9,7 @@ namespace Assets.Scripts.Classes
     public class Application : MonoBehaviour
     {
         
-        private Agent _agent;
+        private Agent.Agent _agent;
         private GameObject _scene;
         private Configuration _configuration;
 
@@ -18,7 +20,7 @@ namespace Assets.Scripts.Classes
             _scene = GameObject.Find("Scene");
             _scene.AddComponent<MicrophoneInput>();
 
-            _agent = new Agent();
+            _agent = new Agent.Agent();
             
 
             //in order to control what is drawn this script needs to be associated with the camera object

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Scripts.Classes
+namespace Assets.Scripts.Classes.IO
 {
     [RequireComponent(typeof(AudioSource))]
     public class MicrophoneInput : MonoBehaviour
@@ -87,7 +87,9 @@ namespace Assets.Scripts.Classes
         {
             _audio.clip = Microphone.Start(SelectedDevice, true, 30, _maxFreq);//Starts recording
             while (!(Microphone.GetPosition(SelectedDevice) > 0)) { } // Wait until the recording has started
-            _audio.Play(); // Play the audio source!
+
+            //For debugging purposes - Play the audio source!
+            //_audio.Play();
             _ramFlushStartTime = Time.time;
         }
 
