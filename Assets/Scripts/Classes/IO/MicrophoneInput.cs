@@ -101,8 +101,6 @@ namespace Assets.Scripts.Classes.IO
                 int lastSample  = Microphone.GetPosition(null); //using default
                 Microphone.End(SelectedDevice);//Stops the recording of the device
 
-                AudioClip tempClip = new AudioClip();
-
                 _audio.clip = TrimAudioClip(_audio.clip, lastSample);
 
                 SavWav.Save(FilePath,fileName, _audio.clip);

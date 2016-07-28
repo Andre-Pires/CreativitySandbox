@@ -18,9 +18,6 @@ namespace Assets.Scripts.Classes.Helpers
         // Singleton 	
         private static Configuration _instance;
 
-        public delegate void OnSelectEvent();
-        public event OnSelectEvent OnSelect;
-
         // Construct 	
         private Configuration()
         {

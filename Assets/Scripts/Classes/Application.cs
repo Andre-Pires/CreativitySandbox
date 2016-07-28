@@ -26,10 +26,10 @@ namespace Assets.Scripts.Classes
             //in order to control what is drawn this script needs to be associated with the camera object
             Camera.main.gameObject.AddComponent<ScreenRecorder>();
 
-            //retrieve in editor configurations of a few aspects
+            //retrieve in-editor configurations of a few aspects
             _configuration = _scene.GetComponent<Configuration>();
 
-            //NOTE: should be ran last to allow the remaining components to setup first
+            //NOTE: should run last to allow the remaining components to setup first
             SetupUI();
         }
 
