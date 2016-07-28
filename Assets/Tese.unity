@@ -472,52 +472,6 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
---- !u!1001 &99457073
-Prefab:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 461572, guid: c3d8bbffe9e8ee346bf9c24604233c9c, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 461572, guid: c3d8bbffe9e8ee346bf9c24604233c9c, type: 2}
-      propertyPath: m_LocalPosition.y
-      value: 1.45
-      objectReference: {fileID: 0}
-    - target: {fileID: 461572, guid: c3d8bbffe9e8ee346bf9c24604233c9c, type: 2}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 461572, guid: c3d8bbffe9e8ee346bf9c24604233c9c, type: 2}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 461572, guid: c3d8bbffe9e8ee346bf9c24604233c9c, type: 2}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 461572, guid: c3d8bbffe9e8ee346bf9c24604233c9c, type: 2}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 461572, guid: c3d8bbffe9e8ee346bf9c24604233c9c, type: 2}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 461572, guid: c3d8bbffe9e8ee346bf9c24604233c9c, type: 2}
-      propertyPath: m_RootOrder
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 111350, guid: c3d8bbffe9e8ee346bf9c24604233c9c, type: 2}
-      propertyPath: m_Name
-      value: ForestSet(Dusk)
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_ParentPrefab: {fileID: 100100000, guid: c3d8bbffe9e8ee346bf9c24604233c9c, type: 2}
-  m_IsPrefabParent: 0
 --- !u!1 &103273651
 GameObject:
   m_ObjectHideFlags: 0
@@ -1372,7 +1326,7 @@ GameObject:
   - 114: {fileID: 327015140}
   - 114: {fileID: 327015142}
   m_Layer: 5
-  m_Name: CityDawn
+  m_Name: CityDusk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1499,7 +1453,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: City/CitySet(Dawn)
+          m_StringArgument: City/CitySet(Dusk)
           m_BoolArgument: 1
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -2559,7 +2513,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Manh\xE3"
+  m_Text: Tarde
 --- !u!222 &600413927
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3044,7 +2998,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: Forest/ForestSet(ClearSky)
+          m_StringArgument: Forest/ForestSet(Clear)
           m_BoolArgument: 1
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
@@ -5834,6 +5788,64 @@ RectTransform:
   m_AnchoredPosition: {x: 30, y: 0.245}
   m_SizeDelta: {x: 60, y: 0.49}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1001 &1712466680
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 401200, guid: bff58ae33adaa9a4dab2d0fb87877ac1, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 401200, guid: bff58ae33adaa9a4dab2d0fb87877ac1, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 1.45
+      objectReference: {fileID: 0}
+    - target: {fileID: 401200, guid: bff58ae33adaa9a4dab2d0fb87877ac1, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 401200, guid: bff58ae33adaa9a4dab2d0fb87877ac1, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 401200, guid: bff58ae33adaa9a4dab2d0fb87877ac1, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 401200, guid: bff58ae33adaa9a4dab2d0fb87877ac1, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 401200, guid: bff58ae33adaa9a4dab2d0fb87877ac1, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 401200, guid: bff58ae33adaa9a4dab2d0fb87877ac1, type: 2}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6459374, guid: bff58ae33adaa9a4dab2d0fb87877ac1, type: 2}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6464304, guid: bff58ae33adaa9a4dab2d0fb87877ac1, type: 2}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6438734, guid: bff58ae33adaa9a4dab2d0fb87877ac1, type: 2}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6497034, guid: bff58ae33adaa9a4dab2d0fb87877ac1, type: 2}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: bff58ae33adaa9a4dab2d0fb87877ac1, type: 2}
+  m_IsPrefabParent: 0
 --- !u!1 &1713785561
 GameObject:
   m_ObjectHideFlags: 0

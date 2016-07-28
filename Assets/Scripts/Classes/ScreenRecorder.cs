@@ -89,7 +89,7 @@ namespace Assets.Scripts.Classes
             _numberOfShots = 0;
         }
 
-        void OnPostRender()
+        public void OnPostRender()
         {
 
             if (_recording && Time.time - _startShotTime >= ShotInterval)

@@ -35,8 +35,6 @@ namespace Assets.Scripts.Classes
         public Piece(string name, Configuration.Personality personality, Configuration.Size size)
         {
             Debug.Log("New agent part added: part " + name + ". " + size + " size and " + personality + " personality");
-            //TODO criar um body que inicializa tamanho, cor, etc
-            //TODO criar uma mente em pôr a personalidade por enquanto
 
             _personality = personality;
             Name = name;

@@ -16,6 +16,7 @@ namespace Assets.Scripts.Classes
             _color = color;
             _body = body;
 
+            //using size's enum index to select correct multiplier
             _body.localScale = Vector3.one*sizeMultiplier[(int) size];
 
             //place cube in a vacant position in the set
