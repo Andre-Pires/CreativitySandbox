@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.IO;
 using Assets.Scripts.Scripts.UI;
-using UnityEditor;
 using UnityEngine;
 
 namespace Assets.Scripts.Classes.IO
@@ -11,7 +10,7 @@ namespace Assets.Scripts.Classes.IO
     {
         public float OverlayOpacity = 0.2f;
         private string _fileName = "default";
-        private string _filePath = "../StopMotion/";
+        private string _filePath = "../" + AppDomain.CurrentDomain.BaseDirectory + "/StopMotion/";
         private string _fileExtension = ".png";
 
         private int _numberOfShots = 0;
@@ -26,6 +25,9 @@ namespace Assets.Scripts.Classes.IO
         //to overlay image on screen
         private Rect _rect;
         private Texture2D _image;
+
+        public delegate void OnDestroyEvent();
+        public event OnDestroyEvent OnGameObjectDestroy;
 
         public void Awake()
         {
@@ -47,15 +49,17 @@ namespace Assets.Scripts.Classes.IO
 
         private void ClearEmptyDirectories()
         {
-            string[] directoriesInFolder = Directory.GetDirectories(_filePath);
-
-            foreach (string directory in directoriesInFolder)
+            if(Directory.Exists(_filePath))
             {
-                string[] filesFound = Directory.GetFiles(directory + "/");
+                string[] directoriesInFolder = Directory.GetDirectories(_filePath);
 
-                if (filesFound.Length == 0)
+                foreach (string directory in directoriesInFolder)
                 {
-                    FileUtil.DeleteFileOrDirectory(directory + "/");
+                    string[] filesFound = Directory.GetFiles(directory + "/");
+                    if (filesFound.Length == 0)
+                    {
+                        Directory.Delete(directory + "/", true);
+                    }
                 }
             }
         }
@@ -83,7 +87,7 @@ namespace Assets.Scripts.Classes.IO
         {
             for (int shotIndex = 0; shotIndex < _numberOfShots; shotIndex++)
             {
-                FileUtil.DeleteFileOrDirectory(_filePath + _fileName + shotIndex + _fileExtension);
+                Directory.Delete(_filePath + _fileName + shotIndex + _fileExtension, true);
             }
 
             _numberOfShots = 0;
@@ -126,6 +130,20 @@ namespace Assets.Scripts.Classes.IO
         public void Update()
         {
             _rect = new Rect(0, 0, Screen.width, Screen.height);
+        }
+
+        public void OnDestroy()
+        {
+            OnGameObjectDestroy();
+        }
+
+        public void OnApplicationQuit()
+        {
+            //removing listeners when destroyed
+            TakeSnapshot.Instance.OnSelect -= TakeSingleSnapshot;
+            StartVideoRecording.Instance.OnSelect -= StartRecordingMovie;
+            PauseVideoRecording.Instance.OnSelect -= PauseRecordingMovie;
+            ClearVideoRecordings.Instance.OnSelect -= ClearMovieRecordings;
         }
 
         // ReSharper disable once InconsistentNaming

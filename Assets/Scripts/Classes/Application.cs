@@ -12,6 +12,7 @@ namespace Assets.Scripts.Classes
         private Agent.Agent _agent;
         private GameObject _scene;
         private Configuration _configuration;
+        private ScreenRecorder _screenRecorder;
 
         // Use this for initialization
         private void Start()
@@ -25,6 +26,8 @@ namespace Assets.Scripts.Classes
 
             //in order to control what is drawn this script needs to be associated with the camera object
             Camera.main.gameObject.AddComponent<ScreenRecorder>();
+            _screenRecorder = Camera.main.gameObject.GetComponent<ScreenRecorder>();
+            _screenRecorder.OnGameObjectDestroy += UpdateApplicationCamera; 
 
             //retrieve in-editor configurations of a few aspects
             _configuration = _scene.GetComponent<Configuration>();
@@ -39,8 +42,10 @@ namespace Assets.Scripts.Classes
             if(_agent != null)
                 _agent.Update();
 
+
         }
 
+        // ReSharper disable once InconsistentNaming
         //necessary since if gameObjects start inactive their associated scripts aren't accessible
         public void SetupUI()
         {
@@ -50,6 +55,15 @@ namespace Assets.Scripts.Classes
             GameObject.Find("CityDaySetup").gameObject.SetActive(false);
             GameObject.Find("RecordingControls").gameObject.SetActive(false);
             GameObject.Find("SceneSelector").gameObject.SetActive(false);
+        }
+
+        //Changes the parent of the screenRecorder script to the new camera
+        public void UpdateApplicationCamera()
+        {
+            if (Camera.main != null)
+            {
+                Camera.main.gameObject.AddComponent(_screenRecorder);
+            }
         }
 
         void OnDrawGizmos()
