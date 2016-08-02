@@ -2,7 +2,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace Assets.Scripts.Scripts.UI
+namespace Assets.Scripts.Scripts
 {
     public class DragCube : MonoBehaviour
     {

@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using Assets.Scripts.Classes;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Layout;
-using Assets.Scripts.Scripts.UI;
 using UnityEngine;
 
-namespace Assets.Scripts
+namespace Assets.Scripts.Scripts.UI
 {
 
     public class PersonalityPageSetup : MonoBehaviour

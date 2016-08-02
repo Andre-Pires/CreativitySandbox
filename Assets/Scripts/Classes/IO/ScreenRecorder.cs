@@ -26,9 +26,6 @@ namespace Assets.Scripts.Classes.IO
         private Rect _rect;
         private Texture2D _image;
 
-        public delegate void OnDestroyEvent();
-        public event OnDestroyEvent OnGameObjectDestroy;
-
         public void Awake()
         {
             
@@ -130,11 +127,6 @@ namespace Assets.Scripts.Classes.IO
         public void Update()
         {
             _rect = new Rect(0, 0, Screen.width, Screen.height);
-        }
-
-        public void OnDestroy()
-        {
-            OnGameObjectDestroy();
         }
 
         public void OnApplicationQuit()
