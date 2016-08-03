@@ -2,6 +2,7 @@
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.IO;
 using Assets.Scripts.Scripts;
+using Assets.Scripts.Scripts.CameraControl;
 using UnityEngine;
 
 namespace Assets.Scripts.Classes
@@ -22,7 +23,9 @@ namespace Assets.Scripts.Classes
             _scene.AddComponent<MicrophoneInput>();
 
             _agent = new Agent.Agent();
-            
+
+            //Camera control script
+            Camera.main.gameObject.AddComponent<ThirdPersonCamera>();
 
             //in order to control what is drawn this script needs to be associated with the camera object
             Camera.main.gameObject.AddComponent<ScreenRecorder>();

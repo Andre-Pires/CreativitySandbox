@@ -3286,7 +3286,6 @@ GameObject:
   - 124: {fileID: 741470665}
   - 92: {fileID: 741470664}
   - 81: {fileID: 741470663}
-  - 114: {fileID: 741470662}
   - 45: {fileID: 741470661}
   m_Layer: 0
   m_Name: Camera
@@ -3317,47 +3316,6 @@ Skybox:
   m_GameObject: {fileID: 741470659}
   m_Enabled: 1
   m_CustomSkybox: {fileID: 2100000, guid: d07d2172e76d3fa429e80a14d2ae3616, type: 2}
---- !u!114 &741470662
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 11483212, guid: 478ab414f5b60644abecab5eb87ebb36,
-    type: 2}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 741470659}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90852fc24c7b5fa47a72a8e71b0de95f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Operational: 1
-  GetInputs: {fileID: 0}
-  LevelCamera: 1
-  ForwardMovementLockEnabled: 1
-  MovementSpeedMagnification: 1
-  WheelMouseMagnification: 5
-  ShiftKeyMagnification: 2
-  ControlKeyMagnification: 0.25
-  RotationMagnification: 2
-  PanLeftRightSensitivity: 1
-  PanUpDownSensitivity: 1
-  MouseRotationSensitivity: 1
-  ForwardDampenRate: 0.99
-  PanningDampenRate: 0.95
-  RotateDampenRate: 0.99
-  MinimumZoom: 20
-  MaximumZoom: 80
-  LockX: 0
-  UseXRange: 0
-  XRangeMin: 0
-  XRangeMax: 0
-  LockY: 0
-  UseYRange: 1
-  YRangeMin: 5
-  YRangeMax: 9999
-  LockZ: 0
-  UseZRange: 0
-  ZRangeMin: 0
-  ZRangeMax: 0
 --- !u!81 &741470663
 AudioListener:
   m_ObjectHideFlags: 0
@@ -6186,6 +6144,10 @@ Prefab:
     - target: {fileID: 112842, guid: 478ab414f5b60644abecab5eb87ebb36, type: 2}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6426562, guid: 478ab414f5b60644abecab5eb87ebb36, type: 2}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 478ab414f5b60644abecab5eb87ebb36, type: 2}

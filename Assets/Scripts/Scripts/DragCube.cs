@@ -86,6 +86,7 @@ namespace Assets.Scripts.Scripts
                 }
             }
 
+            //always ignore the floor where the piece stands on by putting 1
             if(numberOfCollidersHit > 0)
             { 
                 Debug.Log("collided with something");

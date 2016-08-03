@@ -41,8 +41,10 @@ namespace Assets.Scripts.Scripts.Elenesski_Generic_Move_Camera {
         public float PanningDampenRate = 0.95f;
         public float RotateDampenRate = 0.99f;
 
-        private GameObject _hiddenTarget = null;
-        public GameObject LookAtTarget
+        private Vector3 _hiddenTarget = Vector3.zero;
+
+        //TODO might be unecessary
+        public Vector3 LookAtTarget
         {
             get
             {
@@ -63,7 +65,11 @@ namespace Assets.Scripts.Scripts.Elenesski_Generic_Move_Camera {
                 }
             }
         }
-        
+
+        private RaycastHit _hit;
+        private Ray _ray;
+
+
         [Header("Look At")]
         public float MinimumZoom = 20f;
         public float MaximumZoom = 80f;
@@ -140,7 +146,11 @@ namespace Assets.Scripts.Scripts.Elenesski_Generic_Move_Camera {
             GetInputs.Initialize();
         }
 
-        public void Start() {
+        public void Start()
+        {
+
+            LookAtTarget = GameObject.FindGameObjectWithTag("Scenario").transform.position;
+
             if (LookAtTarget == null) {
                 _forward = new Movement(aAmount => gameObject.transform.Translate(Vector3.forward*aAmount), () => ForwardDampenRate);
             } else {
@@ -160,10 +170,20 @@ namespace Assets.Scripts.Scripts.Elenesski_Generic_Move_Camera {
             if (!Operational)
                 return;
 
-            //TODO: I dont know if there isn't a better way of doing this
-            if (LookAtTarget == null)
+            //TODO I don't know if this is the best way to this - rethink it
+            if (Input.GetButtonUp("Fire1"))
             {
-                LookAtTarget = GameObject.FindGameObjectWithTag("Scenario");
+
+                LookAtTarget = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                //Debug.Log(" devia trocar ");
+                /*
+                                _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+                                if (Physics.Raycast(_ray, out _hit, 100))
+                                {
+                                    Debug.Log("trocou para " + _hit.transform.name);
+                                    LookAtTarget = _hit.transform.gameObject;
+                                }*/
             }
 
             GetInputs.QueryInputSystem();
@@ -226,7 +246,7 @@ namespace Assets.Scripts.Scripts.Elenesski_Generic_Move_Camera {
 
             // Lock at object
             if (LookAtTarget != null ) {
-                transform.LookAt(LookAtTarget.transform);
+                transform.LookAt(LookAtTarget);
                 if (gameObject.GetComponent<UnityEngine.Camera>().fieldOfView < MinimumZoom) {
                     ResetMovement();
                     gameObject.GetComponent<UnityEngine.Camera>().fieldOfView = MinimumZoom;

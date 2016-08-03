@@ -30,6 +30,7 @@ namespace Assets.Scripts.Scripts.Elenesski_Generic_Move_Camera {
             }
         }
 
+        
         public virtual void Initialize() {
             RotateActionStart = new Vector2();
             PanActionStart = new Vector2();

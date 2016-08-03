@@ -30,7 +30,12 @@ namespace Assets.Scripts.Scripts.UI
                 //    + Configuration.Instance.AvailableSizes[imageIndex]);
 
                 Sprite sprite = Resources.Load<Sprite>("Images/Agent/" + Configuration.Instance.AvailableSizes[imageIndex]);
-                SizeSelectionButtons[imageIndex].GetComponent<Image>().sprite = sprite;
+                Image buttonImage = SizeSelectionButtons[imageIndex].GetComponent<Image>();
+                buttonImage.sprite = sprite;
+
+                //specific assets may be designed later but for now we tint with each personalities color
+                Color personalityColor = Configuration.Instance.PersonalityColors[Personality];
+                buttonImage.color = new Color(personalityColor.r, personalityColor.g, personalityColor.b, 0.7f);
 
                 Button button = SizeSelectionButtons[imageIndex].GetComponent<Button>();
                 //necessary otherwise all closures would get executed with the last value of the cicle

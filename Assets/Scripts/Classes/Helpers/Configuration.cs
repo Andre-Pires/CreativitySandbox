@@ -34,7 +34,7 @@ namespace Assets.Scripts.Classes.Helpers
             //TODO - change values to appropriate colors
             PersonalityColors = new Dictionary<Personality, Color>()
             {
-                {Personality.Shy, Color.black},
+                {Personality.Shy, Color.blue},
                 {Personality.Sociable, Color.magenta},
                 {Personality.Grumpy, Color.red},
                 {Personality.Friendly, Color.green},
