@@ -160,6 +160,5 @@ namespace Assets.Scripts.Classes.Agent
             _body.OnDrawGizmos();
 
         }
-
     }
 }

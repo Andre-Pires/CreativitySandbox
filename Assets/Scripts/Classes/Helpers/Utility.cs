@@ -39,7 +39,7 @@ namespace Assets.Scripts.Classes.Helpers
 
                 Collider[] hitColliders = Physics.OverlapSphere(position, transform.GetComponent<Renderer>().bounds.extents.magnitude);
 
-                Debug.DrawLine(position, position + (transform.localScale / 2), Color.cyan, 30.0f);
+                //Debug.DrawLine(position, position + (transform.localScale / 2), Color.cyan, 30.0f);
 
                 if (hitColliders.Length <= 1) //You haven't hit someone with a collider here, excluding ours
                 {

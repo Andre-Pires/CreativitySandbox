@@ -9,7 +9,7 @@ namespace Assets.Scripts.Scripts.CameraControl
         private const float MAX_Y_ANGLE = 70.0f;
 
         public Transform LookAtTarget;
-        private UnityEngine.Camera _camera;
+        private Camera _camera;
 
         private float currentDistance = 50.0f;
         private float zoomSensitivity = 50.0f;
@@ -31,6 +31,11 @@ namespace Assets.Scripts.Scripts.CameraControl
 
         private void Update()
         {
+            if (LookAtTarget == null)
+            {
+                LookAtTarget = GameObject.FindGameObjectWithTag("Scenario").transform;
+            }
+
             //negate X in order to move in same direction as mouse
             if (Input.GetButton("Fire2"))
             {
@@ -43,13 +48,11 @@ namespace Assets.Scripts.Scripts.CameraControl
 
             if (Input.GetButtonUp("Fire1"))
             {
-                //LookAtTarget = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
                 _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
                 if (Physics.Raycast(_ray, out _hit, 100))
                 {
-                    Debug.Log("trocou para " + _hit.transform.name);
+                    Debug.Log("New look at: " + _hit.transform.name);
                     LookAtTarget = _hit.transform;
                 }
             }
@@ -57,10 +60,16 @@ namespace Assets.Scripts.Scripts.CameraControl
 
         private void LateUpdate()
         {
-            Vector3 dir = new Vector3(0,0,-currentDistance);
-            Quaternion rotation = Quaternion.Euler(currentY,currentX,0);
-            _camera.transform.position = LookAtTarget.position + rotation*dir;
-            _camera.transform.LookAt(LookAtTarget.position);
+            // to account for the frame where the set changes
+            if (LookAtTarget != null)
+            {
+                Vector3 dir = new Vector3(0,0,-currentDistance);
+                Quaternion rotation = Quaternion.Euler(currentY,currentX,0);
+                _camera.transform.position = LookAtTarget.position + rotation*dir;
+                _camera.transform.LookAt(LookAtTarget.position);
+            }
+            
         }
+
     }
 }

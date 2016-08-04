@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Scripts.UI;
 using UnityEngine;
@@ -21,6 +22,9 @@ namespace Assets.Scripts.Classes.Agent
                 // Start the event listener
                 agentPieceListener.OnSelect += AddNewComponent;
             }
+
+            //provide option to clear agent configuration
+            ClearAgentConfiguration.Instance.OnSelect += EraseCurrentAgent;
             
             _pieces = new List<Piece>();
         }
@@ -35,9 +39,20 @@ namespace Assets.Scripts.Classes.Agent
             _pieces.Add(new Piece("Piece" + _pieces.Count, personality, size));
         }
 
+        public void EraseCurrentAgent()
+        {
+            _pieces.Clear();
+
+            foreach (GameObject agentPiece in GameObject.FindGameObjectsWithTag("Cube"))
+            {
+                Object.Destroy(agentPiece);
+            }
+        }
+
         public void OnDrawGizmos()
         {
             _pieces.ForEach(p => p.OnDrawGizmos());
         }
+
     }
 }
