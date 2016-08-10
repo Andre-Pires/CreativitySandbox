@@ -86,10 +86,16 @@ namespace Assets.Scripts.Scripts.CameraControl
 
             if (lookAtInUse != null)
             {
+                float translationSpeed = 3.0f;  //This will determine translation speed
+                float rotationSpeed = 50.0f;  //This will determine rotation speed
+                float lookAtSpeed = 6.0f;  //This will determine lookAt speed
+
                 Vector3 dir = new Vector3(0, 0, -currentDistance);
-                Quaternion rotation = Quaternion.Euler(currentY, currentX, 0);
-                _camera.transform.position = lookAtInUse.position + rotation * dir;
-                _camera.transform.LookAt(lookAtInUse.position);
+                Quaternion rotation = Quaternion.Slerp(_camera.transform.rotation, Quaternion.Euler(currentY, currentX, 0), rotationSpeed * Time.deltaTime);
+                _camera.transform.position = Vector3.Lerp(_camera.transform.position, lookAtInUse.position + rotation * dir, translationSpeed * Time.deltaTime);
+
+                Vector3 direction = lookAtInUse.position - _camera.transform.position;
+                _camera.transform.rotation = Quaternion.Slerp(_camera.transform.rotation, Quaternion.LookRotation(direction, Vector3.up), lookAtSpeed * Time.deltaTime);
             }
         }
 

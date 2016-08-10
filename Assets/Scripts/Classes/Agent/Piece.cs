@@ -15,6 +15,7 @@ namespace Assets.Scripts.Classes.Agent
         public string Name { get; set; }
         private GameObject _cubeObject;
         private GameObject _root;
+        private float _currentRotation = 0.0f;
         
         private Body _body;
         private Mind _mind;
@@ -85,22 +86,36 @@ namespace Assets.Scripts.Classes.Agent
 
         private void CheckRotationInput()
         {
-            //BUG: will rotate every cube in the scene, just testing rotation before porting to touchscreen
-            if (Input.GetKey("q"))
+
+            if (Input.GetMouseButton(0))
             {
-                float rotationSpeed = 100;  //This will determine max rotation speed, you can adjust in the inspector
-                //Get mouse position
-                Vector3 mousePos = Input.mousePosition;
+                _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-                //Adjust mouse z position
-                mousePos.z = Camera.main.transform.position.y - _cubeObject.transform.position.y;
+                if (Physics.Raycast(_ray, out _hit, 100) && _hit.transform == _cubeObject.transform)
+                {
+                    float lerpSpeed = 100.0f;  //This will determine lerp speed
+                    float rotationSpeed = 50.0f;  //This will determine rotation speed
 
-                //Get a world position for the mouse
-                Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
+                    //Keeping this approach for touch implementation
+                    /*
+                    //Get mouse position
+                    Vector3 mousePos = Input.mousePosition;
 
-                //Get the angle to rotate and rotate
-                float angle = -Mathf.Atan2(_cubeObject.transform.position.z - mouseWorldPos.z, _cubeObject.transform.position.x - mouseWorldPos.x) * Mathf.Rad2Deg;
-                _cubeObject.transform.rotation = Quaternion.Slerp(_cubeObject.transform.rotation, Quaternion.Euler(0, angle, 0), rotationSpeed * Time.deltaTime);
+                    //Adjust mouse z position
+                    mousePos.z = Camera.main.transform.position.y - _cubeObject.transform.position.y;
+
+                    //Get a world position for the mouse
+                    Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
+
+                    //Get the angle to rotate and rotate
+                    Debug.Log("wheel " + Input.GetAxis("Mouse ScrollWheel"));
+                    float angle = -Mathf.Atan2(_cubeObject.transform.position.z - mouseWorldPos.z, _cubeObject.transform.position.x - mouseWorldPos.x) * Mathf.Rad2Deg;
+                    _cubeObject.transform.rotation = Quaternion.Slerp(_cubeObject.transform.rotation, Quaternion.Euler(0, Input.GetAxis("Mouse ScrollWheel") * 50, 0), rotationSpeed * Time.deltaTime);
+                    */
+
+                    _currentRotation += Input.GetAxis("Mouse ScrollWheel") * rotationSpeed;
+                    _cubeObject.transform.rotation = Quaternion.Slerp(_cubeObject.transform.rotation, Quaternion.Euler(0, _currentRotation , 0), lerpSpeed * Time.deltaTime);
+                }
             }
         }
 
