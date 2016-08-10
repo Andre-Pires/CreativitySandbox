@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Classes.Agent;
+using UnityEngine;
 
 namespace Assets.Scripts.Scripts.CameraControl
 {
@@ -10,9 +11,12 @@ namespace Assets.Scripts.Scripts.CameraControl
         private const float MIN_ZOOM = 5.0f;
         private const float MAX_ZOOM = 75.0f;
 
+        private Camera _camera;
         public Transform BirdViewLookAt;
         public Transform CloseUpLookAt;
-        private Camera _camera;
+        private Transform _lookAtInUse;
+        private bool _lookAtChanged = false;
+
         private bool _birdEyeViewActive = true;
         private const float BIRD_EYE_VIEW_DIST = 50.0f;
 
@@ -32,6 +36,7 @@ namespace Assets.Scripts.Scripts.CameraControl
 
             //start looking at the center of the set
             BirdViewLookAt = GameObject.FindGameObjectWithTag("Scenario").transform;
+            _lookAtInUse = BirdViewLookAt;
 
             //register listener from camera mode switch
             UI.ChangeCameraMode.Instance.OnSelect += ChangeCameraMode;
@@ -61,11 +66,15 @@ namespace Assets.Scripts.Scripts.CameraControl
                 if (Input.GetButtonUp("Fire1"))
                 {
                     _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    int layer = 8;
+                    int layerMask = 1 << layer;
 
-                    if (Physics.Raycast(_ray, out _hit, 100))
+                    //if we selected a cube change the look at (layer only considers cubes)
+                    if (Physics.Raycast(_ray, out _hit, 100, layerMask))
                     {
                         Debug.Log("New look at: " + _hit.transform.name);
                         CloseUpLookAt = _hit.transform;
+                        _lookAtChanged = true;
                     }
                 }
             }
@@ -73,18 +82,33 @@ namespace Assets.Scripts.Scripts.CameraControl
 
         private void LateUpdate()
         {
-            Transform lookAtInUse;
 
-            if (_birdEyeViewActive)
+            if (_lookAtChanged)
             {
-                lookAtInUse = BirdViewLookAt;
-            }
-            else
-            {
-                lookAtInUse = CloseUpLookAt ?? BirdViewLookAt;
+                if (_birdEyeViewActive)
+                {
+                    _lookAtInUse = BirdViewLookAt;
+                    _lookAtChanged = false;
+                }
+                else
+                {
+                    _lookAtInUse = CloseUpLookAt ?? BirdViewLookAt;
+                    _lookAtChanged = false;
+                }
+
             }
 
-            if (lookAtInUse != null)
+            //if the lookat isn't static check if it's moving and don't move if it is
+            if (!_birdEyeViewActive && _lookAtInUse.gameObject.GetComponent<Body>() != null)
+            {
+                if (_lookAtInUse.gameObject.GetComponent<Body>().Dragging)
+                {
+                    return;
+                }
+            }
+
+            //only move camera when look at object is stationary
+            if (_lookAtInUse != null)
             {
                 float translationSpeed = 3.0f;  //This will determine translation speed
                 float rotationSpeed = 50.0f;  //This will determine rotation speed
@@ -92,9 +116,9 @@ namespace Assets.Scripts.Scripts.CameraControl
 
                 Vector3 dir = new Vector3(0, 0, -currentDistance);
                 Quaternion rotation = Quaternion.Slerp(_camera.transform.rotation, Quaternion.Euler(currentY, currentX, 0), rotationSpeed * Time.deltaTime);
-                _camera.transform.position = Vector3.Lerp(_camera.transform.position, lookAtInUse.position + rotation * dir, translationSpeed * Time.deltaTime);
+                _camera.transform.position = Vector3.Lerp(_camera.transform.position, _lookAtInUse.position + rotation * dir, translationSpeed * Time.deltaTime);
 
-                Vector3 direction = lookAtInUse.position - _camera.transform.position;
+                Vector3 direction = _lookAtInUse.position - _camera.transform.position;
                 _camera.transform.rotation = Quaternion.Slerp(_camera.transform.rotation, Quaternion.LookRotation(direction, Vector3.up), lookAtSpeed * Time.deltaTime);
             }
         }
@@ -107,6 +131,8 @@ namespace Assets.Scripts.Scripts.CameraControl
             {
                 currentDistance = BIRD_EYE_VIEW_DIST;
             }
+
+            _lookAtChanged = true;
         }
 
     }

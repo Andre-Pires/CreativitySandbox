@@ -90,5 +90,19 @@ namespace Assets.Scripts.Classes.Helpers
             return go.AddComponent<T>().GetCopyOf(toAdd) as T;
         }
 
+        public static GameObject GetChild(GameObject parent, string name)
+        {
+            Component[] transforms = parent.GetComponentsInChildren(typeof(Transform), true);
+
+            foreach (Transform transform in transforms)
+            {
+                if (transform.gameObject.name == name)
+                {
+                    return transform.gameObject;
+                }
+            }
+
+            return null;
+        }
     }
 }

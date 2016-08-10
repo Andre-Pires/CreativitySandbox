@@ -226,7 +226,7 @@ MonoBehaviour:
   m_Script: {fileID: 1980459831, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
@@ -498,8 +498,8 @@ RectTransform:
   m_RootOrder: 1
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 110}
-  m_SizeDelta: {x: 0, y: 120}
+  m_AnchoredPosition: {x: 0, y: 80}
+  m_SizeDelta: {x: 0, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &125684274
 CanvasGroup:
@@ -802,7 +802,7 @@ RectTransform:
   m_RootOrder: 2
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 90, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &188821309
@@ -840,7 +840,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 437.2, y: -6}
-  m_SizeDelta: {x: 78, y: 150}
+  m_SizeDelta: {x: 60, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &188821311
 MonoBehaviour:
@@ -926,8 +926,8 @@ RectTransform:
   m_RootOrder: 1
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 110}
-  m_SizeDelta: {x: 0, y: 80}
+  m_AnchoredPosition: {x: 0, y: 80}
+  m_SizeDelta: {x: 0, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &221482345
 CanvasGroup:
@@ -1638,7 +1638,7 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -100, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &433400696
@@ -3706,8 +3706,8 @@ RectTransform:
   m_RootOrder: 1
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -0.41500092}
+  m_SizeDelta: {x: 0, y: -0.83000183}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &997531177
 GameObject:
@@ -3819,7 +3819,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 80}
+  m_SizeDelta: {x: 0, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &1023787736
 CanvasGroup:
@@ -3963,8 +3963,8 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.628, y: 0.96700007}
-  m_AnchoredPosition: {x: -119.7, y: 15}
-  m_SizeDelta: {x: 239.4, y: 30}
+  m_AnchoredPosition: {x: -95, y: 9.85}
+  m_SizeDelta: {x: 190, y: 19.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1062976828
 MonoBehaviour:
@@ -3985,7 +3985,7 @@ MonoBehaviour:
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 1
-  m_CellSize: {x: 175, y: 175}
+  m_CellSize: {x: 150, y: 150}
   m_Spacing: {x: -75, y: 0}
   m_Constraint: 0
   m_ConstraintCount: 2
@@ -4159,7 +4159,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 37.8}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1151234470
 MonoBehaviour:
@@ -4315,8 +4315,8 @@ RectTransform:
   m_RootOrder: 1
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: 0, y: -36.7}
+  m_SizeDelta: {x: 70, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1196497204
 GameObject:
@@ -5193,7 +5193,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Esolher hora do dia
+  m_Text: Escolher hora do dia
 --- !u!222 &1444298492
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5235,7 +5235,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -437.2, y: -6}
-  m_SizeDelta: {x: 78, y: 150}
+  m_SizeDelta: {x: 60, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1497549731
 MonoBehaviour:
@@ -5370,7 +5370,6 @@ GameObject:
   - 222: {fileID: 1584838444}
   - 114: {fileID: 1584838443}
   - 114: {fileID: 1584838442}
-  - 114: {fileID: 1584838441}
   m_Layer: 5
   m_Name: CloseButton
   m_TagString: Untagged
@@ -5395,34 +5394,8 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -357.29, y: 0}
-  m_SizeDelta: {x: 35, y: 30}
+  m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1584838441
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1584838439}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bb501adc62c7394fae41ae7a6032eb3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  OnButtonPress:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: Assets.Scripts.Utilities.UISelectableExtension+UIButtonEvent, Assembly-CSharp,
-      Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  OnButtonRelease:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: Assets.Scripts.Utilities.UISelectableExtension+UIButtonEvent, Assembly-CSharp,
-      Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  OnButtonHeld:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: Assets.Scripts.Utilities.UISelectableExtension+UIButtonEvent, Assembly-CSharp,
-      Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &1584838442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6501,7 +6474,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 80}
+  m_SizeDelta: {x: 0, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &1993416815
 CanvasGroup:
@@ -6873,8 +6846,8 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -60.86}
-  m_SizeDelta: {x: 0, y: 121.72}
+  m_AnchoredPosition: {x: 0, y: -45}
+  m_SizeDelta: {x: 60, y: 90}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2092805912
 MonoBehaviour:
@@ -6906,7 +6879,7 @@ MonoBehaviour:
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: "Modo da c\xE2mara"
 --- !u!222 &2092805913
@@ -6950,8 +6923,8 @@ RectTransform:
   m_RootOrder: 3
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -433.25, y: 240}
-  m_SizeDelta: {x: 80, y: 80}
+  m_AnchoredPosition: {x: -350, y: 190}
+  m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2137694918
 MonoBehaviour:

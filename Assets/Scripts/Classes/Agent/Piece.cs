@@ -41,7 +41,9 @@ namespace Assets.Scripts.Classes.Agent
             _cubeObject = Object.Instantiate(Resources.Load("Prefabs/Cube")) as GameObject;
             SetupPiecePrefab(_cubeObject);
 
-            _body = new Body(size, _cubeObject.transform);
+            _cubeObject.AddComponent<Body>();
+            _body = _cubeObject.GetComponent<Body>();
+            _body.Init(size, _cubeObject.transform);
             _mind = new Mind(personality, _body);
         }
 
@@ -53,10 +55,7 @@ namespace Assets.Scripts.Classes.Agent
                 cubePrefab.name = Name;
                 cubePrefab.tag = "Cube";
                 cubePrefab.transform.parent = _root.transform;
-                cubePrefab.gameObject.AddComponent<DragCube>();
-                _speechButton = GetChild(cubePrefab, "Button").transform;
-
-                
+                _speechButton = Utility.GetChild(cubePrefab, "Button").transform;
 
                 //get recording script
                 _micInput = _root.GetComponent<MicrophoneInput>();
@@ -151,29 +150,12 @@ namespace Assets.Scripts.Classes.Agent
             }
         }
 
-        private GameObject GetChild(GameObject parent, string name)
-        {
-            Component[] transforms = parent.GetComponentsInChildren(typeof(Transform), true);
-
-            foreach (Transform transform in transforms)
-            {
-                if (transform.gameObject.name == name)
-                {
-                    return transform.gameObject;
-                }
-            }
-
-            return null;
-        }
-
         public void OnDrawGizmos()
         {
             /*
             Gizmos.color = new Color(1, 0, 0, 0.5F);
             Gizmos.DrawCube(cubeObject.transform.position + Vector3.up * 10, new Vector3(1, 1, 1));
             */
-            _body.OnDrawGizmos();
-
         }
     }
 }
