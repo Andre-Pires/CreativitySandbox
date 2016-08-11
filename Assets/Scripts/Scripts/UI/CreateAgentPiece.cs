@@ -29,7 +29,8 @@ namespace Assets.Scripts.Scripts.UI
                 //SizeSelectionButtons[imageIndex].GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Agent/" + Personality.ToString()
                 //    + Configuration.Instance.AvailableSizes[imageIndex]);
 
-                Sprite sprite = Resources.Load<Sprite>("Images/Agent/" + Configuration.Instance.AvailableSizes[imageIndex]);
+                Configuration.Size buttonSize = (Configuration.Size) imageIndex;
+                Sprite sprite = Resources.Load<Sprite>("Images/Agent/" + buttonSize);
                 Image buttonImage = SizeSelectionButtons[imageIndex].GetComponent<Image>();
                 buttonImage.sprite = sprite;
 
@@ -40,7 +41,7 @@ namespace Assets.Scripts.Scripts.UI
                 Button button = SizeSelectionButtons[imageIndex].GetComponent<Button>();
                 //necessary otherwise all closures would get executed with the last value of the cicle
                 var index = imageIndex;
-                button.onClick.AddListener(() => OnSelect(Personality, Configuration.Instance.AvailableSizes[index]));
+                button.onClick.AddListener(() => OnSelect(Personality, buttonSize));
             }
 
             PageTitle.GetComponent<Text>().text = Constants.Instance.GetPersonalityString(Personality);

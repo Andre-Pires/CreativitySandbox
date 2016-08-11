@@ -8,7 +8,6 @@ namespace Assets.Scripts.Classes.Agent
 {
     public class Body : MonoBehaviour
     {
-        private float[] _sizeMultiplier = {2.0f, 4.5f, 6.0f};
         private Configuration.Size _size;
         private Transform _body;
         private const float InitialPlacementRadius = 26.0f;
@@ -33,7 +32,7 @@ namespace Assets.Scripts.Classes.Agent
             _body = body;
        
             //using size's enum index to select correct multiplier
-            _body.localScale = Vector3.one*_sizeMultiplier[(int) size];
+            _body.localScale = Vector3.one* Configuration.Instance.AvailableSizes[size];
 
             //place cube in a vacant position in the set
             Utility.PlaceNewGameObject(_body, Vector3.zero, InitialPlacementRadius);

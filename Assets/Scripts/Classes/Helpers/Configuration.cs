@@ -10,7 +10,7 @@ namespace Assets.Scripts.Classes.Helpers
         public enum BlinkingSpeed { Stopped, VerySlow, Slow, Normal, Fast, VeryFast }
 
         public List<Personality> AvailablePersonalities;
-        public List<Size> AvailableSizes;
+        public Dictionary<Size, float> AvailableSizes;
         public Dictionary<BlinkingSpeed, float> AvailableBlinkingSpeeds;
         public Dictionary<Personality, Color> PersonalityColors;
         public Dictionary<Personality, BlinkingSpeed> PersonalityBlinkingSpeeds;
@@ -54,7 +54,14 @@ namespace Assets.Scripts.Classes.Helpers
                 {Personality.Imaginative, BlinkingSpeed.VeryFast},
                 {Personality.Foreigner, BlinkingSpeed.Normal}
             };
-        }
+
+            AvailableSizes = new Dictionary<Size, float>()
+            {
+                {Size.Small, 3.0f },
+                {Size.Medium, 4.5f },
+                {Size.Large, 6.0f },
+            };
+    }
 
         //  Instance 	
         public static Configuration Instance

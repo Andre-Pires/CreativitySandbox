@@ -47,6 +47,7 @@ namespace Assets.Scripts.Scripts.CameraControl
             if (BirdViewLookAt == null)
             {
                 BirdViewLookAt = GameObject.FindGameObjectWithTag("Scenario").transform;
+                _lookAtChanged = true;
             }
 
             //negate X in order to move in same direction as mouse
@@ -120,6 +121,10 @@ namespace Assets.Scripts.Scripts.CameraControl
 
                 Vector3 direction = _lookAtInUse.position - _camera.transform.position;
                 _camera.transform.rotation = Quaternion.Slerp(_camera.transform.rotation, Quaternion.LookRotation(direction, Vector3.up), lookAtSpeed * Time.deltaTime);
+            }
+            else
+            {
+                Debug.Log("lookAt is null");
             }
         }
 
