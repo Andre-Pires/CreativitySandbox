@@ -32,7 +32,7 @@ namespace Assets.Scripts.Classes.Agent
         {
             Color color = Configuration.Instance.PersonalityColors[_personality];
             Configuration.BlinkingSpeed blinkingSpeed = Configuration.Instance.PersonalityBlinkingSpeeds[_personality];
-            _body.SetBlinkingSpeed(color, blinkingSpeed);
+            _body.SetupBehavior(color, blinkingSpeed);
         }
     }
 }

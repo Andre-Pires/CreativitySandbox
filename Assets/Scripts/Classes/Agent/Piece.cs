@@ -27,9 +27,7 @@ namespace Assets.Scripts.Classes.Agent
         private int _currentClipIndex = 0;
 
         // Check for mouse input for speech recording
-        private RaycastHit _hit;
         private Transform _speechButton;
-        private Ray _ray;
 
         public Piece(string name, Configuration.Personality personality, Configuration.Size size)
         {
@@ -88,9 +86,7 @@ namespace Assets.Scripts.Classes.Agent
 
             if (Input.GetMouseButton(0))
             {
-                _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-                if (Physics.Raycast(_ray, out _hit, 100) && _hit.transform == _cubeObject.transform)
+                if (Utility.Instance.CheckIfClicked(_cubeObject.transform))
                 {
                     float lerpSpeed = 100.0f;  //This will determine lerp speed
                     float rotationSpeed = 50.0f;  //This will determine rotation speed
@@ -122,9 +118,7 @@ namespace Assets.Scripts.Classes.Agent
         {
             if (!Microphone.IsRecording(_micInput.SelectedDevice) && Input.GetMouseButtonDown(0))
             {
-                _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-                if (Physics.Raycast(_ray, out _hit, 100) && _hit.transform == _speechButton)
+                if (Utility.Instance.CheckIfClicked(_speechButton))
                 {
                     _micInput.StartMicrophone();
                 }
@@ -132,10 +126,8 @@ namespace Assets.Scripts.Classes.Agent
 
             if (Input.GetMouseButtonUp(0))
             {
-                _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-                if (Physics.Raycast(_ray, out _hit, 100) && _hit.transform == _speechButton)
-                {
+                if (Utility.Instance.CheckIfClicked(_speechButton))
+                { 
                     _micInput.StopMicrophone(Name + _currentClipIndex);
                     _clips.Insert(_currentClipIndex, _micInput.GetLastRecording());
                     _currentClipIndex = (_currentClipIndex + 1) % _maxNumberOfStoredClips;

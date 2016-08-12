@@ -7,7 +7,8 @@ namespace Assets.Scripts.Classes.Helpers
     {
         public enum Personality { Shy, Sociable, Grumpy, Friendly, Realist, Imaginative, Foreigner }
         public enum Size { Small, Medium, Large }
-        public enum BlinkingSpeed { Stopped, VerySlow, Slow, Normal, Fast, VeryFast }
+        public enum BlinkingSpeed { VerySlow, Slow, Normal, Fast, VeryFast }
+        public enum BlinkingStatus { Stopped, Positive, Negative }
 
         public List<Personality> AvailablePersonalities;
         public Dictionary<Size, float> AvailableSizes;
@@ -28,7 +29,6 @@ namespace Assets.Scripts.Classes.Helpers
                 { BlinkingSpeed.Normal, 1.0f},
                 { BlinkingSpeed.Slow, 1.5f},
                 { BlinkingSpeed.VerySlow, 3.0f},
-                { BlinkingSpeed.Stopped, 0.0f}
             };
 
             //TODO - change values to appropriate colors

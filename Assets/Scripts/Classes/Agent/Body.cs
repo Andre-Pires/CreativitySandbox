@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Scripts.UI;
@@ -12,19 +13,28 @@ namespace Assets.Scripts.Classes.Agent
         private Transform _body;
         private const float InitialPlacementRadius = 26.0f;
 
-        private Color _standardColor = Color.white;
-        private Color _blinkColor = Color.white;
-        private Configuration.BlinkingSpeed _currentBlinkSpeed = Configuration.BlinkingSpeed.Stopped;
+        //blinking and color
+        private Color _negativeColor = Color.black;
+        private Color _positiveColor = Color.white;
+        private Color _pieceColor = Color.white;
+        private Configuration.BlinkingSpeed _currentBlinkSpeed = Configuration.BlinkingSpeed.VerySlow;
+        private Configuration.BlinkingStatus _currentBlinkStatus = Configuration.BlinkingStatus.Stopped;
 
         //dragging fields
         private float _distanceToDragPlane;
         public bool Dragging;
         private Plane _dragPlane;
         private Vector3 _dragPlaneNormal = Vector3.up;
-        private RaycastHit _hit;
         private Transform _objectToDrag;
         private Ray _ray;
+
+
         private List<Collider> _collidersToIgnore;
+
+        //double click - change color
+        private bool _singleClick;
+        private float _initialTime;
+        private float _interval = 1.0f;
 
         public void Init(Configuration.Size size, Transform body)
         {
@@ -47,35 +57,80 @@ namespace Assets.Scripts.Classes.Agent
 
         public void Update()
         {
-            if (_currentBlinkSpeed != Configuration.BlinkingSpeed.Stopped)
-            {
-                Blink();
-            }
-
+            
+            Blink();
             HandleDragging();
         }
 
-        public void SetBlinkingSpeed(Color blinkColor, Configuration.BlinkingSpeed speed)
+        public void LateUpdate()
         {
-            _blinkColor = blinkColor;
+            CheckBlinkChange();
+        }
+
+        public void SetupBehavior(Color pieceColor, Configuration.BlinkingSpeed speed)
+        {
+            _pieceColor = pieceColor;
+            _body.GetComponent<Renderer>().material.color = _pieceColor;
             _currentBlinkSpeed = speed;
         }
 
         private void Blink()
         {
-            float duration = Configuration.Instance.AvailableBlinkingSpeeds[_currentBlinkSpeed];
-            float lerp = Mathf.PingPong(Time.time, duration) / duration;
-            _body.GetComponent<Renderer>().material.color = Color.Lerp(_standardColor, _blinkColor, lerp);
+            if (_currentBlinkStatus != Configuration.BlinkingStatus.Stopped)
+            {
+                Color colorToUse = _currentBlinkStatus == Configuration.BlinkingStatus.Positive ? _positiveColor : _negativeColor;
+                float duration = Configuration.Instance.AvailableBlinkingSpeeds[_currentBlinkSpeed];
+                float lerp = Mathf.PingPong(Time.time, duration) / duration;
+                _body.GetComponent<Renderer>().material.color = Color.Lerp(_pieceColor, colorToUse, lerp);
+            }
         }
 
+        private void ToggleBlinking()
+        {
+            int enumLength = Enum.GetNames(typeof(Configuration.BlinkingStatus)).Length;
+            int newStatus = ((int)_currentBlinkStatus + 1) %enumLength;
+            _currentBlinkStatus = (Configuration.BlinkingStatus) newStatus;
+
+            //always reset color to eliminate inconsistencies
+            _body.GetComponent<Renderer>().material.color = _pieceColor;
+        }
+
+        private void CheckBlinkChange()
+        {
+            //layer that contains only the cube itself
+            int layer = 8;
+            int layerMask = 1 << layer;
+
+            if (_singleClick)
+            {
+                if (Time.time - _initialTime > _interval)
+                {
+                    _singleClick = false;
+                }
+                else if (Input.GetMouseButtonDown(0))
+                {
+                    if(Utility.Instance.CheckIfClicked(_body, layerMask));
+                    { 
+                        _singleClick = false;
+                        ToggleBlinking();
+                    }
+                }
+            }
+            else if (Input.GetMouseButtonDown(0))
+            {
+                if (Utility.Instance.CheckIfClicked(_body, layerMask))
+                {
+                    _singleClick = true;
+                    _initialTime = Time.time;
+                }
+            }
+        }
 
         private void HandleDragging()
         {
             if (Input.GetMouseButtonDown(0))
             {
-                _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-                if (Physics.Raycast(_ray, out _hit, 100) && _hit.transform == _objectToDrag)
+                if(Utility.Instance.CheckIfClicked(_objectToDrag))
                 {
                     Dragging = true;
                     _dragPlane = new Plane(_dragPlaneNormal, _objectToDrag.position);
