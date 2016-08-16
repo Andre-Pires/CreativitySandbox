@@ -3,6 +3,7 @@
 /// Updated by ddreaper - removed dependency on a custom ScrollRect script. Now implements drag interfaces and standard Scroll Rect.
 
 using System;
+using Assets.Scripts.Classes.Helpers;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -292,7 +293,7 @@ namespace Assets.Scripts.Layout
         public void AddChild(GameObject GO)
         {
             _scroll_rect.horizontalNormalizedPosition = 0;
-            GO.transform.SetParent(_screensContainer);
+            GO.transform.SetParent(_screensContainer, false);
             DistributePages();
 
             _scroll_rect.horizontalNormalizedPosition = (float)(_currentScreen) / (_screens - 1);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Globalization;
 using System.IO;
 using Assets.Scripts.Scripts.UI;
@@ -10,15 +11,15 @@ namespace Assets.Scripts.Classes.IO
     {
         public float OverlayOpacity = 0.2f;
         private string _fileName = "default";
-        private string _filePath = "../" + AppDomain.CurrentDomain.BaseDirectory + "/StopMotion/";
-        private string _fileExtension = ".png";
+        private string _filePath;
+        private string _fileExtension = ".jpg";
 
         private int _numberOfShots = 0;
         private bool _recording = false;
         private bool _readySingleShot = false;
         private float _startShotTime = 0;
         public float ShotInterval = 0.8f;
-        Texture2D _latestScreenshot;
+        private Texture2D _latestScreenshot;
 
         private Canvas _canvas;
 
@@ -28,7 +29,12 @@ namespace Assets.Scripts.Classes.IO
 
         public void Awake()
         {
-            
+            #if UNITY_ANDROID
+                        _filePath = "sdcard/StopMotion/";
+            #endif
+            #if UNITY_STANDALONE || UNITY_EDITOR
+                        _filePath = "../" + AppDomain.CurrentDomain.BaseDirectory + "/StopMotion/";
+            #endif
             TakeSnapshot.Instance.OnSelect += TakeSingleSnapshot;
             StartVideoRecording.Instance.OnSelect += StartRecordingMovie;
             PauseVideoRecording.Instance.OnSelect += PauseRecordingMovie;
@@ -42,6 +48,8 @@ namespace Assets.Scripts.Classes.IO
             // arrange snapshots in different folders
             _filePath = _filePath + "video(" + DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss", CultureInfo.InvariantCulture) +")/";
             Directory.CreateDirectory(_filePath);
+
+            Debug.Log("Path" + _filePath);
         }
 
         private void ClearEmptyDirectories()
@@ -82,9 +90,14 @@ namespace Assets.Scripts.Classes.IO
 
         public void ClearMovieRecordings()
         {
-            for (int shotIndex = 0; shotIndex < _numberOfShots; shotIndex++)
+            DirectoryInfo directory = new DirectoryInfo(_filePath);
+            foreach (FileInfo file in directory.GetFiles())
             {
-                Directory.Delete(_filePath + _fileName + shotIndex + _fileExtension, true);
+                file.Delete();
+            }
+            foreach (DirectoryInfo dir in directory.GetDirectories())
+            {
+                dir.Delete(true);
             }
 
             _numberOfShots = 0;
@@ -96,10 +109,10 @@ namespace Assets.Scripts.Classes.IO
             if (_recording && Time.time - _startShotTime >= ShotInterval)
             {
                 _canvas.enabled = false;
-                CaptureScreenshot();
+                _numberOfShots++;
+               CaptureScreenshot();
                 _canvas.enabled = true;
                 _startShotTime = Time.time;
-                _numberOfShots++;
             }
 
             if (_readySingleShot)
@@ -114,14 +127,24 @@ namespace Assets.Scripts.Classes.IO
 
         private void CaptureScreenshot()
         {
+           
             //takes the screenshot, but doesn't save a file. It's stored as a Texture2D instead
             _latestScreenshot = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
             _latestScreenshot.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
             _latestScreenshot.Apply();
             //saves a PNG file to the path specified above
-            byte[] bytes = _latestScreenshot.EncodeToPNG();
-            File.WriteAllBytes(_filePath + _fileName + _numberOfShots + _fileExtension, bytes);
+            string fileName = _filePath + _fileName + _numberOfShots + _fileExtension;
+            byte[] bytes = _latestScreenshot.EncodeToJPG(80);
+
+            new System.Threading.Thread(() =>
+            {
+                File.WriteAllBytes(fileName, bytes);
+                System.Threading.Thread.Sleep(100);
+            }).Start();
+
+            Debug.Log(string.Format("Took screenshot to: {0}", fileName));
         }
+
 
         // constantly doing this, should only do on screen resize
         public void Update()
