@@ -33,10 +33,10 @@ namespace Assets.Scripts.Scripts.CameraControl
 
         //touch specific fields
         private Touch _touch;
-        private float touchDist = 0;
+        private float _touchDist = 0;
         private float _touchSensitivityX = 60.0f;
         private float _touchSensitivityY = 50.0f;
-        private float _touchZoomSensitivity = 35.0f;
+        private float _touchZoomSensitivity = 25.0f;
 
         //the two fingers must be close to each other to activate orbiting the camera
         private float _touchOrbitDist = 400.0f;
@@ -44,6 +44,11 @@ namespace Assets.Scripts.Scripts.CameraControl
         private void Start()
         {
             _camera = Camera.main;
+
+            //in order to reduce the load of taking very high resolution screenshots in higher res devices
+            #if UNITY_ANDROID
+                Screen.SetResolution(Mathf.Min(1920, Screen.width), Mathf.Min(1080, Screen.height), true);
+            #endif
 
             //start looking at the center of the set
             BirdViewLookAt = GameObject.FindGameObjectWithTag("Scenario").transform;
@@ -109,17 +114,17 @@ namespace Assets.Scripts.Scripts.CameraControl
 
                     float dist = Vector2.Distance(touch1.position, touch2.position);
 
-                    if (dist > touchDist)
+                    if (dist > _touchDist)
                     {
-                        currentDistance -= Vector2.Distance(touch1.deltaPosition, touch2.deltaPosition) * zoomSensitivity / 10;
+                        currentDistance -= Vector2.Distance(touch1.deltaPosition, touch2.deltaPosition) * _touchZoomSensitivity / 10;
                     }
                     else
                     {
-                        currentDistance += Vector2.Distance(touch1.deltaPosition, touch2.deltaPosition) * zoomSensitivity / 10;
+                        currentDistance += Vector2.Distance(touch1.deltaPosition, touch2.deltaPosition) * _touchZoomSensitivity / 10;
                     }
 
                     currentDistance = Mathf.Clamp(currentDistance, MIN_ZOOM, MAX_ZOOM);
-                    touchDist = dist;
+                    _touchDist = dist;
 
                 }
             }

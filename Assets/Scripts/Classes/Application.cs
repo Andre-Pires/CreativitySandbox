@@ -44,7 +44,8 @@ namespace Assets.Scripts.Classes
             if(_agent != null)
                 _agent.Update();
 
-
+            if (Input.GetKeyDown(KeyCode.Escape))
+                UnityEngine.Application.Quit();
         }
 
         // ReSharper disable once InconsistentNaming

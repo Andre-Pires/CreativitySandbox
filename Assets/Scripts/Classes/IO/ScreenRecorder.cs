@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Globalization;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using Assets.Scripts.Scripts.UI;
 using UnityEngine;
 
@@ -9,10 +11,12 @@ namespace Assets.Scripts.Classes.IO
 {
     public class ScreenRecorder : MonoBehaviour
     {
+
         public float OverlayOpacity = 0.2f;
-        private string _fileName = "default";
+        private const string FileName = "image";
+        private const string FileExtension = ".jpg";
+        private const string TextureExtension = ".t2d";
         private string _filePath;
-        private string _fileExtension = ".jpg";
 
         private int _numberOfShots = 0;
         private bool _recording = false;
@@ -39,7 +43,8 @@ namespace Assets.Scripts.Classes.IO
             StartVideoRecording.Instance.OnSelect += StartRecordingMovie;
             PauseVideoRecording.Instance.OnSelect += PauseRecordingMovie;
             ClearVideoRecordings.Instance.OnSelect += ClearMovieRecordings;
-            
+            SaveVideoRecordings.Instance.OnSelect += EncodeRecordedImages;
+
             _canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
 
             //clear empty directories
@@ -125,24 +130,27 @@ namespace Assets.Scripts.Classes.IO
             }
         }
 
+        
         private void CaptureScreenshot()
         {
-           
+
             //takes the screenshot, but doesn't save a file. It's stored as a Texture2D instead
             _latestScreenshot = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
             _latestScreenshot.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
             _latestScreenshot.Apply();
             //saves a PNG file to the path specified above
-            string fileName = _filePath + _fileName + _numberOfShots + _fileExtension;
-            byte[] bytes = _latestScreenshot.EncodeToJPG(80);
+            /*string fileName = _filePath + _fileName + _numberOfShots + _fileExtension;
+            byte[] bytes = _latestScreenshot.EncodeToJPG(80);*/
+
+            //TODO - use this code if storing images only when specified
+            string fileName = _filePath + FileName + _numberOfShots + TextureExtension;
+            byte[] bytes = _latestScreenshot.GetRawTextureData();
 
             new System.Threading.Thread(() =>
             {
                 File.WriteAllBytes(fileName, bytes);
                 System.Threading.Thread.Sleep(100);
             }).Start();
-
-            Debug.Log(string.Format("Took screenshot to: {0}", fileName));
         }
 
 
@@ -161,6 +169,37 @@ namespace Assets.Scripts.Classes.IO
             ClearVideoRecordings.Instance.OnSelect -= ClearMovieRecordings;
         }
 
+        public void EncodeRecordedImages()
+        {
+            DirectoryInfo directory = new DirectoryInfo(_filePath);
+            Texture2D t = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+            int currentShot = 0;
+            foreach (FileInfo file in directory.GetFiles())
+            {
+                //ignore alreadt encoded screenshots
+                if (Path.GetExtension(file.DirectoryName + file.Name) == FileExtension)
+                {
+                    continue;
+                }
+
+                t.LoadRawTextureData(File.ReadAllBytes(_filePath + file.Name));
+                byte[] bytes = t.EncodeToJPG();
+
+                //extracting the index of the current file
+                string resultString = Regex.Match(file.Name, @"\d+").Value;
+                var shot = Int32.Parse(resultString);
+                new System.Threading.Thread(() =>
+                {
+                    File.WriteAllBytes(_filePath + FileName + shot + FileExtension, bytes);
+                    System.Threading.Thread.Sleep(100);
+                }).Start();
+                file.Delete();
+
+                currentShot++;
+            }
+            Debug.Log(string.Format("Took " + currentShot+ " screenshot(s) to: {0}", _filePath));
+        }
+
         // ReSharper disable once InconsistentNaming
         public void OnGUI()
         {
@@ -171,5 +210,7 @@ namespace Assets.Scripts.Classes.IO
                 GUI.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
             }
         }
+
+
     }
 }
