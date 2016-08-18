@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Assets.Scripts.Classes.IO
 {
@@ -17,7 +18,8 @@ namespace Assets.Scripts.Classes.IO
         public MicActivation MicControl = MicActivation.HoldToSpeak;
 
         public string FileName = "default";
-        public string FilePath = "Assets/Resources/Sounds/";
+        public string FilePath;
+        
         public float Sensitivity = 100;
         public float RamFlushSpeed = 30;//The smaller the number the faster it flush's the ram, but there might be performance issues...
         [Range(0, 100)]
@@ -36,6 +38,14 @@ namespace Assets.Scripts.Classes.IO
 
         void Start()
         {
+
+            #if UNITY_ANDROID
+                FilePath = UnityEngine.Application.persistentDataPath + "/ProjectData/Sounds/";
+            #endif
+
+            #if UNITY_STANDALONE || UNITY_EDITOR
+            FilePath = "../" + AppDomain.CurrentDomain.BaseDirectory + "/ProjectData/Sounds/";
+            #endif
             Debug.Log("Mic setup - OK");
             _audio = gameObject.GetComponent<AudioSource>();
             _audio.loop = true; // Set the AudioClip to loop
@@ -82,6 +92,8 @@ namespace Assets.Scripts.Classes.IO
             if ((_minFreq + _maxFreq) == 0)//These 2 lines of code are mainly for windows computers
                 _maxFreq = 44100;
         }
+
+
 
         public void StartMicrophone()
         {

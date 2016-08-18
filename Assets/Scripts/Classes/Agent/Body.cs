@@ -21,20 +21,17 @@ namespace Assets.Scripts.Classes.Agent
         private Configuration.BlinkingStatus _currentBlinkStatus = Configuration.BlinkingStatus.Stopped;
 
         //dragging fields
-        private float _distanceToDragPlane;
         public bool Dragging;
-        private Plane _dragPlane;
-        private Vector3 _dragPlaneNormal = Vector3.up;
         private Transform _objectToDrag;
-        private Ray _ray;
+        private Vector3 _distance;
 
 
         private List<Collider> _collidersToIgnore;
 
         //double click - change color
-        private bool _singleClick;
+        private bool _firstClick;
         private float _initialTime;
-        private float _interval = 1.0f;
+        private float _interval = 0.6f;
 
         public void Init(Configuration.Size size, Transform body)
         {
@@ -101,26 +98,26 @@ namespace Assets.Scripts.Classes.Agent
             int layer = 8;
             int layerMask = 1 << layer;
 
-            if (_singleClick)
+            if (_firstClick)
             {
                 if (Time.time - _initialTime > _interval)
                 {
-                    _singleClick = false;
+                    _firstClick = false;
                 }
-                else if (Input.GetMouseButtonDown(0))
+                else if (Input.GetMouseButtonUp(0))
                 {
-                    if(Utility.Instance.CheckIfClicked(_body, layerMask));
+                    if(Utility.Instance.CheckIfClicked(_body, layerMask))
                     { 
-                        _singleClick = false;
+                        _firstClick = false;
                         ToggleBlinking();
                     }
                 }
             }
-            else if (Input.GetMouseButtonDown(0))
+            else if (Input.GetMouseButtonUp(0))
             {
                 if (Utility.Instance.CheckIfClicked(_body, layerMask))
                 {
-                    _singleClick = true;
+                    _firstClick = true;
                     _initialTime = Time.time;
                 }
             }
@@ -133,43 +130,28 @@ namespace Assets.Scripts.Classes.Agent
                 if(Utility.Instance.CheckIfClicked(_objectToDrag))
                 {
                     Dragging = true;
-                    _dragPlane = new Plane(_dragPlaneNormal, _objectToDrag.position);
+                    _distance = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y,
+                        Camera.main.WorldToScreenPoint(transform.position).z)) - transform.position;
                 }
             }
 
             if (Input.GetMouseButton(0))
             {
-                _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Dragging)
                 {
-                    if (_dragPlane.Raycast(_ray, out _distanceToDragPlane))
-                    {
-                        Vector3 futurePos = _ray.GetPoint(_distanceToDragPlane);
+                    Vector3 distanceToScreen = Camera.main.WorldToScreenPoint(transform.position);
+                    Vector3 posMove = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, distanceToScreen.z));
 
-                        if (!IsColliding(futurePos))
-                            _objectToDrag.position = futurePos;
-                    }
+                    Vector3 futurePos = new Vector3(posMove.x - _distance.x, transform.position.y, posMove.z - _distance.z);
+
+                    if (!IsColliding(futurePos))
+                        _objectToDrag.position = futurePos;
                 }
             }
 
             if (Input.GetMouseButtonUp(0))
             {
                 Dragging = false;
-            }
-
-            if (Input.GetKeyDown(KeyCode.Z))
-            {
-                _dragPlaneNormal = Vector3.forward;
-            }
-
-            if (Input.GetKeyDown(KeyCode.X))
-            {
-                _dragPlaneNormal = Vector3.right;
-            }
-
-            if (Input.GetKeyDown(KeyCode.Y))
-            {
-                _dragPlaneNormal = Vector3.up;
             }
         }
 

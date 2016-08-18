@@ -56,6 +56,7 @@ namespace Assets.Scripts.Classes
             GameObject.Find("AgentSetup").gameObject.SetActive(false);
             GameObject.Find("ForestDaySetup").gameObject.SetActive(false);
             GameObject.Find("CityDaySetup").gameObject.SetActive(false);
+            GameObject.Find("Pause").gameObject.SetActive(false);
             GameObject.Find("RecordingControls").gameObject.SetActive(false);
             GameObject.Find("SceneSelector").gameObject.SetActive(false);
         }

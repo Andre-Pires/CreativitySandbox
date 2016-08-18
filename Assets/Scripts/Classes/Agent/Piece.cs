@@ -29,6 +29,12 @@ namespace Assets.Scripts.Classes.Agent
         // Check for mouse input for speech recording
         private Transform _speechButton;
 
+        //double click - play recordings
+        private bool _firstClick;
+        private float _initialTime;
+        private float _interval = 0.6f;
+        private bool _clickForStartStop = false;
+
         public Piece(string name, Configuration.Personality personality, Configuration.Size size)
         {
             Debug.Log("New agent part added: part " + name + ". " + size + " size and " + personality + " personality");
@@ -76,7 +82,7 @@ namespace Assets.Scripts.Classes.Agent
             _mind.Update();
             _body.Update();
 
-            CheckSoundInputStatus();
+            HandleSoundInputStatus();
             CheckRotationInput();
             
         }
@@ -114,32 +120,59 @@ namespace Assets.Scripts.Classes.Agent
             }
         }
 
-        private void CheckSoundInputStatus()
+        private void HandleSoundInputStatus()
         {
-            if (!Microphone.IsRecording(_micInput.SelectedDevice) && Input.GetMouseButtonDown(0))
+            // On double click play recorded messages
+            if (_firstClick)
             {
-                if (Utility.Instance.CheckIfClicked(_speechButton))
+                if (Time.time - _initialTime > _interval)
                 {
-                    _micInput.StartMicrophone();
+                    _firstClick = false;
+                    _clickForStartStop = true;
+                }
+                else if (Input.GetMouseButtonDown(0) && Utility.Instance.CheckIfClicked(_speechButton))
+                {
+                    _firstClick = false;
+
+                    if (!_clipPlayer.isPlaying && _clips.Count > 0)
+                    {
+                        _clipPlayer.clip = _clips[Random.Range(0, _clips.Count)];
+                        _clipPlayer.Play();
+                        Debug.Log("Playing recording");
+                    }
+
+                    return;
                 }
             }
-
-            if (Input.GetMouseButtonUp(0))
+            else if (Input.GetMouseButtonDown(0) && Utility.Instance.CheckIfClicked(_speechButton))
             {
-                if (Utility.Instance.CheckIfClicked(_speechButton))
-                { 
+                _firstClick = true;
+                _initialTime = Time.time;
+
+                return;
+            }
+            
+
+            // Single click to stop and start recording
+            if (_clickForStartStop || Input.GetMouseButtonDown(0) && Utility.Instance.CheckIfClicked(_speechButton))
+            {
+                if (!Microphone.IsRecording(_micInput.SelectedDevice))
+                {
+                    _micInput.StartMicrophone();
+                    Debug.Log("Started recording");
+                }
+                else
+                {
                     _micInput.StopMicrophone(Name + _currentClipIndex);
                     _clips.Insert(_currentClipIndex, _micInput.GetLastRecording());
                     _currentClipIndex = (_currentClipIndex + 1) % _maxNumberOfStoredClips;
+                    Debug.Log("Stopped recording");
                 }
+
+                _clickForStartStop = false;
             }
 
-            //BUG: Only for testing, its firing on every cube even if they didn't record anything, just testing 
-            if (Input.GetKey("p") && !_clipPlayer.isPlaying && _clips.Count > 0)
-            {
-                _clipPlayer.clip = _clips[Random.Range(0, _clips.Count)];
-                _clipPlayer.Play();
-            }
+            
         }
 
         public void OnDrawGizmos()

@@ -138,11 +138,11 @@ namespace Assets.Scripts.Classes.IO
             _latestScreenshot = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
             _latestScreenshot.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
             _latestScreenshot.Apply();
-            //saves a PNG file to the path specified above
+            
+            //TODO - rollback if needed - saves a PNG file to the path specified above
             /*string fileName = _filePath + _fileName + _numberOfShots + _fileExtension;
             byte[] bytes = _latestScreenshot.EncodeToJPG(80);*/
 
-            //TODO - use this code if storing images only when specified
             string fileName = _filePath + FileName + _numberOfShots + TextureExtension;
             byte[] bytes = _latestScreenshot.GetRawTextureData();
 
@@ -167,6 +167,7 @@ namespace Assets.Scripts.Classes.IO
             StartVideoRecording.Instance.OnSelect -= StartRecordingMovie;
             PauseVideoRecording.Instance.OnSelect -= PauseRecordingMovie;
             ClearVideoRecordings.Instance.OnSelect -= ClearMovieRecordings;
+            SaveVideoRecordings.Instance.OnSelect -= EncodeRecordedImages;
         }
 
         public void EncodeRecordedImages()
