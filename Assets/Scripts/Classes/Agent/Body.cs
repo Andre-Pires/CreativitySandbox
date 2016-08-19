@@ -25,13 +25,16 @@ namespace Assets.Scripts.Classes.Agent
         private Transform _objectToDrag;
         private Vector3 _distance;
 
-
         private List<Collider> _collidersToIgnore;
 
         //double click - change color
         private bool _firstClick;
         private float _initialTime;
         private float _interval = 0.6f;
+
+        //rotation
+        private float _currentRotation;
+
 
         public void Init(Configuration.Size size, Transform body)
         {
@@ -56,7 +59,14 @@ namespace Assets.Scripts.Classes.Agent
         {
             
             Blink();
-            HandleDragging();
+
+
+           HandleRotationInput();
+
+            if (Input.touchCount < 3 || UnityEngine.Application.platform != RuntimePlatform.Android)
+            {
+                HandleDragging();
+            }
         }
 
         public void LateUpdate()
@@ -123,8 +133,66 @@ namespace Assets.Scripts.Classes.Agent
             }
         }
 
+        private void HandleRotationInput()
+        {
+            float rotationSpeed;  //This will determine rotation speed
+            float lerpSpeed;     //This will determine lerp speed
+
+            #if UNITY_ANDROID
+            if (Input.touchCount == 2)
+            {
+                int layer = 8;
+                int layerMask = 1 << layer;
+
+                Touch touchSlider;
+                var touch1 = Input.GetTouch(0);
+                var touch2 = Input.GetTouch(1);
+              
+
+                //TODO ver se um dedo está parado e em cima do cubo e usar o outro para slide senao ver se o outro está parado e usar o primeiro para slider
+
+                if (touch1.phase == TouchPhase.Stationary && Utility.Instance.CheckIfClicked(_body.transform, layerMask, touch1.position))
+                {
+                    touchSlider = touch2;
+                }
+                else if (touch2.phase == TouchPhase.Stationary && Utility.Instance.CheckIfClicked(_body.transform, layerMask, touch2.position))
+                {
+                    touchSlider = touch1;
+                }
+                else
+                {
+                    return;
+                }
+
+               
+                rotationSpeed = 2.0f;
+                lerpSpeed = 10.0f;
+        
+                _currentRotation += touchSlider.deltaPosition.y * rotationSpeed;
+                _body.rotation = Quaternion.Slerp(_body.transform.rotation, Quaternion.Euler(0, _currentRotation, 0), lerpSpeed * Time.deltaTime);
+            }
+            #endif
+
+            #if UNITY_STANDALONE || UNITY_EDITOR
+            if (Input.GetMouseButton(0))
+            {
+                if (Utility.Instance.CheckIfClicked(_body.transform))
+                {
+                    lerpSpeed = 100.0f; 
+                    rotationSpeed = 50.0f;
+                    _currentRotation += Input.GetAxis("Mouse ScrollWheel") * rotationSpeed;
+                    _body.rotation = Quaternion.Slerp(_body.transform.rotation, Quaternion.Euler(0, _currentRotation, 0), lerpSpeed * Time.deltaTime);
+                }
+            }
+            #endif
+        }
+
         private void HandleDragging()
         {
+            //to avoid moving the pieces by accident
+            if (UnityEngine.Application.platform == RuntimePlatform.Android && Input.touchCount > 1)
+                return;
+
             if (Input.GetMouseButtonDown(0))
             {
                 if(Utility.Instance.CheckIfClicked(_objectToDrag))

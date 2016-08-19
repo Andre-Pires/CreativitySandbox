@@ -83,7 +83,7 @@ namespace Assets.Scripts.Scripts.CameraControl
         private void HandleTouchInput()
         {
             //rotating the camera
-            if (Input.touchCount > 1 && Input.GetTouch(0).phase == TouchPhase.Moved)
+            if (Input.touchCount == 2 && Input.GetTouch(0).phase == TouchPhase.Moved && Input.GetTouch(1).phase == TouchPhase.Moved)
             {
                 var touch1 = Input.GetTouch(0);
 
@@ -106,7 +106,7 @@ namespace Assets.Scripts.Scripts.CameraControl
             if (!_birdEyeViewActive)
             {
                 //zoom camera
-                if (Input.touchCount > 1 && (Input.GetTouch(0).phase == TouchPhase.Moved || Input.GetTouch(1).phase == TouchPhase.Moved))
+                if (Input.touchCount == 2 && (Input.GetTouch(0).phase == TouchPhase.Moved || Input.GetTouch(1).phase == TouchPhase.Moved))
                 {
                     var touch1 = Input.GetTouch(0);
 

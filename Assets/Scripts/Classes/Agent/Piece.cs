@@ -15,7 +15,6 @@ namespace Assets.Scripts.Classes.Agent
         public string Name { get; set; }
         private GameObject _cubeObject;
         private GameObject _root;
-        private float _currentRotation = 0.0f;
         
         private Body _body;
         private Mind _mind;
@@ -83,41 +82,6 @@ namespace Assets.Scripts.Classes.Agent
             _body.Update();
 
             HandleSoundInputStatus();
-            CheckRotationInput();
-            
-        }
-
-        private void CheckRotationInput()
-        {
-
-            if (Input.GetMouseButton(0))
-            {
-                if (Utility.Instance.CheckIfClicked(_cubeObject.transform))
-                {
-                    float lerpSpeed = 100.0f;  //This will determine lerp speed
-                    float rotationSpeed = 50.0f;  //This will determine rotation speed
-
-                    //Keeping this approach for touch implementation
-                    /*
-                    //Get mouse position
-                    Vector3 mousePos = Input.mousePosition;
-
-                    //Adjust mouse z position
-                    mousePos.z = Camera.main.transform.position.y - _cubeObject.transform.position.y;
-
-                    //Get a world position for the mouse
-                    Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
-
-                    //Get the angle to rotate and rotate
-                    Debug.Log("wheel " + Input.GetAxis("Mouse ScrollWheel"));
-                    float angle = -Mathf.Atan2(_cubeObject.transform.position.z - mouseWorldPos.z, _cubeObject.transform.position.x - mouseWorldPos.x) * Mathf.Rad2Deg;
-                    _cubeObject.transform.rotation = Quaternion.Slerp(_cubeObject.transform.rotation, Quaternion.Euler(0, Input.GetAxis("Mouse ScrollWheel") * 50, 0), rotationSpeed * Time.deltaTime);
-                    */
-
-                    _currentRotation += Input.GetAxis("Mouse ScrollWheel") * rotationSpeed;
-                    _cubeObject.transform.rotation = Quaternion.Slerp(_cubeObject.transform.rotation, Quaternion.Euler(0, _currentRotation , 0), lerpSpeed * Time.deltaTime);
-                }
-            }
         }
 
         private void HandleSoundInputStatus()

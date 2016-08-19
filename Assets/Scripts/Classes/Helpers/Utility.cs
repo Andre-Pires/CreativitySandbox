@@ -19,9 +19,16 @@ namespace Assets.Scripts.Classes.Helpers
             }
         }
 
-        public bool CheckIfClicked(Transform transform, int layerMask = -1)
+        public bool CheckIfClicked(Transform transform, int layerMask = -1, Vector3 position = new Vector3())
         {
-            _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (position == new Vector3())
+            {
+                _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            }
+            else
+            {
+                _ray = Camera.main.ScreenPointToRay(position);
+            }
 
             // if the layermask is not defined
             if (layerMask == -1)
@@ -41,7 +48,6 @@ namespace Assets.Scripts.Classes.Helpers
 
             return false;
         }
-
 
         //By turnipski at Reddit
         public static Bounds GetChildRendererBounds(GameObject go)
