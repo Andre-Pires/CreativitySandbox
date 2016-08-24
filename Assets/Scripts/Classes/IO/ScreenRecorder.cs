@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Scripts.UI;
 using UnityEngine;
 
@@ -16,7 +17,7 @@ namespace Assets.Scripts.Classes.IO
         private const string FileName = "image";
         private const string FileExtension = ".jpg";
         private const string TextureExtension = ".t2d";
-        private string _filePath;
+        private string _filePath = Constants.ImageFilePath;
 
         private int _numberOfShots = 0;
         private bool _recording = false;
@@ -25,27 +26,17 @@ namespace Assets.Scripts.Classes.IO
         public float ShotInterval = 0.8f;
         private Texture2D _latestScreenshot;
 
-        private Canvas _canvas;
-
         //to overlay image on screen
         private Rect _rect;
-        private Texture2D _image;
 
         public void Awake()
         {
-            #if UNITY_ANDROID
-                        _filePath = "sdcard/StopMotion/";
-            #endif
-            #if UNITY_STANDALONE || UNITY_EDITOR
-                        _filePath = "../" + AppDomain.CurrentDomain.BaseDirectory + "/StopMotion/";
-            #endif
             TakeSnapshot.Instance.OnSelect += TakeSingleSnapshot;
             StartVideoRecording.Instance.OnSelect += StartRecordingMovie;
             PauseVideoRecording.Instance.OnSelect += PauseRecordingMovie;
             ClearVideoRecordings.Instance.OnSelect += ClearMovieRecordings;
             SaveVideoRecordings.Instance.OnSelect += EncodeRecordedImages;
 
-            _canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
 
             //clear empty directories
             ClearEmptyDirectories();
@@ -113,19 +104,15 @@ namespace Assets.Scripts.Classes.IO
 
             if (_recording && Time.time - _startShotTime >= ShotInterval)
             {
-                _canvas.enabled = false;
                 _numberOfShots++;
                CaptureScreenshot();
-                _canvas.enabled = true;
                 _startShotTime = Time.time;
             }
 
             if (_readySingleShot)
             {
-                _canvas.enabled = false;
                 _numberOfShots++;
                 CaptureScreenshot();
-                _canvas.enabled = true;
                 _readySingleShot = false;
             }
         }
@@ -141,7 +128,7 @@ namespace Assets.Scripts.Classes.IO
             
             //TODO - rollback if needed - saves a PNG file to the path specified above
             /*string fileName = _filePath + _fileName + _numberOfShots + _fileExtension;
-            byte[] bytes = _latestScreenshot.EncodeToJPG(80);*/
+            byte[] bytes = _latestScreenshot.EncodeToPNG();*/
 
             string fileName = _filePath + FileName + _numberOfShots + TextureExtension;
             byte[] bytes = _latestScreenshot.GetRawTextureData();

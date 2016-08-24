@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.IO;
+using Assets.Scripts.Classes.UI;
 using Assets.Scripts.Scripts;
 using Assets.Scripts.Scripts.UI;
 using UnityEngine;
@@ -24,7 +25,7 @@ namespace Assets.Scripts.Classes.Agent
         private List<AudioClip> _clips;
         private int _maxNumberOfStoredClips = 3;
         private int _currentClipIndex = 0;
-
+        private bool _isRecording;
         // Check for mouse input for speech recording
         private Transform _speechButton;
 
@@ -120,17 +121,22 @@ namespace Assets.Scripts.Classes.Agent
             // Single click to stop and start recording
             if (_clickForStartStop || Input.GetMouseButtonDown(0) && Utility.Instance.CheckIfClicked(_speechButton))
             {
-                if (!Microphone.IsRecording(_micInput.SelectedDevice))
+                //check if device's microphone and the piece itself aren't already recording
+                if (!Microphone.IsRecording(_micInput.SelectedDevice) && !_isRecording)
                 {
                     _micInput.StartMicrophone();
+                    _isRecording = true;
                     Debug.Log("Started recording");
+                    UIManager.Instance.DisplayRecordingWarning();
                 }
-                else
+                else if(Microphone.IsRecording(_micInput.SelectedDevice) && _isRecording)
                 {
                     _micInput.StopMicrophone(Name + _currentClipIndex);
                     _clips.Insert(_currentClipIndex, _micInput.GetLastRecording());
                     _currentClipIndex = (_currentClipIndex + 1) % _maxNumberOfStoredClips;
+                    _isRecording = false;
                     Debug.Log("Stopped recording");
+                    UIManager.Instance.HideRecordingWarning();
                 }
 
                 _clickForStartStop = false;

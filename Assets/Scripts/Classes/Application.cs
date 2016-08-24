@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.IO;
+using Assets.Scripts.Classes.UI;
 using Assets.Scripts.Scripts;
 using Assets.Scripts.Scripts.CameraControl;
 using UnityEngine;
@@ -14,6 +15,7 @@ namespace Assets.Scripts.Classes
         private GameObject _scene;
         private Configuration _configuration;
         private ScreenRecorder _screenRecorder;
+        private UIManager _UIManager;
 
         // Use this for initialization
         private void Start()
@@ -35,7 +37,7 @@ namespace Assets.Scripts.Classes
             _configuration = _scene.GetComponent<Configuration>();
 
             //NOTE: should run last to allow the remaining components to setup first
-            SetupUI();
+            _UIManager = UIManager.Instance;
         }
 
         // Update is called once per frame
@@ -46,19 +48,6 @@ namespace Assets.Scripts.Classes
 
             if (Input.GetKeyDown(KeyCode.Escape))
                 UnityEngine.Application.Quit();
-        }
-
-        // ReSharper disable once InconsistentNaming
-        //necessary since if gameObjects start inactive their associated scripts aren't accessible
-        public void SetupUI()
-        {
-            GameObject.Find("MainMenu").gameObject.SetActive(false);
-            GameObject.Find("AgentSetup").gameObject.SetActive(false);
-            GameObject.Find("ForestDaySetup").gameObject.SetActive(false);
-            GameObject.Find("CityDaySetup").gameObject.SetActive(false);
-            GameObject.Find("Pause").gameObject.SetActive(false);
-            GameObject.Find("RecordingControls").gameObject.SetActive(false);
-            GameObject.Find("SceneSelector").gameObject.SetActive(false);
         }
 
         void OnDrawGizmos()

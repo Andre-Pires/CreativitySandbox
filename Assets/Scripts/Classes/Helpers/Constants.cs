@@ -19,13 +19,27 @@ namespace Assets.Scripts.Classes.Helpers
         public Dictionary<Scenario, string> ScenarioPath;
         public Dictionary<Scenario, Material> ScenarioSkybox;
 
-
+        //file paths
+        public static string ImageFilePath;
+        public static string SoundFilePath;
         // Singleton 	
         private static Constants _instance;
 
         // Construct 	
         private Constants()
         {
+            if (UnityEngine.Application.platform == RuntimePlatform.Android)
+            {
+                ImageFilePath = "sdcard/StopMotion/";
+                SoundFilePath = UnityEngine.Application.persistentDataPath + "/ProjectData/Sounds/";
+                
+            }
+            else
+            {
+                ImageFilePath = "../" + AppDomain.CurrentDomain.BaseDirectory + "/StopMotion/";
+                SoundFilePath = "../" + AppDomain.CurrentDomain.BaseDirectory + "/ProjectData/Sounds/";
+            }
+
             ScenarioPath = new Dictionary<Scenario, string>()
             {
                 { Scenario.ForestDay, "Prefabs/Forest/ForestSet(Clear)"},

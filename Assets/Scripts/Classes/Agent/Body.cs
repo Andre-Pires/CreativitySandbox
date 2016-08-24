@@ -14,8 +14,8 @@ namespace Assets.Scripts.Classes.Agent
         private const float InitialPlacementRadius = 26.0f;
 
         //blinking and color
-        private Color _negativeColor = Color.black;
-        private Color _positiveColor = Color.white;
+        private readonly Color _negativeColor = Color.black;
+        private readonly Color _positiveColor = Color.white;
         private Color _pieceColor = Color.white;
         private Configuration.BlinkingSpeed _currentBlinkSpeed = Configuration.BlinkingSpeed.VerySlow;
         private Configuration.BlinkingStatus _currentBlinkStatus = Configuration.BlinkingStatus.Stopped;
@@ -104,10 +104,6 @@ namespace Assets.Scripts.Classes.Agent
 
         private void CheckBlinkChange()
         {
-            //layer that contains only the cube itself
-            int layer = 8;
-            int layerMask = 1 << layer;
-
             if (_firstClick)
             {
                 if (Time.time - _initialTime > _interval)
@@ -116,7 +112,7 @@ namespace Assets.Scripts.Classes.Agent
                 }
                 else if (Input.GetMouseButtonUp(0))
                 {
-                    if(Utility.Instance.CheckIfClicked(_body, layerMask))
+                    if(Utility.Instance.CheckIfClicked(_body))
                     { 
                         _firstClick = false;
                         ToggleBlinking();
@@ -125,7 +121,7 @@ namespace Assets.Scripts.Classes.Agent
             }
             else if (Input.GetMouseButtonUp(0))
             {
-                if (Utility.Instance.CheckIfClicked(_body, layerMask))
+                if (Utility.Instance.CheckIfClicked(_body))
                 {
                     _firstClick = true;
                     _initialTime = Time.time;
@@ -148,9 +144,6 @@ namespace Assets.Scripts.Classes.Agent
                 var touch1 = Input.GetTouch(0);
                 var touch2 = Input.GetTouch(1);
               
-
-                //TODO ver se um dedo está parado e em cima do cubo e usar o outro para slide senao ver se o outro está parado e usar o primeiro para slider
-
                 if (touch1.phase == TouchPhase.Stationary && Utility.Instance.CheckIfClicked(_body.transform, layerMask, touch1.position))
                 {
                     touchSlider = touch2;
