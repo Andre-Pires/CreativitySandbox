@@ -22,8 +22,8 @@ namespace Assets.Scripts.Classes.Agent
 
         private MicrophoneInput _micInput;
         private AudioSource _clipPlayer;
-        private List<AudioClip> _clips;
-        private int _maxNumberOfStoredClips = 3;
+        private Dictionary<int,AudioClip> _clips;
+        private int _maxNumberOfStoredClips = 1;
         private int _currentClipIndex = 0;
         private bool _isRecording;
         // Check for mouse input for speech recording
@@ -63,8 +63,7 @@ namespace Assets.Scripts.Classes.Agent
 
                 //get recording script
                 _micInput = _root.GetComponent<MicrophoneInput>();
-                _clips = new List<AudioClip>();
-                _clips.Capacity = 3;
+                _clips = new Dictionary<int, AudioClip>(_maxNumberOfStoredClips);
 
                 //for accurate sound clip playback
                 cubePrefab.AddComponent<AudioSource>();
@@ -101,9 +100,11 @@ namespace Assets.Scripts.Classes.Agent
 
                     if (!_clipPlayer.isPlaying && _clips.Count > 0)
                     {
-                        _clipPlayer.clip = _clips[Random.Range(0, _clips.Count)];
+                        //random range max is exclusive
+                        int recordingIndex = Random.Range(0, _clips.Count);
+                        _clipPlayer.clip = _clips[recordingIndex];
                         _clipPlayer.Play();
-                        Debug.Log("Playing recording");
+                        Debug.Log("Playing recording number " + recordingIndex);
                     }
 
                     return;
@@ -132,10 +133,11 @@ namespace Assets.Scripts.Classes.Agent
                 else if(Microphone.IsRecording(_micInput.SelectedDevice) && _isRecording)
                 {
                     _micInput.StopMicrophone(Name + _currentClipIndex);
-                    _clips.Insert(_currentClipIndex, _micInput.GetLastRecording());
+                    _clips[_currentClipIndex] = _micInput.GetLastRecording();
+                    Debug.Log("Stopped recording clip " + _currentClipIndex);
+
                     _currentClipIndex = (_currentClipIndex + 1) % _maxNumberOfStoredClips;
                     _isRecording = false;
-                    Debug.Log("Stopped recording");
                     UIManager.Instance.HideRecordingWarning();
                 }
 

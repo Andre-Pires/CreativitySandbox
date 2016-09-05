@@ -42,6 +42,7 @@ namespace Assets.Scripts.Classes.IO
 
             
             Debug.Log("Mic setup - OK");
+            Debug.Log("Sound storage path: " + FilePath);
             _audio = gameObject.GetComponent<AudioSource>();
             _audio.loop = true; // Set the AudioClip to loop
             _audio.mute = false; // Mute the sound, we don't want the player to hear it
