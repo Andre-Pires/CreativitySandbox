@@ -6,18 +6,43 @@ using UnityEngine.EventSystems;
 
 namespace Assets.Scripts.RescalingPanels
 {
-	[AddComponentMenu("UI/Extensions/RescalePanels/RescaleDragPanel")]
+    [AddComponentMenu("UI/Extensions/RescalePanels/RescaleDragPanel")]
     public class RescaleDragPanel : MonoBehaviour, IPointerDownHandler, IDragHandler
     {
-        private Vector2 pointerOffset;
         private RectTransform canvasRectTransform;
-        private RectTransform panelRectTransform;
 
         private Transform goTransform;
+        private RectTransform panelRectTransform;
+        private Vector2 pointerOffset;
 
-        void Awake()
+        public void OnDrag(PointerEventData data)
         {
-            Canvas canvas = GetComponentInParent<Canvas>();
+            if (panelRectTransform == null)
+                return;
+
+            var pointerPosition = ClampToWindow(data);
+
+            Vector2 localPointerPosition;
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvasRectTransform, pointerPosition, data.pressEventCamera, out localPointerPosition
+                ))
+            {
+                panelRectTransform.localPosition = localPointerPosition -
+                                                   new Vector2(pointerOffset.x*goTransform.localScale.x,
+                                                       pointerOffset.y*goTransform.localScale.y);
+            }
+        }
+
+        public void OnPointerDown(PointerEventData data)
+        {
+            panelRectTransform.SetAsLastSibling();
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(panelRectTransform, data.position,
+                data.pressEventCamera, out pointerOffset);
+        }
+
+        private void Awake()
+        {
+            var canvas = GetComponentInParent<Canvas>();
             if (canvas != null)
             {
                 canvasRectTransform = canvas.transform as RectTransform;
@@ -26,39 +51,17 @@ namespace Assets.Scripts.RescalingPanels
             }
         }
 
-        public void OnPointerDown(PointerEventData data)
+        private Vector2 ClampToWindow(PointerEventData data)
         {
-            panelRectTransform.SetAsLastSibling();
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(panelRectTransform, data.position, data.pressEventCamera, out pointerOffset);
-        }
+            var rawPointerPosition = data.position;
 
-        public void OnDrag(PointerEventData data)
-        {
-            if (panelRectTransform == null)
-                return;
-
-            Vector2 pointerPosition = ClampToWindow(data);
-
-            Vector2 localPointerPosition;
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvasRectTransform, pointerPosition, data.pressEventCamera, out localPointerPosition
-                ))
-            {
-                panelRectTransform.localPosition = localPointerPosition - new Vector2(pointerOffset.x * goTransform.localScale.x, pointerOffset.y * goTransform.localScale.y);
-            }
-        }
-
-        Vector2 ClampToWindow(PointerEventData data)
-        {
-            Vector2 rawPointerPosition = data.position;
-
-            Vector3[] canvasCorners = new Vector3[4];
+            var canvasCorners = new Vector3[4];
             canvasRectTransform.GetWorldCorners(canvasCorners);
 
-            float clampedX = Mathf.Clamp(rawPointerPosition.x, canvasCorners[0].x, canvasCorners[2].x);
-            float clampedY = Mathf.Clamp(rawPointerPosition.y, canvasCorners[0].y, canvasCorners[2].y);
+            var clampedX = Mathf.Clamp(rawPointerPosition.x, canvasCorners[0].x, canvasCorners[2].x);
+            var clampedY = Mathf.Clamp(rawPointerPosition.y, canvasCorners[0].y, canvasCorners[2].y);
 
-            Vector2 newPointerPosition = new Vector2(clampedX, clampedY);
+            var newPointerPosition = new Vector2(clampedX, clampedY);
             return newPointerPosition;
         }
     }

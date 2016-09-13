@@ -1,12 +1,12 @@
-﻿using Assets.Scripts.Classes.Helpers;
-using UnityEngine;
+﻿using System;
+using Assets.Scripts.Classes.Helpers;
 
 namespace Assets.Scripts.Classes.Agent
 {
     public class Mind
     {
-        private Configuration.Personality _personality;
-        private Body _body;
+        private readonly Body _body;
+        private readonly Configuration.Personality _personality;
 
 
         public Mind(Configuration.Personality personality, Body body)
@@ -15,11 +15,11 @@ namespace Assets.Scripts.Classes.Agent
             _body = body;
             SetupBehavior();
         }
-        
+
         public void ChangeBehaviour(Body body)
         {
             //will allow outside events to affect emotional state
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void Update()
@@ -30,8 +30,8 @@ namespace Assets.Scripts.Classes.Agent
         //where color, sound, movement patterns are initially established
         private void SetupBehavior()
         {
-            Color color = Configuration.Instance.PersonalityColors[_personality];
-            Configuration.BlinkingSpeed blinkingSpeed = Configuration.Instance.PersonalityBlinkingSpeeds[_personality];
+            var color = Configuration.Instance.PersonalityColors[_personality];
+            var blinkingSpeed = Configuration.Instance.PersonalityBlinkingSpeeds[_personality];
             _body.SetupBehavior(color, blinkingSpeed);
         }
     }

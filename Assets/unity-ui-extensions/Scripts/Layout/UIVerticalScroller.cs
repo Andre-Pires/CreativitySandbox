@@ -12,32 +12,35 @@ namespace Assets.Scripts.Layout
     [AddComponentMenu("Layout/Extensions/Vertical Scroller")]
     public class UIVerticalScroller : MonoBehaviour
     {
-        [Tooltip("Scrollable area (content of desired ScrollRect)")]
-        public RectTransform _scrollingPanel;
-        [Tooltip("Elements to populate inside the scroller")]
-        public GameObject[] _arrayOfElements;
-        [Tooltip("Center display area (position of zoomed content)")]
-        public RectTransform _center;
-        [Tooltip("Select the item to be in center on start. (optional)")]
-        public int StartingIndex = -1;
-        [Tooltip("Button to go to the next page. (optional)")]
-        public GameObject ScrollUpButton;
-        [Tooltip("Button to go to the previous page. (optional)")]
-        public GameObject ScrollDownButton;
-        [Tooltip("Event fired when a specific item is clicked, exposes index number of item. (optional)")]
-        public UnityEvent<int> ButtonClicked;
+        [Tooltip("Elements to populate inside the scroller")] public GameObject[] _arrayOfElements;
+
+        [Tooltip("Center display area (position of zoomed content)")] public RectTransform _center;
+
+        [Tooltip("Scrollable area (content of desired ScrollRect)")] public RectTransform _scrollingPanel;
+
+        [Tooltip("Event fired when a specific item is clicked, exposes index number of item. (optional)")] public
+            UnityEvent<int> ButtonClicked;
+
+        //private int elementHalfLength;
+        private float deltaY;
+        private float[] distance;
 
 
         private float[] distReposition;
-        private float[] distance;
+        private int elementLength;
         //private int elementsDistance;
         private int minElementsNum;
-        private int elementLength;
-        //private int elementHalfLength;
-        private float deltaY;
         private string result;
 
-        public UIVerticalScroller() { }
+        [Tooltip("Button to go to the previous page. (optional)")] public GameObject ScrollDownButton;
+
+        [Tooltip("Button to go to the next page. (optional)")] public GameObject ScrollUpButton;
+
+        [Tooltip("Select the item to be in center on start. (optional)")] public int StartingIndex = -1;
+
+        public UIVerticalScroller()
+        {
+        }
 
         public UIVerticalScroller(RectTransform scrollingPanel, GameObject[] arrayOfElements, RectTransform center)
         {
@@ -64,10 +67,10 @@ namespace Assets.Scripts.Layout
                 if (childCount > 0)
                 {
                     _arrayOfElements = new GameObject[childCount];
-                    for (int i = 0; i < childCount; i++)
+                    for (var i = 0; i < childCount; i++)
                     {
                         _arrayOfElements[i] = scrollRect.content.GetChild(i).gameObject;
-                    }                    
+                    }
                 }
             }
         }
@@ -86,8 +89,8 @@ namespace Assets.Scripts.Layout
 
             //get distance between buttons
             //elementsDistance = (int)Mathf.Abs(_arrayOfElements[1].GetComponent<RectTransform>().anchoredPosition.y - _arrayOfElements[0].GetComponent<RectTransform>().anchoredPosition.y);
-            deltaY = _arrayOfElements[0].GetComponent<RectTransform>().rect.height * elementLength / 3 * 2;
-            Vector2 startPosition = new Vector2(_scrollingPanel.anchoredPosition.x, -deltaY);
+            deltaY = _arrayOfElements[0].GetComponent<RectTransform>().rect.height*elementLength/3*2;
+            var startPosition = new Vector2(_scrollingPanel.anchoredPosition.x, -deltaY);
             _scrollingPanel.anchoredPosition = startPosition;
 
             for (var i = 0; i < _arrayOfElements.Length; i++)
@@ -130,14 +133,15 @@ namespace Assets.Scripts.Layout
 
             for (var i = 0; i < elementLength; i++)
             {
-                distReposition[i] = _center.GetComponent<RectTransform>().position.y - _arrayOfElements[i].GetComponent<RectTransform>().position.y;
+                distReposition[i] = _center.GetComponent<RectTransform>().position.y -
+                                    _arrayOfElements[i].GetComponent<RectTransform>().position.y;
                 distance[i] = Mathf.Abs(distReposition[i]);
 
                 //Magnifying effect
-                float scale = Mathf.Max(0.7f, 1 / (1 + distance[i] / 200));
+                var scale = Mathf.Max(0.7f, 1/(1 + distance[i]/200));
                 _arrayOfElements[i].GetComponent<RectTransform>().transform.localScale = new Vector3(scale, scale, 1f);
             }
-            float minDistance = Mathf.Min(distance);
+            var minDistance = Mathf.Min(distance);
 
             for (var i = 0; i < elementLength; i++)
             {
@@ -155,8 +159,8 @@ namespace Assets.Scripts.Layout
 
         private void ScrollingElements(float position)
         {
-            float newY = Mathf.Lerp(_scrollingPanel.anchoredPosition.y, position, Time.deltaTime * 1f);
-            Vector2 newPosition = new Vector2(_scrollingPanel.anchoredPosition.x, newY);
+            var newY = Mathf.Lerp(_scrollingPanel.anchoredPosition.y, position, Time.deltaTime*1f);
+            var newPosition = new Vector2(_scrollingPanel.anchoredPosition.x, newY);
             _scrollingPanel.anchoredPosition = newPosition;
         }
 
@@ -167,23 +171,24 @@ namespace Assets.Scripts.Layout
 
         public void SnapToElement(int element)
         {
-            float deltaElementPositionY = _arrayOfElements[0].GetComponent<RectTransform>().rect.height * element;
-            Vector2 newPosition = new Vector2(_scrollingPanel.anchoredPosition.x, -deltaElementPositionY);
+            var deltaElementPositionY = _arrayOfElements[0].GetComponent<RectTransform>().rect.height*element;
+            var newPosition = new Vector2(_scrollingPanel.anchoredPosition.x, -deltaElementPositionY);
             _scrollingPanel.anchoredPosition = newPosition;
-
         }
 
         public void ScrollUp()
         {
-            float deltaUp = _arrayOfElements[0].GetComponent<RectTransform>().rect.height / 1.2f;
-            Vector2 newPositionUp = new Vector2(_scrollingPanel.anchoredPosition.x, _scrollingPanel.anchoredPosition.y - deltaUp);
+            var deltaUp = _arrayOfElements[0].GetComponent<RectTransform>().rect.height/1.2f;
+            var newPositionUp = new Vector2(_scrollingPanel.anchoredPosition.x,
+                _scrollingPanel.anchoredPosition.y - deltaUp);
             _scrollingPanel.anchoredPosition = Vector2.Lerp(_scrollingPanel.anchoredPosition, newPositionUp, 1);
         }
 
         public void ScrollDown()
         {
-            float deltaDown = _arrayOfElements[0].GetComponent<RectTransform>().rect.height / 1.2f;
-            Vector2 newPositionDown = new Vector2(_scrollingPanel.anchoredPosition.x, _scrollingPanel.anchoredPosition.y + deltaDown);
+            var deltaDown = _arrayOfElements[0].GetComponent<RectTransform>().rect.height/1.2f;
+            var newPositionDown = new Vector2(_scrollingPanel.anchoredPosition.x,
+                _scrollingPanel.anchoredPosition.y + deltaDown);
             _scrollingPanel.anchoredPosition = newPositionDown;
         }
     }

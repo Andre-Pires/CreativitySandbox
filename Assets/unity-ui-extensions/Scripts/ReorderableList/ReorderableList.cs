@@ -12,27 +12,25 @@ namespace Assets.Scripts.ReorderableList
     [AddComponentMenu("UI/Extensions/Re-orderable list")]
     public class ReorderableList : MonoBehaviour
     {
-        [Tooltip("Child container with re-orderable items in a layout group")]
-        public LayoutGroup ContentLayout;
-        [Tooltip("Parent area to draw the dragged element on top of containers. Defaults to the root Canvas")]
-        public RectTransform DraggableArea;
-
-        [Tooltip("Can items be dragged from the container?")]
-        public bool IsDraggable = true;
-        [Tooltip("Should the draggable components be removed or cloned?")]
-        public bool CloneDraggedObject = false;
-
-        [Tooltip("Can new draggable items be dropped in to the container?")]
-        public bool IsDropable = true;
-
-
-        [Header("UI Re-orderable Events")]
-        public ReorderableListHandler OnElementDropped = new ReorderableListHandler();
-        public ReorderableListHandler OnElementGrabbed = new ReorderableListHandler();
-        public ReorderableListHandler OnElementRemoved = new ReorderableListHandler();
-
         private RectTransform _content;
         private ReorderableListContent _listContent;
+
+        [Tooltip("Should the draggable components be removed or cloned?")] public bool CloneDraggedObject = false;
+
+        [Tooltip("Child container with re-orderable items in a layout group")] public LayoutGroup ContentLayout;
+
+        [Tooltip("Parent area to draw the dragged element on top of containers. Defaults to the root Canvas")] public
+            RectTransform DraggableArea;
+
+        [Tooltip("Can items be dragged from the container?")] public bool IsDraggable = true;
+
+        [Tooltip("Can new draggable items be dropped in to the container?")] public bool IsDropable = true;
+
+
+        [Header("UI Re-orderable Events")] public ReorderableListHandler OnElementDropped = new ReorderableListHandler();
+
+        public ReorderableListHandler OnElementGrabbed = new ReorderableListHandler();
+        public ReorderableListHandler OnElementRemoved = new ReorderableListHandler();
 
         public RectTransform Content
         {
@@ -46,14 +44,14 @@ namespace Assets.Scripts.ReorderableList
             }
         }
 
-        Canvas GetCanvas()
+        private Canvas GetCanvas()
         {
-            Transform t = transform;
+            var t = transform;
             Canvas canvas = null;
-        
 
-            int lvlLimit = 100;
-            int lvl = 0;
+
+            var lvlLimit = 100;
+            var lvl = 0;
 
             while (canvas == null && lvl < lvlLimit)
             {
@@ -70,7 +68,6 @@ namespace Assets.Scripts.ReorderableList
 
         private void Awake()
         {
-
             if (ContentLayout == null)
             {
                 Debug.LogError("You need to have a child LayoutGroup content set for the list: " + name, gameObject);
@@ -82,7 +79,9 @@ namespace Assets.Scripts.ReorderableList
             }
             if (IsDropable && !GetComponent<Graphic>())
             {
-                Debug.LogError("You need to have a Graphic control (such as an Image) for the list [" + name + "] to be droppable", gameObject);
+                Debug.LogError(
+                    "You need to have a Graphic control (such as an Image) for the list [" + name + "] to be droppable",
+                    gameObject);
                 return;
             }
             if (GetCanvas().renderMode != RenderMode.ScreenSpaceOverlay)

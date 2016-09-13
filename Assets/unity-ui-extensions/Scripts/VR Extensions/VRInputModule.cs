@@ -12,12 +12,12 @@ namespace Assets.Scripts.VR_Extensions
     {
         public static GameObject targetObject;
 
-        static VRInputModule _singleton;
-
-        private int counter;
+        private static VRInputModule _singleton;
 
         private static bool mouseClicked;
         public static Vector3 cursorPosition;
+
+        private int counter;
 
         protected override void Awake()
         {
@@ -29,7 +29,6 @@ namespace Assets.Scripts.VR_Extensions
             if (targetObject == null)
             {
                 mouseClicked = false;
-                return;
             }
         }
 
@@ -40,7 +39,7 @@ namespace Assets.Scripts.VR_Extensions
             if (mouseClicked)
             {
                 //BaseEventData data = GetBaseEventData(); //Original from Process().  Can't be called here so is replaced by the next line:
-                BaseEventData data = new BaseEventData(_singleton.eventSystem);
+                var data = new BaseEventData(_singleton.eventSystem);
                 data.selectedObject = targetObject;
                 ExecuteEvents.Execute(targetObject, data, ExecuteEvents.submitHandler);
                 print("clicked " + targetObject.name);
@@ -51,7 +50,7 @@ namespace Assets.Scripts.VR_Extensions
         public static void PointerExit(GameObject obj)
         {
             print("PointerExit " + obj.name);
-            PointerEventData pEvent = new PointerEventData(_singleton.eventSystem);
+            var pEvent = new PointerEventData(_singleton.eventSystem);
             ExecuteEvents.Execute(obj, pEvent, ExecuteEvents.pointerExitHandler);
             ExecuteEvents.Execute(obj, pEvent, ExecuteEvents.deselectHandler); //This fixes the problem
         }
@@ -59,9 +58,9 @@ namespace Assets.Scripts.VR_Extensions
         public static void PointerEnter(GameObject obj)
         {
             print("PointerEnter " + obj.name);
-            PointerEventData pEvent = new PointerEventData(_singleton.eventSystem);
+            var pEvent = new PointerEventData(_singleton.eventSystem);
             pEvent.pointerEnter = obj;
-            RaycastResult rcr = new RaycastResult() { worldPosition = cursorPosition };
+            var rcr = new RaycastResult {worldPosition = cursorPosition};
             pEvent.pointerCurrentRaycast = rcr;
             ExecuteEvents.Execute(obj, pEvent, ExecuteEvents.pointerEnterHandler);
         }

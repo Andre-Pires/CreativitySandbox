@@ -15,16 +15,16 @@ namespace Assets.Scripts.Utilities
     {
         private Text label;
 
-        void Awake()
+        private void Awake()
         {
             label = GetComponent<Text>();
         }
 
-        void Start()
+        private void Start()
         {
             if (label != null)
             {
-                label.text = "PPI: " + Screen.dpi.ToString();
+                label.text = "PPI: " + Screen.dpi;
             }
         }
     }

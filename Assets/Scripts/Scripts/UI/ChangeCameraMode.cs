@@ -1,16 +1,13 @@
 ﻿using UnityEngine;
-using System.Collections;
-using Assets.Scripts.Scripts.UI;
 
 namespace Assets.Scripts.Scripts.UI
 {
     public class ChangeCameraMode : MonoBehaviour
     {
+        public delegate void OnSelectEvent();
+
         // Singleton 	
         private static ChangeCameraMode _instance;
-
-        public delegate void OnSelectEvent();
-        public event OnSelectEvent OnSelect;
 
         // Construct 	
         private ChangeCameraMode()
@@ -23,14 +20,15 @@ namespace Assets.Scripts.Scripts.UI
             get
             {
                 if (_instance == null)
-                    _instance = GameObject.FindObjectOfType(typeof(ChangeCameraMode)) as ChangeCameraMode;
+                    _instance = FindObjectOfType(typeof(ChangeCameraMode)) as ChangeCameraMode;
                 return _instance;
             }
-
         }
 
+        public event OnSelectEvent OnSelect;
+
         // Handle our Ray and Hit
-        void Update()
+        private void Update()
         {
         }
 
@@ -39,6 +37,5 @@ namespace Assets.Scripts.Scripts.UI
             // Notify of the event!
             OnSelect();
         }
-
     }
 }

@@ -1,32 +1,30 @@
-﻿using System.Collections.Generic;
-using Assets.Scripts.Classes.Helpers;
+﻿using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Layout;
 using UnityEngine;
 
 namespace Assets.Scripts.Scripts.UI
 {
-
     public class PersonalityPageSetup : MonoBehaviour
     {
         public HorizontalScrollSnap SliderScrollScript;
 
-      
-        // Use this for initialization
-        public void Start ()
-        {
-            List<Configuration.Personality> availablePersonalities = Configuration.Instance.AvailablePersonalities;
 
-            foreach (Configuration.Personality personality in availablePersonalities)
+        // Use this for initialization
+        public void Start()
+        {
+            var availablePersonalities = Configuration.Instance.AvailablePersonalities;
+
+            foreach (var personality in availablePersonalities)
             {
-                GameObject tempPage = Object.Instantiate(Resources.Load("Prefabs/PersonalitySetupPage")) as GameObject;
-                tempPage.GetComponent<CreateAgentPiece>().Personality = personality;
+                var tempPage = Instantiate(Resources.Load("Prefabs/UISettings/PersonalitySetupPage")) as GameObject;
+                tempPage.GetComponent<InstanceAgentPiece>().Personality = personality;
                 SliderScrollScript.AddChild(tempPage);
             }
         }
-	
+
         // Update is called once per frame
-        void Update () {
-	
+        private void Update()
+        {
         }
     }
 }

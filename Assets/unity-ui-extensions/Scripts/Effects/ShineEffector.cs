@@ -10,19 +10,18 @@ namespace Assets.Scripts.Effects
     [AddComponentMenu("UI/Effects/Extensions/Shining Effect")]
     public class ShineEffector : MonoBehaviour
     {
-
         public ShineEffect effector;
-        [SerializeField, HideInInspector]
-        GameObject effectRoot;
-        [Range(-1, 1)]
-        public float yOffset = -1;
+        private RectTransform effectorRect;
+
+        [SerializeField, HideInInspector] private GameObject effectRoot;
+
+        [Range(0.1f, 1)] public float width = 0.5f;
+
+        [Range(-1, 1)] public float yOffset = -1;
 
         public float YOffset
         {
-            get
-            {
-                return yOffset;
-            }
+            get { return yOffset; }
             set
             {
                 ChangeVal(value);
@@ -30,17 +29,14 @@ namespace Assets.Scripts.Effects
             }
         }
 
-        [Range(0.1f, 1)]
-        public float width = 0.5f;
-        RectTransform effectorRect;
-        void OnEnable()
+        private void OnEnable()
         {
             if (effector == null)
             {
-                GameObject effectorobj = new GameObject("effector");
+                var effectorobj = new GameObject("effector");
 
                 effectRoot = new GameObject("ShineEffect");
-                effectRoot.transform.SetParent(this.transform);
+                effectRoot.transform.SetParent(transform);
                 effectRoot.AddComponent<Image>().sprite = gameObject.GetComponent<Image>().sprite;
                 effectRoot.GetComponent<Image>().type = gameObject.GetComponent<Image>().type;
                 effectRoot.AddComponent<Mask>().showMaskGraphic = false;
@@ -70,7 +66,7 @@ namespace Assets.Scripts.Effects
             }
         }
 
-        void OnValidate()
+        private void OnValidate()
         {
             effector.Yoffset = yOffset;
             effector.Width = width;
@@ -84,11 +80,10 @@ namespace Assets.Scripts.Effects
                 effectRoot.SetActive(true);
             }
             {
-
             }
         }
 
-        void ChangeVal(float value)
+        private void ChangeVal(float value)
         {
             effector.Yoffset = value;
             if (value <= -1 || value >= 1)
@@ -100,10 +95,10 @@ namespace Assets.Scripts.Effects
                 effectRoot.SetActive(true);
             }
             {
-
             }
         }
-        void OnDestroy()
+
+        private void OnDestroy()
         {
             if (!Application.isPlaying)
             {

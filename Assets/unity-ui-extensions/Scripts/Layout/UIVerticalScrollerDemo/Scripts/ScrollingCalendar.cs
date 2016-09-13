@@ -5,6 +5,7 @@
 /// Please donate: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RJ8D9FRFQF9VS
 /// </summary>
 
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,76 +14,77 @@ namespace Assets.Scripts.Layout.UIVerticalScrollerDemo.Scripts
     public class ScrollingCalendar : MonoBehaviour
 
     {
-        public RectTransform monthsScrollingPanel;
-        public RectTransform yearsScrollingPanel;
+        public Text dateText;
+        public GameObject daysButtonPrefab;
+        private GameObject[] daysButtons;
+        public RectTransform daysCenter;
         public RectTransform daysScrollingPanel;
 
-        public GameObject yearsButtonPrefab;
-        public GameObject monthsButtonPrefab;
-        public GameObject daysButtonPrefab;
-
-        private GameObject[] monthsButtons;
-        private GameObject[] yearsButtons;
-        private GameObject[] daysButtons;
-
-        public RectTransform monthCenter;
-        public RectTransform yearsCenter;
-        public RectTransform daysCenter;
-
-        UIVerticalScroller yearsVerticalScroller;
-        UIVerticalScroller monthsVerticalScroller;
-        UIVerticalScroller daysVerticalScroller;
+        private int daysSet;
+        private UIVerticalScroller daysVerticalScroller;
 
         public InputField inputFieldDays;
         public InputField inputFieldMonths;
         public InputField inputFieldYears;
 
-        public Text dateText;
+        public RectTransform monthCenter;
+        public GameObject monthsButtonPrefab;
 
-        private int daysSet;
+        private GameObject[] monthsButtons;
+        public RectTransform monthsScrollingPanel;
         private int monthsSet;
+        private UIVerticalScroller monthsVerticalScroller;
+
+        public GameObject yearsButtonPrefab;
+        private GameObject[] yearsButtons;
+        public RectTransform yearsCenter;
+        public RectTransform yearsScrollingPanel;
         private int yearsSet;
+
+        private UIVerticalScroller yearsVerticalScroller;
 
         private void InitializeYears()
         {
-            int currentYear = int.Parse(System.DateTime.Now.ToString("yyyy"));
-		
-            int[] arrayYears = new int[currentYear+1 - 1900];
-		
+            var currentYear = int.Parse(DateTime.Now.ToString("yyyy"));
+
+            var arrayYears = new int[currentYear + 1 - 1900];
+
             yearsButtons = new GameObject[arrayYears.Length];
 
-            for (int i = 0; i < arrayYears.Length; i++)
+            for (var i = 0; i < arrayYears.Length; i++)
             {
                 arrayYears[i] = 1900 + i;
-			
-                GameObject clone = (GameObject)Instantiate(yearsButtonPrefab, new Vector3(0, i*80, 0), Quaternion.Euler(new Vector3(0, 0, 0))) as GameObject;
+
+                var clone =
+                    (GameObject)
+                        Instantiate(yearsButtonPrefab, new Vector3(0, i*80, 0), Quaternion.Euler(new Vector3(0, 0, 0)));
                 clone.transform.SetParent(yearsScrollingPanel);
                 clone.transform.localScale = new Vector3(1, 1, 1);
                 clone.GetComponentInChildren<Text>().text = "" + arrayYears[i];
                 clone.name = "Year_" + arrayYears[i];
                 clone.AddComponent<CanvasGroup>();
                 yearsButtons[i] = clone;
-			
             }
-
         }
 
         //Initialize Months
         private void InitializeMonths()
         {
-            int[] months = new int[12];
+            var months = new int[12];
 
             monthsButtons = new GameObject[months.Length];
-            for (int i = 0; i < months.Length; i++)
+            for (var i = 0; i < months.Length; i++)
             {
-                string month = "";
+                var month = "";
                 months[i] = i;
-			
-                GameObject clone = (GameObject)Instantiate(monthsButtonPrefab, new Vector3(0, i * 80, 0), Quaternion.Euler(new Vector3(0, 0, 0))) as GameObject;
+
+                var clone =
+                    (GameObject)
+                        Instantiate(monthsButtonPrefab, new Vector3(0, i*80, 0), Quaternion.Euler(new Vector3(0, 0, 0)));
                 clone.transform.SetParent(monthsScrollingPanel);
                 clone.transform.localScale = new Vector3(1, 1, 1);
 
-                switch(i)
+                switch (i)
                 {
                     case 0:
                         month = "Jan";
@@ -121,7 +123,7 @@ namespace Assets.Scripts.Layout.UIVerticalScrollerDemo.Scripts
                         month = "Dec";
                         break;
                 }
-			
+
                 clone.GetComponentInChildren<Text>().text = month;
                 clone.name = "Month_" + months[i];
                 clone.AddComponent<CanvasGroup>();
@@ -131,13 +133,15 @@ namespace Assets.Scripts.Layout.UIVerticalScrollerDemo.Scripts
 
         private void InitializeDays()
         {
-            int[] days = new int[31];
+            var days = new int[31];
             daysButtons = new GameObject[days.Length];
-		
+
             for (var i = 0; i < days.Length; i++)
             {
-                days[i] = i+1;
-                GameObject clone = (GameObject)Instantiate(daysButtonPrefab, new Vector3(0, i * 80, 0), Quaternion.Euler(new Vector3(0, 0, 0))) as GameObject;
+                days[i] = i + 1;
+                var clone =
+                    (GameObject)
+                        Instantiate(daysButtonPrefab, new Vector3(0, i*80, 0), Quaternion.Euler(new Vector3(0, 0, 0)));
                 clone.transform.SetParent(daysScrollingPanel);
                 clone.transform.localScale = new Vector3(1, 1, 1);
                 clone.GetComponentInChildren<Text>().text = "" + days[i];
@@ -156,8 +160,8 @@ namespace Assets.Scripts.Layout.UIVerticalScrollerDemo.Scripts
 
             //Yes Unity complains about this but it doesn't matter in this case.
             monthsVerticalScroller = new UIVerticalScroller(monthsScrollingPanel, monthsButtons, monthCenter);
-            yearsVerticalScroller = new UIVerticalScroller (yearsScrollingPanel, yearsButtons, yearsCenter);
-            daysVerticalScroller = new UIVerticalScroller (daysScrollingPanel, daysButtons, daysCenter);
+            yearsVerticalScroller = new UIVerticalScroller(yearsScrollingPanel, yearsButtons, yearsCenter);
+            daysVerticalScroller = new UIVerticalScroller(daysScrollingPanel, daysButtons, daysCenter);
 
             monthsVerticalScroller.Start();
             yearsVerticalScroller.Start();
@@ -175,15 +179,15 @@ namespace Assets.Scripts.Layout.UIVerticalScrollerDemo.Scripts
             yearsVerticalScroller.SnapToElement(yearsSet);
         }
 
-        void Update () 
+        private void Update()
         {
             monthsVerticalScroller.Update();
             yearsVerticalScroller.Update();
             daysVerticalScroller.Update();
 
-            string dayString = daysVerticalScroller.GetResults();
-            string monthString = monthsVerticalScroller.GetResults();
-            string yearsString = yearsVerticalScroller.GetResults();
+            var dayString = daysVerticalScroller.GetResults();
+            var monthString = monthsVerticalScroller.GetResults();
+            var yearsString = yearsVerticalScroller.GetResults();
 
             if (dayString.EndsWith("1") && dayString != "11")
                 dayString = dayString + "st";

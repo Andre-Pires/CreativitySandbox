@@ -5,34 +5,91 @@ namespace Assets.Scripts.Classes.Helpers
 {
     public class Configuration : MonoBehaviour
     {
-        public enum Personality { Shy, Sociable, Grumpy, Friendly, Realist, Imaginative, Foreigner }
-        public enum Size { Small, Medium, Large }
-        public enum BlinkingSpeed { VerySlow, Slow, Normal, Fast, VeryFast }
-        public enum BlinkingStatus { Stopped, Positive, Negative }
+        public enum BlinkingSpeed
+        {
+            Stopped,
+            VerySlow,
+            Slow,
+            Normal,
+            Fast,
+            VeryFast
+        }
 
-        public List<Personality> AvailablePersonalities;
-        public Dictionary<Size, float> AvailableSizes;
-        public Dictionary<BlinkingSpeed, float> AvailableBlinkingSpeeds;
-        public Dictionary<Personality, Color> PersonalityColors;
-        public Dictionary<Personality, BlinkingSpeed> PersonalityBlinkingSpeeds;
+        public enum Personality
+        {
+            Shy,
+            Sociable,
+            Grumpy,
+            Friendly,
+            Realist,
+            Imaginative,
+            Foreigner
+        }
+
+        public enum Size
+        {
+            Small,
+            Medium,
+            Large
+        }
 
         // Singleton 	
         private static Configuration _instance;
 
+        //NOTE: These parameters can be tweaked from unity's editor
+        public List<BlinkingSpeed> AvailableBlinkSpeeds;
+        public List<Color> AvailableColors;
+        public List<Personality> AvailablePersonalities;
+        public List<Size> AvailableSizes;
+
+        public Dictionary<BlinkingSpeed, float> BlinkingSpeedsValues;
+        public Dictionary<Personality, BlinkingSpeed> PersonalityBlinkingSpeeds;
+        public Dictionary<Personality, Color> PersonalityColors;
+        public Dictionary<Size, float> SizeValues;
+
         // Construct 	
         private Configuration()
         {
-            AvailableBlinkingSpeeds = new Dictionary<BlinkingSpeed, float>()
+            AvailableSizes = new List<Size>
             {
-                { BlinkingSpeed.VeryFast, 0.3f},
-                { BlinkingSpeed.Fast, 0.6f},
-                { BlinkingSpeed.Normal, 1.0f},
-                { BlinkingSpeed.Slow, 1.5f},
-                { BlinkingSpeed.VerySlow, 3.0f},
+                Size.Small,
+                Size.Medium,
+                Size.Large
+            };
+
+            AvailableBlinkSpeeds = new List<BlinkingSpeed>
+            {
+                BlinkingSpeed.Stopped,
+                BlinkingSpeed.VerySlow,
+                BlinkingSpeed.Slow,
+                BlinkingSpeed.Normal,
+                BlinkingSpeed.Fast,
+                BlinkingSpeed.VeryFast
+            };
+
+            AvailableColors = new List<Color>
+            {
+                Color.blue,
+                Color.magenta,
+                Color.red,
+                Color.green,
+                Color.black,
+                Color.white,
+                Color.yellow,
+                
+            };
+
+            BlinkingSpeedsValues = new Dictionary<BlinkingSpeed, float>
+            {
+                {BlinkingSpeed.VeryFast, 0.3f},
+                {BlinkingSpeed.Fast, 0.6f},
+                {BlinkingSpeed.Normal, 1.0f},
+                {BlinkingSpeed.Slow, 1.5f},
+                {BlinkingSpeed.VerySlow, 3.0f}
             };
 
             //TODO - change values to appropriate colors
-            PersonalityColors = new Dictionary<Personality, Color>()
+            PersonalityColors = new Dictionary<Personality, Color>
             {
                 {Personality.Shy, Color.blue},
                 {Personality.Sociable, Color.magenta},
@@ -44,7 +101,7 @@ namespace Assets.Scripts.Classes.Helpers
             };
 
             //TODO - change values to appropriate values
-            PersonalityBlinkingSpeeds = new Dictionary<Personality, BlinkingSpeed>()
+            PersonalityBlinkingSpeeds = new Dictionary<Personality, BlinkingSpeed>
             {
                 {Personality.Shy, BlinkingSpeed.Slow},
                 {Personality.Sociable, BlinkingSpeed.Normal},
@@ -55,13 +112,13 @@ namespace Assets.Scripts.Classes.Helpers
                 {Personality.Foreigner, BlinkingSpeed.Normal}
             };
 
-            AvailableSizes = new Dictionary<Size, float>()
+            SizeValues = new Dictionary<Size, float>
             {
-                {Size.Small, 3.0f },
-                {Size.Medium, 4.5f },
-                {Size.Large, 6.0f },
+                {Size.Small, 3.0f},
+                {Size.Medium, 4.5f},
+                {Size.Large, 6.0f}
             };
-    }
+        }
 
         //  Instance 	
         public static Configuration Instance
@@ -72,7 +129,6 @@ namespace Assets.Scripts.Classes.Helpers
                     _instance = FindObjectOfType(typeof(Configuration)) as Configuration;
                 return _instance;
             }
-
         }
     }
 }

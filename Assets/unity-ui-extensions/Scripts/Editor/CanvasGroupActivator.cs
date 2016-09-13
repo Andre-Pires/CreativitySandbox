@@ -9,30 +9,30 @@ namespace UnityEngine.UI.Extensions
 {
     public class CanvasGroupActivator : EditorWindow
     {
+        private CanvasGroup[] canvasGroups;
+
         [MenuItem("Window/UI/Extensions/Canvas Groups Activator")]
         public static void InitWindow()
         {
-            EditorWindow.GetWindow<CanvasGroupActivator>();
+            GetWindow<CanvasGroupActivator>();
         }
 
-        CanvasGroup[] canvasGroups;
-
-        void OnEnable()
+        private void OnEnable()
         {
             ObtainCanvasGroups();
         }
 
-        void OnFocus()
+        private void OnFocus()
         {
             ObtainCanvasGroups();
         }
 
-        void ObtainCanvasGroups()
+        private void ObtainCanvasGroups()
         {
-            canvasGroups = GameObject.FindObjectsOfType<CanvasGroup>();
+            canvasGroups = FindObjectsOfType<CanvasGroup>();
         }
 
-        void OnGUI()
+        private void OnGUI()
         {
             if (canvasGroups == null)
             {
@@ -42,15 +42,18 @@ namespace UnityEngine.UI.Extensions
             GUILayout.Space(10f);
             GUILayout.Label("Canvas Groups");
 
-            for (int i = 0; i < canvasGroups.Length; i++)
+            for (var i = 0; i < canvasGroups.Length; i++)
             {
-                if (canvasGroups[i] == null) { continue; }
+                if (canvasGroups[i] == null)
+                {
+                    continue;
+                }
 
-                bool initialActive = false;
+                var initialActive = false;
                 if (canvasGroups[i].alpha == 1.0f)
                     initialActive = true;
 
-                bool active = EditorGUILayout.Toggle(canvasGroups[i].name, initialActive);
+                var active = EditorGUILayout.Toggle(canvasGroups[i].name, initialActive);
                 if (active != initialActive)
                 {
                     //If deactivated and initially active
@@ -87,7 +90,7 @@ namespace UnityEngine.UI.Extensions
             }
         }
 
-        void ShowAllGroups()
+        private void ShowAllGroups()
         {
             foreach (var group in canvasGroups)
             {
@@ -100,7 +103,7 @@ namespace UnityEngine.UI.Extensions
             }
         }
 
-        void HideAllGroups()
+        private void HideAllGroups()
         {
             foreach (var group in canvasGroups)
             {

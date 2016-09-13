@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace UnityStandardAssets.Utility
 {
@@ -10,19 +8,19 @@ namespace UnityStandardAssets.Utility
         // a trigger collider is entered.
         public enum Mode
         {
-            Trigger = 0,    // Just broadcast the action on to the target
-            Replace = 1,    // replace target with source
-            Activate = 2,   // Activate the target GameObject
-            Enable = 3,     // Enable a component
-            Animate = 4,    // Start animation on target
-            Deactivate = 5  // Decativate target GameObject
+            Trigger = 0, // Just broadcast the action on to the target
+            Replace = 1, // replace target with source
+            Activate = 2, // Activate the target GameObject
+            Enable = 3, // Enable a component
+            Animate = 4, // Start animation on target
+            Deactivate = 5 // Decativate target GameObject
         }
 
-        public Mode action = Mode.Activate;         // The action to accomplish
-        public Object target;                       // The game object to affect. If none, the trigger work on this game object
-        public GameObject source;
-        public int triggerCount = 1;
+        public Mode action = Mode.Activate; // The action to accomplish
         public bool repeatTrigger = false;
+        public GameObject source;
+        public Object target; // The game object to affect. If none, the trigger work on this game object
+        public int triggerCount = 1;
 
 
         private void DoActivateTrigger()
@@ -31,9 +29,9 @@ namespace UnityStandardAssets.Utility
 
             if (triggerCount == 0 || repeatTrigger)
             {
-                Object currentTarget = target ?? gameObject;
-                Behaviour targetBehaviour = currentTarget as Behaviour;
-                GameObject targetGameObject = currentTarget as GameObject;
+                var currentTarget = target ?? gameObject;
+                var targetBehaviour = currentTarget as Behaviour;
+                var targetGameObject = currentTarget as GameObject;
                 if (targetBehaviour != null)
                 {
                     targetGameObject = targetBehaviour.gameObject;
@@ -53,7 +51,7 @@ namespace UnityStandardAssets.Utility
                             if (targetGameObject != null)
                             {
                                 Instantiate(source, targetGameObject.transform.position,
-                                            targetGameObject.transform.rotation);
+                                    targetGameObject.transform.rotation);
                                 DestroyObject(targetGameObject);
                             }
                         }

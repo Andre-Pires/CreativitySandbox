@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Threading;
+using UnityEngine;
 
 namespace Assets.Scripts.Classes.UI
 {
@@ -6,8 +7,17 @@ namespace Assets.Scripts.Classes.UI
     {
         private static UIManager _instance;
 
-        private GameObject _audioRecordingWarning;
-        
+        private GameObject _audioRecordingStartInfo;
+        private GameObject _audioRecordingStoppedInfo;
+        private bool _recordingStoppedInfoTimeout;
+
+        // Construct 	
+        private UIManager()
+        {
+            BindUIObjects();
+            SetupUI();
+        }
+
         //  Instance 	
         public static UIManager Instance
         {
@@ -19,16 +29,10 @@ namespace Assets.Scripts.Classes.UI
             }
         }
 
-        // Construct 	
-        private UIManager()
-        {
-            BindUIObjects();
-            SetupUI();
-        }
-
         private void BindUIObjects()
         {
-            _audioRecordingWarning = GameObject.Find("AudioRecordingWarning").gameObject;
+            _audioRecordingStartInfo = GameObject.Find("AudioRecordingWarning").gameObject;
+            _audioRecordingStoppedInfo = GameObject.Find("AudioRecordingSuccessful").gameObject;
         }
 
 
@@ -44,17 +48,38 @@ namespace Assets.Scripts.Classes.UI
             GameObject.Find("RecordingControls").gameObject.SetActive(false);
             GameObject.Find("SceneSelector").gameObject.SetActive(false);
 
-            _audioRecordingWarning.SetActive(false);
+            _audioRecordingStartInfo.SetActive(false);
+            _audioRecordingStoppedInfo.SetActive(false);
         }
 
-        public void DisplayRecordingWarning()
+        public void DisplayRecordingStarted()
         {
-            _audioRecordingWarning.SetActive(true);
+            _audioRecordingStartInfo.SetActive(true);
         }
 
-        public void HideRecordingWarning()
+        public void DisplayRecordingStopped()
         {
-            _audioRecordingWarning.SetActive(false);
+            _audioRecordingStartInfo.SetActive(false);
+            _audioRecordingStoppedInfo.SetActive(true);
+
+            new Thread(() =>
+            {
+                Thread.Sleep(1500);
+                _recordingStoppedInfoTimeout = true;
+            }).Start();
+        }
+
+        public void Update()
+        {
+            if (_recordingStoppedInfoTimeout)
+            {
+                _audioRecordingStoppedInfo.SetActive(false);
+                _recordingStoppedInfoTimeout = false;
+            }
+        }
+
+        public void OnGUI()
+        {
         }
     }
 }

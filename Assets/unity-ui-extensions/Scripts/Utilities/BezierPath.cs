@@ -23,22 +23,23 @@ namespace Assets.Scripts.Utilities
         Class for representing a Bezier path, and methods for getting suitable points to 
         draw the curve with line segments.
 */
+
     public class BezierPath
     {
-        public int SegmentsPerCurve = 10;
-        public float MINIMUM_SQR_DISTANCE = 0.01f;
+        private readonly List<Vector2> controlPoints;
+
+        private int curveCount; //how many bezier curves in this path?
 
         // This corresponds to about 172 degrees, 8 degrees from a straight line
         public float DIVISION_THRESHOLD = -0.99f;
-
-        private List<Vector2> controlPoints;
-
-        private int curveCount; //how many bezier curves in this path?
+        public float MINIMUM_SQR_DISTANCE = 0.01f;
+        public int SegmentsPerCurve = 10;
 
         /**
             Constructs a new empty Bezier curve. Use one of these methods
             to add points: SetControlPoints, Interpolate, SamplePoints.
         */
+
         public BezierPath()
         {
             controlPoints = new List<Vector2>();
@@ -49,23 +50,25 @@ namespace Assets.Scripts.Utilities
             Points 0-3 forms the first Bezier curve, points 
             3-6 forms the second curve, etc.
         */
+
         public void SetControlPoints(List<Vector2> newControlPoints)
         {
             controlPoints.Clear();
             controlPoints.AddRange(newControlPoints);
-            curveCount = (controlPoints.Count - 1) / 3;
+            curveCount = (controlPoints.Count - 1)/3;
         }
 
         public void SetControlPoints(Vector2[] newControlPoints)
         {
             controlPoints.Clear();
             controlPoints.AddRange(newControlPoints);
-            curveCount = (controlPoints.Count - 1) / 3;
+            curveCount = (controlPoints.Count - 1)/3;
         }
 
         /**
             Returns the control points for this Bezier curve.
         */
+
         public List<Vector2> GetControlPoints()
         {
             return controlPoints;
@@ -75,6 +78,7 @@ namespace Assets.Scripts.Utilities
         /**
             Calculates a Bezier interpolated path for the given points.
         */
+
         public void Interpolate(List<Vector2> segmentPoints, float scale)
         {
             controlPoints.Clear();
@@ -84,37 +88,37 @@ namespace Assets.Scripts.Utilities
                 return;
             }
 
-            for (int i = 0; i < segmentPoints.Count; i++)
+            for (var i = 0; i < segmentPoints.Count; i++)
             {
                 if (i == 0) // is first
                 {
-                    Vector2 p1 = segmentPoints[i];
-                    Vector2 p2 = segmentPoints[i + 1];
+                    var p1 = segmentPoints[i];
+                    var p2 = segmentPoints[i + 1];
 
-                    Vector2 tangent = (p2 - p1);
-                    Vector2 q1 = p1 + scale * tangent;
+                    var tangent = p2 - p1;
+                    var q1 = p1 + scale*tangent;
 
                     controlPoints.Add(p1);
                     controlPoints.Add(q1);
                 }
                 else if (i == segmentPoints.Count - 1) //last
                 {
-                    Vector2 p0 = segmentPoints[i - 1];
-                    Vector2 p1 = segmentPoints[i];
-                    Vector2 tangent = (p1 - p0);
-                    Vector2 q0 = p1 - scale * tangent;
+                    var p0 = segmentPoints[i - 1];
+                    var p1 = segmentPoints[i];
+                    var tangent = p1 - p0;
+                    var q0 = p1 - scale*tangent;
 
                     controlPoints.Add(q0);
                     controlPoints.Add(p1);
                 }
                 else
                 {
-                    Vector2 p0 = segmentPoints[i - 1];
-                    Vector2 p1 = segmentPoints[i];
-                    Vector2 p2 = segmentPoints[i + 1];
-                    Vector2 tangent = (p2 - p0).normalized;
-                    Vector2 q0 = p1 - scale * tangent * (p1 - p0).magnitude;
-                    Vector2 q1 = p1 + scale * tangent * (p2 - p1).magnitude;
+                    var p0 = segmentPoints[i - 1];
+                    var p1 = segmentPoints[i];
+                    var p2 = segmentPoints[i + 1];
+                    var tangent = (p2 - p0).normalized;
+                    var q0 = p1 - scale*tangent*(p1 - p0).magnitude;
+                    var q1 = p1 + scale*tangent*(p2 - p1).magnitude;
 
                     controlPoints.Add(q0);
                     controlPoints.Add(p1);
@@ -122,12 +126,13 @@ namespace Assets.Scripts.Utilities
                 }
             }
 
-            curveCount = (controlPoints.Count - 1) / 3;
+            curveCount = (controlPoints.Count - 1)/3;
         }
 
         /**
             Sample the given points as a Bezier path.
         */
+
         public void SamplePoints(List<Vector2> sourcePoints, float minSqrDistance, float maxSqrDistance, float scale)
         {
             if (sourcePoints.Count < 2)
@@ -135,13 +140,13 @@ namespace Assets.Scripts.Utilities
                 return;
             }
 
-            Stack<Vector2> samplePoints = new Stack<Vector2>();
+            var samplePoints = new Stack<Vector2>();
 
             samplePoints.Push(sourcePoints[0]);
 
-            Vector2 potentialSamplePoint = sourcePoints[1];
+            var potentialSamplePoint = sourcePoints[1];
 
-            int i = 2;
+            var i = 2;
 
             for (i = 2; i < sourcePoints.Count; i++)
             {
@@ -156,12 +161,12 @@ namespace Assets.Scripts.Utilities
             }
 
             //now handle last bit of curve
-            Vector2 p1 = samplePoints.Pop(); //last sample point
-            Vector2 p0 = samplePoints.Peek(); //second last sample point
-            Vector2 tangent = (p0 - potentialSamplePoint).normalized;
-            float d2 = (potentialSamplePoint - p1).magnitude;
-            float d1 = (p1 - p0).magnitude;
-            p1 = p1 + tangent * ((d1 - d2) / 2);
+            var p1 = samplePoints.Pop(); //last sample point
+            var p0 = samplePoints.Peek(); //second last sample point
+            var tangent = (p0 - potentialSamplePoint).normalized;
+            var d2 = (potentialSamplePoint - p1).magnitude;
+            var d1 = (p1 - p0).magnitude;
+            p1 = p1 + tangent*((d1 - d2)/2);
 
             samplePoints.Push(p1);
             samplePoints.Push(potentialSamplePoint);
@@ -179,14 +184,15 @@ namespace Assets.Scripts.Utilities
             @param t The paramater indicating where on the curve the point is. 0 corresponds 
             to the "left" point, 1 corresponds to the "right" end point.
         */
+
         public Vector2 CalculateBezierPoint(int curveIndex, float t)
         {
-            int nodeIndex = curveIndex * 3;
+            var nodeIndex = curveIndex*3;
 
-            Vector2 p0 = controlPoints[nodeIndex];
-            Vector2 p1 = controlPoints[nodeIndex + 1];
-            Vector2 p2 = controlPoints[nodeIndex + 2];
-            Vector2 p3 = controlPoints[nodeIndex + 3];
+            var p0 = controlPoints[nodeIndex];
+            var p1 = controlPoints[nodeIndex + 1];
+            var p2 = controlPoints[nodeIndex + 2];
+            var p3 = controlPoints[nodeIndex + 3];
 
             return CalculateBezierPoint(t, p0, p1, p2, p3);
         }
@@ -195,22 +201,23 @@ namespace Assets.Scripts.Utilities
             Gets the drawing points. This implementation simply calculates a certain number
             of points per curve.
         */
+
         public List<Vector2> GetDrawingPoints0()
         {
-            List<Vector2> drawingPoints = new List<Vector2>();
+            var drawingPoints = new List<Vector2>();
 
-            for (int curveIndex = 0; curveIndex < curveCount; curveIndex++)
+            for (var curveIndex = 0; curveIndex < curveCount; curveIndex++)
             {
                 if (curveIndex == 0) //Only do this for the first end point. 
-                                     //When i != 0, this coincides with the 
-                                     //end point of the previous segment,
+                    //When i != 0, this coincides with the 
+                    //end point of the previous segment,
                 {
                     drawingPoints.Add(CalculateBezierPoint(curveIndex, 0));
                 }
 
-                for (int j = 1; j <= SegmentsPerCurve; j++)
+                for (var j = 1; j <= SegmentsPerCurve; j++)
                 {
-                    float t = j / (float)SegmentsPerCurve;
+                    var t = j/(float) SegmentsPerCurve;
                     drawingPoints.Add(CalculateBezierPoint(curveIndex, t));
                 }
             }
@@ -224,25 +231,27 @@ namespace Assets.Scripts.Utilities
 
             This is a lsightly different inplementation from the one above.
         */
+
         public List<Vector2> GetDrawingPoints1()
         {
-            List<Vector2> drawingPoints = new List<Vector2>();
+            var drawingPoints = new List<Vector2>();
 
-            for (int i = 0; i < controlPoints.Count - 3; i += 3)
+            for (var i = 0; i < controlPoints.Count - 3; i += 3)
             {
-                Vector2 p0 = controlPoints[i];
-                Vector2 p1 = controlPoints[i + 1];
-                Vector2 p2 = controlPoints[i + 2];
-                Vector2 p3 = controlPoints[i + 3];
+                var p0 = controlPoints[i];
+                var p1 = controlPoints[i + 1];
+                var p2 = controlPoints[i + 2];
+                var p3 = controlPoints[i + 3];
 
-                if (i == 0) //only do this for the first end point. When i != 0, this coincides with the end point of the previous segment,
+                if (i == 0)
+                    //only do this for the first end point. When i != 0, this coincides with the end point of the previous segment,
                 {
                     drawingPoints.Add(CalculateBezierPoint(0, p0, p1, p2, p3));
                 }
 
-                for (int j = 1; j <= SegmentsPerCurve; j++)
+                for (var j = 1; j <= SegmentsPerCurve; j++)
                 {
-                    float t = j / (float)SegmentsPerCurve;
+                    var t = j/(float) SegmentsPerCurve;
                     drawingPoints.Add(CalculateBezierPoint(t, p0, p1, p2, p3));
                 }
             }
@@ -254,13 +263,14 @@ namespace Assets.Scripts.Utilities
             This gets the drawing points of a bezier curve, using recursive division,
             which results in less points for the same accuracy as the above implementation.
         */
+
         public List<Vector2> GetDrawingPoints2()
         {
-            List<Vector2> drawingPoints = new List<Vector2>();
+            var drawingPoints = new List<Vector2>();
 
-            for (int curveIndex = 0; curveIndex < curveCount; curveIndex++)
+            for (var curveIndex = 0; curveIndex < curveCount; curveIndex++)
             {
-                List<Vector2> bezierCurveDrawingPoints = FindDrawingPoints(curveIndex);
+                var bezierCurveDrawingPoints = FindDrawingPoints(curveIndex);
 
                 if (curveIndex != 0)
                 {
@@ -274,12 +284,12 @@ namespace Assets.Scripts.Utilities
             return drawingPoints;
         }
 
-        List<Vector2> FindDrawingPoints(int curveIndex)
+        private List<Vector2> FindDrawingPoints(int curveIndex)
         {
-            List<Vector2> pointList = new List<Vector2>();
+            var pointList = new List<Vector2>();
 
-            Vector2 left = CalculateBezierPoint(curveIndex, 0);
-            Vector2 right = CalculateBezierPoint(curveIndex, 1);
+            var left = CalculateBezierPoint(curveIndex, 0);
+            var right = CalculateBezierPoint(curveIndex, 1);
 
             pointList.Add(left);
             pointList.Add(right);
@@ -293,26 +303,27 @@ namespace Assets.Scripts.Utilities
         /**
             @returns the number of points added.
         */
-        int FindDrawingPoints(int curveIndex, float t0, float t1,
+
+        private int FindDrawingPoints(int curveIndex, float t0, float t1,
             List<Vector2> pointList, int insertionIndex)
         {
-            Vector2 left = CalculateBezierPoint(curveIndex, t0);
-            Vector2 right = CalculateBezierPoint(curveIndex, t1);
+            var left = CalculateBezierPoint(curveIndex, t0);
+            var right = CalculateBezierPoint(curveIndex, t1);
 
             if ((left - right).sqrMagnitude < MINIMUM_SQR_DISTANCE)
             {
                 return 0;
             }
 
-            float tMid = (t0 + t1) / 2;
-            Vector2 mid = CalculateBezierPoint(curveIndex, tMid);
+            var tMid = (t0 + t1)/2;
+            var mid = CalculateBezierPoint(curveIndex, tMid);
 
-            Vector2 leftDirection = (left - mid).normalized;
-            Vector2 rightDirection = (right - mid).normalized;
+            var leftDirection = (left - mid).normalized;
+            var rightDirection = (right - mid).normalized;
 
             if (Vector2.Dot(leftDirection, rightDirection) > DIVISION_THRESHOLD || Mathf.Abs(tMid - 0.5f) < 0.0001f)
             {
-                int pointsAddedCount = 0;
+                var pointsAddedCount = 0;
 
                 pointsAddedCount += FindDrawingPoints(curveIndex, t0, tMid, pointList, insertionIndex);
                 pointList.Insert(insertionIndex + pointsAddedCount, mid);
@@ -326,26 +337,25 @@ namespace Assets.Scripts.Utilities
         }
 
 
-
         /**
             Caluclates a point on the Bezier curve represented with the four controlpoints given.
         */
+
         private Vector2 CalculateBezierPoint(float t, Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3)
         {
-            float u = 1 - t;
-            float tt = t * t;
-            float uu = u * u;
-            float uuu = uu * u;
-            float ttt = tt * t;
+            var u = 1 - t;
+            var tt = t*t;
+            var uu = u*u;
+            var uuu = uu*u;
+            var ttt = tt*t;
 
-            Vector2 p = uuu * p0; //first term
+            var p = uuu*p0; //first term
 
-            p += 3 * uu * t * p1; //second term
-            p += 3 * u * tt * p2; //third term
-            p += ttt * p3; //fourth term
+            p += 3*uu*t*p1; //second term
+            p += 3*u*tt*p2; //third term
+            p += ttt*p3; //fourth term
 
             return p;
-
         }
     }
 }

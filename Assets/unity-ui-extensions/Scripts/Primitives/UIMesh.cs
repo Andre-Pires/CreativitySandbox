@@ -12,21 +12,16 @@ namespace Assets.Scripts.Primitives
     [ExecuteInEditMode]
     public class UIMesh : MaskableGraphic
     {
-        [SerializeField]
-        private Mesh m_mesh;
+        [SerializeField] private List<Material> m_materials;
 
-        [SerializeField]
-        private List<Material> m_materials;
+        [SerializeField] private Mesh m_mesh;
 
         /// <summary>
-        /// Texture to be used.
+        ///     Texture to be used.
         /// </summary>
         public Mesh Mesh
         {
-            get
-            {
-                return m_mesh;
-            }
+            get { return m_mesh; }
             set
             {
                 if (m_mesh == value)
@@ -34,20 +29,17 @@ namespace Assets.Scripts.Primitives
 
                 m_mesh = value;
                 SetVerticesDirty();
-                SetMaterialDirty(); 
+                SetMaterialDirty();
                 //ResetData();
             }
         }
 
         /// <summary>
-        /// Texture to be used.
+        ///     Texture to be used.
         /// </summary>
         public List<Material> Materials
         {
-            get
-            {
-                return m_materials;
-            }
+            get { return m_materials; }
             set
             {
                 if (m_materials == value)
@@ -55,7 +47,7 @@ namespace Assets.Scripts.Primitives
 
                 m_materials = value;
                 SetVerticesDirty();
-                SetMaterialDirty(); 
+                SetMaterialDirty();
                 //ResetData();
             }
         }
@@ -86,12 +78,13 @@ namespace Assets.Scripts.Primitives
             base.OnPopulateMesh(vh);
         }
 
+        //    SetAllDirty();
+        //    ResetData();
+        //    Debug.Log("Reset Data");
+        //{
+
 
         //protected override void OnEnable()
-        //{
-        //    Debug.Log("Reset Data");
-        //    ResetData();
-        //    SetAllDirty();
         //    base.OnEnable();
         //}
 

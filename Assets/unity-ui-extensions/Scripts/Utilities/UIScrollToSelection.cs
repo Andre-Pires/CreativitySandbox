@@ -16,19 +16,22 @@ namespace Assets.Scripts.Utilities
     [AddComponentMenu("UI/Extensions/UIScrollToSelection")]
     public class UIScrollToSelection : MonoBehaviour
     {
+        //*** ENUMS ***//
+        public enum ScrollType
+        {
+            VERTICAL,
+            HORIZONTAL,
+            BOTH
+        }
+
+        [SerializeField] private readonly List<KeyCode> cancelScrollKeycodes = new List<KeyCode>();
+
+        [Header("[ Input ]")] [SerializeField] private readonly bool cancelScrollOnInput = false;
 
         //*** ATTRIBUTES ***//
-        [Header("[ Settings ]")]
-        [SerializeField]
-        private ScrollType scrollDirection;
-        [SerializeField]
-        private float scrollSpeed = 10f;
+        [Header("[ Settings ]")] [SerializeField] private ScrollType scrollDirection;
 
-        [Header("[ Input ]")]
-        [SerializeField]
-        private bool cancelScrollOnInput = false;
-        [SerializeField]
-        private List<KeyCode> cancelScrollKeycodes = new List<KeyCode>();
+        [SerializeField] private readonly float scrollSpeed = 10f;
 
         //*** PROPERTIES ***//
         // REFERENCES
@@ -42,6 +45,7 @@ namespace Assets.Scripts.Utilities
         {
             get { return scrollDirection; }
         }
+
         protected float ScrollSpeed
         {
             get { return scrollSpeed; }
@@ -52,6 +56,7 @@ namespace Assets.Scripts.Utilities
         {
             get { return cancelScrollOnInput; }
         }
+
         protected List<KeyCode> CancelScrollKeycodes
         {
             get { return cancelScrollKeycodes; }
@@ -66,11 +71,14 @@ namespace Assets.Scripts.Utilities
         {
             get { return EventSystem.current; }
         }
+
         protected GameObject LastCheckedGameObject { get; set; }
+
         protected GameObject CurrentSelectedGameObject
         {
             get { return EventSystem.current.currentSelectedGameObject; }
         }
+
         protected RectTransform CurrentTargetRectTransform { get; set; }
         protected bool IsManualScrollingAvailable { get; set; }
 
@@ -86,7 +94,6 @@ namespace Assets.Scripts.Utilities
 
         protected virtual void Start()
         {
-
         }
 
         protected virtual void Update()
@@ -102,9 +109,9 @@ namespace Assets.Scripts.Utilities
             // update current selected rect transform
             if (CurrentSelectedGameObject != LastCheckedGameObject)
             {
-                CurrentTargetRectTransform = (CurrentSelectedGameObject != null) ?
-                    CurrentSelectedGameObject.GetComponent<RectTransform>() :
-                    null;
+                CurrentTargetRectTransform = CurrentSelectedGameObject != null
+                    ? CurrentSelectedGameObject.GetComponent<RectTransform>()
+                    : null;
 
                 // unlock automatic scrolling
                 if (CurrentSelectedGameObject != null &&
@@ -119,14 +126,14 @@ namespace Assets.Scripts.Utilities
 
         private void CheckIfScrollingShouldBeLocked()
         {
-            if (CancelScrollOnInput == false || IsManualScrollingAvailable == true)
+            if (CancelScrollOnInput == false || IsManualScrollingAvailable)
             {
                 return;
             }
 
-            for (int i = 0; i < CancelScrollKeycodes.Count; i++)
+            for (var i = 0; i < CancelScrollKeycodes.Count; i++)
             {
-                if (Input.GetKeyDown(CancelScrollKeycodes[i]) == true)
+                if (Input.GetKeyDown(CancelScrollKeycodes[i]))
                 {
                     IsManualScrollingAvailable = true;
 
@@ -138,14 +145,14 @@ namespace Assets.Scripts.Utilities
         private void ScrollRectToLevelSelection()
         {
             // check main references
-            bool referencesAreIncorrect = (TargetScrollRect == null || LayoutListGroup == null || ScrollWindow == null);
+            var referencesAreIncorrect = TargetScrollRect == null || LayoutListGroup == null || ScrollWindow == null;
 
-            if (referencesAreIncorrect == true || IsManualScrollingAvailable == true)
+            if (referencesAreIncorrect || IsManualScrollingAvailable)
             {
                 return;
             }
 
-            RectTransform selection = CurrentTargetRectTransform;
+            var selection = CurrentTargetRectTransform;
 
             // check if scrolling is possible
             if (selection == null || selection.transform.parent != LayoutListGroup.transform)
@@ -172,35 +179,35 @@ namespace Assets.Scripts.Utilities
         private void UpdateVerticalScrollPosition(RectTransform selection)
         {
             // move the current scroll rect to correct position
-            float selectionPosition = -selection.anchoredPosition.y;
+            var selectionPosition = -selection.anchoredPosition.y;
 
-            float elementHeight = selection.rect.height;
-            float maskHeight = ScrollWindow.rect.height;
-            float listAnchorPosition = LayoutListGroup.anchoredPosition.y;
+            var elementHeight = selection.rect.height;
+            var maskHeight = ScrollWindow.rect.height;
+            var listAnchorPosition = LayoutListGroup.anchoredPosition.y;
 
             // get the element offset value depending on the cursor move direction
-            float offlimitsValue = GetScrollOffset(selectionPosition, listAnchorPosition, elementHeight, maskHeight);
+            var offlimitsValue = GetScrollOffset(selectionPosition, listAnchorPosition, elementHeight, maskHeight);
 
             // move the target scroll rect
             TargetScrollRect.verticalNormalizedPosition +=
-                (offlimitsValue / LayoutListGroup.rect.height) * Time.deltaTime * scrollSpeed;
+                offlimitsValue/LayoutListGroup.rect.height*Time.deltaTime*scrollSpeed;
         }
 
         private void UpdateHorizontalScrollPosition(RectTransform selection)
         {
             // move the current scroll rect to correct position
-            float selectionPosition = selection.anchoredPosition.x;
+            var selectionPosition = selection.anchoredPosition.x;
 
-            float elementWidth = selection.rect.width;
-            float maskWidth = ScrollWindow.rect.width;
-            float listAnchorPosition = -LayoutListGroup.anchoredPosition.x;
+            var elementWidth = selection.rect.width;
+            var maskWidth = ScrollWindow.rect.width;
+            var listAnchorPosition = -LayoutListGroup.anchoredPosition.x;
 
             // get the element offset value depending on the cursor move direction
-            float offlimitsValue = -GetScrollOffset(selectionPosition, listAnchorPosition, elementWidth, maskWidth);
+            var offlimitsValue = -GetScrollOffset(selectionPosition, listAnchorPosition, elementWidth, maskWidth);
 
             // move the target scroll rect
             TargetScrollRect.horizontalNormalizedPosition +=
-                (offlimitsValue / LayoutListGroup.rect.width) * Time.deltaTime * scrollSpeed;
+                offlimitsValue/LayoutListGroup.rect.width*Time.deltaTime*scrollSpeed;
         }
 
         private float GetScrollOffset(float position, float listAnchorPosition, float targetLength, float maskLength)
@@ -209,20 +216,12 @@ namespace Assets.Scripts.Utilities
             {
                 return listAnchorPosition - position;
             }
-            else if (position + targetLength > listAnchorPosition + maskLength)
+            if (position + targetLength > listAnchorPosition + maskLength)
             {
-                return (listAnchorPosition + maskLength) - (position + targetLength);
+                return listAnchorPosition + maskLength - (position + targetLength);
             }
 
             return 0;
-        }
-
-        //*** ENUMS ***//
-        public enum ScrollType
-        {
-            VERTICAL,
-            HORIZONTAL,
-            BOTH
         }
     }
 }

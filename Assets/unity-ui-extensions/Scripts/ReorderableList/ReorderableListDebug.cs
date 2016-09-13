@@ -10,7 +10,7 @@ namespace Assets.Scripts.ReorderableList
     {
         public Text DebugLabel;
 
-        void Awake()
+        private void Awake()
         {
             foreach (var list in FindObjectsOfType<ReorderableList>())
             {
@@ -25,7 +25,8 @@ namespace Assets.Scripts.ReorderableList
             DebugLabel.text += "Is Clone ?: " + droppedStruct.IsAClone + "\n";
             if (droppedStruct.IsAClone)
                 DebugLabel.text += "Source Object: " + droppedStruct.SourceObject.name + "\n";
-            DebugLabel.text += string.Format("From {0} at Index {1} \n", droppedStruct.FromList.name, droppedStruct.FromIndex);
+            DebugLabel.text += string.Format("From {0} at Index {1} \n", droppedStruct.FromList.name,
+                droppedStruct.FromIndex);
             DebugLabel.text += string.Format("To {0} at Index {1} \n", droppedStruct.ToList.name, droppedStruct.ToIndex);
         }
     }

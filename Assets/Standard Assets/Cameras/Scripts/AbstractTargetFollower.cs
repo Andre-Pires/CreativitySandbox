@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace UnityStandardAssets.Cameras
@@ -9,14 +8,22 @@ namespace UnityStandardAssets.Cameras
         {
             FixedUpdate, // Update in FixedUpdate (for tracking rigidbodies).
             LateUpdate, // Update in LateUpdate. (for tracking objects that are moved in Update)
-            ManualUpdate, // user must call to update camera
+            ManualUpdate // user must call to update camera
         }
 
-        [SerializeField] protected Transform m_Target;            // The target object to follow
-        [SerializeField] private bool m_AutoTargetPlayer = true;  // Whether the rig should automatically target the player.
-        [SerializeField] private UpdateType m_UpdateType;         // stores the selected update type
+        [SerializeField] private readonly bool m_AutoTargetPlayer = true;
+            // Whether the rig should automatically target the player.
+
+        [SerializeField] protected Transform m_Target; // The target object to follow
+        [SerializeField] private UpdateType m_UpdateType; // stores the selected update type
 
         protected Rigidbody targetRigidbody;
+
+
+        public Transform Target
+        {
+            get { return m_Target; }
+        }
 
 
         protected virtual void Start()
@@ -93,12 +100,6 @@ namespace UnityStandardAssets.Cameras
         public virtual void SetTarget(Transform newTransform)
         {
             m_Target = newTransform;
-        }
-
-
-        public Transform Target
-        {
-            get { return m_Target; }
         }
     }
 }

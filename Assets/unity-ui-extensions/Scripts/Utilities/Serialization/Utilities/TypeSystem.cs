@@ -12,10 +12,11 @@ namespace Assets.Scripts.Utilities.Serialization.Utilities
     {
         internal static Type GetElementType(Type seqType)
         {
-            Type ienum = FindIEnumerable(seqType);
+            var ienum = FindIEnumerable(seqType);
             if (ienum == null) return seqType;
             return ienum.GetGenericArguments()[0];
         }
+
         private static Type FindIEnumerable(Type seqType)
         {
             if (seqType == null || seqType == typeof(string))
@@ -24,21 +25,21 @@ namespace Assets.Scripts.Utilities.Serialization.Utilities
                 return typeof(IEnumerable<>).MakeGenericType(seqType.GetElementType());
             if (seqType.IsGenericType)
             {
-                foreach (Type arg in seqType.GetGenericArguments())
+                foreach (var arg in seqType.GetGenericArguments())
                 {
-                    Type ienum = typeof(IEnumerable<>).MakeGenericType(arg);
+                    var ienum = typeof(IEnumerable<>).MakeGenericType(arg);
                     if (ienum.IsAssignableFrom(seqType))
                     {
                         return ienum;
                     }
                 }
             }
-            Type[] ifaces = seqType.GetInterfaces();
+            var ifaces = seqType.GetInterfaces();
             if (ifaces != null && ifaces.Length > 0)
             {
-                foreach (Type iface in ifaces)
+                foreach (var iface in ifaces)
                 {
-                    Type ienum = FindIEnumerable(iface);
+                    var ienum = FindIEnumerable(iface);
                     if (ienum != null) return ienum;
                 }
             }
@@ -52,12 +53,12 @@ namespace Assets.Scripts.Utilities.Serialization.Utilities
         //is a type a collection?
         public static bool IsEnumerableType(Type type)
         {
-            return (type.GetInterface("IEnumerable") != null);
+            return type.GetInterface("IEnumerable") != null;
         }
 
         public static bool IsCollectionType(Type type)
         {
-            return (type.GetInterface("ICollection") != null);
+            return type.GetInterface("ICollection") != null;
         }
     }
 }

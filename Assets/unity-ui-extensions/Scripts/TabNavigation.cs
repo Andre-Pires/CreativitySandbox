@@ -12,18 +12,24 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts
 {
-    public enum NavigationMode { Auto = 0, Manual = 1};
+    public enum NavigationMode
+    {
+        Auto = 0,
+        Manual = 1
+    }
+
     [RequireComponent(typeof(EventSystem))]
     [AddComponentMenu("Event/Extensions/Tab Navigation Helper")]
     public class TabNavigationHelper : MonoBehaviour
     {
         private EventSystem _system;
-        [Tooltip("The path to take when user is tabbing through ui components.")]
-        public Selectable[] NavigationPath;
-        [Tooltip("Use the default Unity navigation system or a manual fixed order using Navigation Path")]
-        public NavigationMode NavigationMode;
 
-        void Start()
+        [Tooltip("Use the default Unity navigation system or a manual fixed order using Navigation Path")] public
+            NavigationMode NavigationMode;
+
+        [Tooltip("The path to take when user is tabbing through ui components.")] public Selectable[] NavigationPath;
+
+        private void Start()
         {
             _system = GetComponent<EventSystem>();
             if (_system == null)
@@ -58,14 +64,14 @@ namespace Assets.Scripts
                     next = _system.firstSelectedGameObject.GetComponent<Selectable>();
                 }
             }
-            else if(NavigationMode == NavigationMode.Manual)
+            else if (NavigationMode == NavigationMode.Manual)
             {
                 for (var i = 0; i < NavigationPath.Length; i++)
                 {
                     if (_system.currentSelectedGameObject != NavigationPath[i].gameObject) continue;
 
 
-                    next = i == (NavigationPath.Length - 1) ? NavigationPath[0] : NavigationPath[i + 1];
+                    next = i == NavigationPath.Length - 1 ? NavigationPath[0] : NavigationPath[i + 1];
 
                     break;
                 }
@@ -82,8 +88,10 @@ namespace Assets.Scripts
         {
             if (selectable != null)
             {
-                InputField inputfield = selectable.GetComponent<InputField>();
-                if (inputfield != null) inputfield.OnPointerClick(new PointerEventData(_system));  //if it's an input field, also set the text caret
+                var inputfield = selectable.GetComponent<InputField>();
+                if (inputfield != null)
+                    inputfield.OnPointerClick(new PointerEventData(_system));
+                        //if it's an input field, also set the text caret
 
                 _system.SetSelectedGameObject(selectable.gameObject, new BaseEventData(_system));
             }

@@ -1,6 +1,7 @@
 ﻿///Credit perchik
 ///Sourced from - http://forum.unity3d.com/threads/receive-onclick-event-and-pass-it-on-to-lower-ui-elements.293642/
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -12,45 +13,51 @@ namespace Assets.Scripts.ComboBox
     [AddComponentMenu("UI/Extensions/AutoComplete ComboBox")]
     public class AutoCompleteComboBox : MonoBehaviour
     {
-        public Color disabledTextColor;
-        public DropDownListItem SelectedItem { get; private set; } //outside world gets to get this, not set it
-
-        public List<string> AvailableOptions;
-
-        public System.Action<int> OnSelectionChanged; // fires when selection is changed;
-
-        //private bool isInitialized = false;
-        private bool _isPanelActive = false;
-        private bool _hasDrawnOnce = false;
-
-        private InputField _mainInput;
-        private RectTransform _inputRT;
-
-
-        private RectTransform _rectTransform;
-
-        private RectTransform _overlayRT;
-        private RectTransform _scrollPanelRT;
-        private RectTransform _scrollBarRT;
-        private RectTransform _slidingAreaRT;
-        //   private RectTransform scrollHandleRT;
-        private RectTransform _itemsPanelRT;
         private Canvas _canvas;
         private RectTransform _canvasRT;
+        private bool _hasDrawnOnce;
+        private RectTransform _inputRT;
 
-        private ScrollRect _scrollRect;
+        //private bool isInitialized = false;
+        private bool _isPanelActive;
+        //   private RectTransform scrollHandleRT;
+        private RectTransform _itemsPanelRT;
+
+        //    private int scrollOffset; //offset of the selected item
+        //    private int _selectedIndex = 0;
+
+        [SerializeField] private int _itemsToDisplay;
+
+        private InputField _mainInput;
+
+        private RectTransform _overlayRT;
 
         private List<string> _panelItems; //items that will get shown in the dropdown
         private List<string> _prunedPanelItems; //items that used to show in the dropdown
 
-        private Dictionary<string, GameObject> panelObjects;
-        
+
+        private RectTransform _rectTransform;
+        private RectTransform _scrollBarRT;
+
+        [SerializeField] private float _scrollBarWidth = 20.0f;
+
+        private RectTransform _scrollPanelRT;
+
+        private ScrollRect _scrollRect;
+        private RectTransform _slidingAreaRT;
+
+        public List<string> AvailableOptions;
+        public Color disabledTextColor;
+
         private GameObject itemTemplate;
+
+        public Action<int> OnSelectionChanged; // fires when selection is changed;
+
+        private Dictionary<string, GameObject> panelObjects;
+        public DropDownListItem SelectedItem { get; private set; } //outside world gets to get this, not set it
 
         public string Text { get; private set; }
 
-        [SerializeField]
-        private float _scrollBarWidth = 20.0f;
         public float ScrollBarWidth
         {
             get { return _scrollBarWidth; }
@@ -61,11 +68,6 @@ namespace Assets.Scripts.ComboBox
             }
         }
 
-        //    private int scrollOffset; //offset of the selected item
-        //    private int _selectedIndex = 0;
-
-        [SerializeField]
-        private int _itemsToDisplay;
         public int ItemsToDisplay
         {
             get { return _itemsToDisplay; }
@@ -75,7 +77,7 @@ namespace Assets.Scripts.ComboBox
                 RedrawPanel();
             }
         }
-        
+
         public void Awake()
         {
             Initialize();
@@ -83,7 +85,7 @@ namespace Assets.Scripts.ComboBox
 
         private bool Initialize()
         {
-            bool success = true;
+            var success = true;
             try
             {
                 _rectTransform = GetComponent<RectTransform>();
@@ -105,17 +107,18 @@ namespace Assets.Scripts.ComboBox
                 _canvasRT = _canvas.GetComponent<RectTransform>();
 
                 _scrollRect = _scrollPanelRT.GetComponent<ScrollRect>();
-                _scrollRect.scrollSensitivity = _rectTransform.sizeDelta.y / 2;
+                _scrollRect.scrollSensitivity = _rectTransform.sizeDelta.y/2;
                 _scrollRect.movementType = ScrollRect.MovementType.Clamped;
                 _scrollRect.content = _itemsPanelRT;
 
                 itemTemplate = _rectTransform.FindChild("ItemTemplate").gameObject;
                 itemTemplate.SetActive(false);
             }
-            catch (System.NullReferenceException ex)
+            catch (NullReferenceException ex)
             {
                 Debug.LogException(ex);
-                Debug.LogError("Something is setup incorrectly with the dropdownlist component causing a Null Refernece Exception");
+                Debug.LogError(
+                    "Something is setup incorrectly with the dropdownlist component causing a Null Refernece Exception");
                 success = false;
             }
             panelObjects = new Dictionary<string, GameObject>();
@@ -158,54 +161,53 @@ namespace Assets.Scripts.ComboBox
         */
 
         /// <summary>
-        /// Rebuilds the contents of the panel in response to items being added.
+        ///     Rebuilds the contents of the panel in response to items being added.
         /// </summary>
         private void RebuildPanel()
         {
             //panel starts with all options
             _panelItems.Clear();
-            foreach (string option in AvailableOptions)
+            foreach (var option in AvailableOptions)
             {
                 _panelItems.Add(option.ToLower());
             }
             _panelItems.Sort();
 
             _prunedPanelItems.Clear();
-            List<GameObject> itemObjs = new List<GameObject>(panelObjects.Values);
+            var itemObjs = new List<GameObject>(panelObjects.Values);
             panelObjects.Clear();
 
-            int indx = 0;
+            var indx = 0;
             while (itemObjs.Count < AvailableOptions.Count)
             {
-                GameObject newItem = Instantiate(itemTemplate) as GameObject;
+                var newItem = Instantiate(itemTemplate);
                 newItem.name = "Item " + indx;
                 newItem.transform.SetParent(_itemsPanelRT, false);
                 itemObjs.Add(newItem);
                 indx++;
             }
 
-            for (int i = 0; i < itemObjs.Count; i++)
+            for (var i = 0; i < itemObjs.Count; i++)
             {
                 itemObjs[i].SetActive(i <= AvailableOptions.Count);
                 if (i < AvailableOptions.Count)
                 {
                     itemObjs[i].name = "Item " + i + " " + _panelItems[i];
-                    itemObjs[i].transform.FindChild("Text").GetComponent<Text>().text = _panelItems[i]; //set the text value
+                    itemObjs[i].transform.FindChild("Text").GetComponent<Text>().text = _panelItems[i];
+                        //set the text value
 
-                    Button itemBtn = itemObjs[i].GetComponent<Button>();
+                    var itemBtn = itemObjs[i].GetComponent<Button>();
                     itemBtn.onClick.RemoveAllListeners();
-                    string textOfItem = _panelItems[i]; //has to be copied for anonymous function or it gets garbage collected away
-                    itemBtn.onClick.AddListener(() =>
-                    {
-                        OnItemClicked(textOfItem);
-                    });
+                    var textOfItem = _panelItems[i];
+                        //has to be copied for anonymous function or it gets garbage collected away
+                    itemBtn.onClick.AddListener(() => { OnItemClicked(textOfItem); });
                     panelObjects[_panelItems[i]] = itemObjs[i];
                 }
             }
         }
 
         /// <summary>
-        /// what happens when an item in the list is selected
+        ///     what happens when an item in the list is selected
         /// </summary>
         /// <param name="item"></param>
         private void OnItemClicked(string item)
@@ -247,7 +249,8 @@ namespace Assets.Scripts.ComboBox
 
         private void RedrawPanel()
         {
-            float scrollbarWidth = _panelItems.Count > ItemsToDisplay ? _scrollBarWidth : 0f;//hide the scrollbar if there's not enough items
+            var scrollbarWidth = _panelItems.Count > ItemsToDisplay ? _scrollBarWidth : 0f;
+                //hide the scrollbar if there's not enough items
             _scrollBarRT.gameObject.SetActive(_panelItems.Count > ItemsToDisplay);
             if (!_hasDrawnOnce || _rectTransform.sizeDelta != _inputRT.sizeDelta)
             {
@@ -255,33 +258,36 @@ namespace Assets.Scripts.ComboBox
                 _inputRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _rectTransform.sizeDelta.x);
                 _inputRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _rectTransform.sizeDelta.y);
 
-                _scrollPanelRT.SetParent(transform, true);//break the scroll panel from the overlay
-                _scrollPanelRT.anchoredPosition = new Vector2(0, -_rectTransform.sizeDelta.y); //anchor it to the bottom of the button
+                _scrollPanelRT.SetParent(transform, true); //break the scroll panel from the overlay
+                _scrollPanelRT.anchoredPosition = new Vector2(0, -_rectTransform.sizeDelta.y);
+                    //anchor it to the bottom of the button
 
                 //make the overlay fill the screen
                 _overlayRT.SetParent(_canvas.transform, false); //attach it to top level object
                 _overlayRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _canvasRT.sizeDelta.x);
                 _overlayRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _canvasRT.sizeDelta.y);
 
-                _overlayRT.SetParent(transform, true);//reattach to this object
+                _overlayRT.SetParent(transform, true); //reattach to this object
                 _scrollPanelRT.SetParent(_overlayRT, true); //reattach the scrollpanel to the overlay
             }
 
             if (_panelItems.Count < 1) return;
 
-            float dropdownHeight = _rectTransform.sizeDelta.y * Mathf.Min(_itemsToDisplay, _panelItems.Count);
+            var dropdownHeight = _rectTransform.sizeDelta.y*Mathf.Min(_itemsToDisplay, _panelItems.Count);
 
             _scrollPanelRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, dropdownHeight);
             _scrollPanelRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _rectTransform.sizeDelta.x);
 
-            _itemsPanelRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _scrollPanelRT.sizeDelta.x - scrollbarWidth - 5);
+            _itemsPanelRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal,
+                _scrollPanelRT.sizeDelta.x - scrollbarWidth - 5);
             _itemsPanelRT.anchoredPosition = new Vector2(5, 0);
 
             _scrollBarRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, scrollbarWidth);
             _scrollBarRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, dropdownHeight);
 
             _slidingAreaRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 0);
-            _slidingAreaRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, dropdownHeight - _scrollBarRT.sizeDelta.x);
+            _slidingAreaRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
+                dropdownHeight - _scrollBarRT.sizeDelta.x);
         }
 
         public void OnValueChanged(string currText)
@@ -293,7 +299,7 @@ namespace Assets.Scripts.ComboBox
 
             if (_panelItems.Count == 0)
             {
-                _isPanelActive = true;//this makes it get turned off
+                _isPanelActive = true; //this makes it get turned off
                 ToggleDropdownPanel(false);
             }
             else if (!_isPanelActive)
@@ -303,7 +309,7 @@ namespace Assets.Scripts.ComboBox
         }
 
         /// <summary>
-        /// Toggle the drop down list
+        ///     Toggle the drop down list
         /// </summary>
         /// <param name="directClick"> whether an item was directly clicked on</param>
         public void ToggleDropdownPanel(bool directClick)
@@ -323,9 +329,9 @@ namespace Assets.Scripts.ComboBox
 
         private void PruneItems(string currText)
         {
-            List<string> notToPrune = _panelItems.Where(x => x.ToLower().Contains(currText.ToLower())).ToList();
-            List<string> toPrune = _panelItems.Except(notToPrune).ToList();
-            foreach (string key in toPrune)
+            var notToPrune = _panelItems.Where(x => x.ToLower().Contains(currText.ToLower())).ToList();
+            var toPrune = _panelItems.Except(notToPrune).ToList();
+            foreach (var key in toPrune)
             {
                 //            Debug.Log("pruning key " + key);
                 panelObjects[key].SetActive(false);
@@ -333,8 +339,8 @@ namespace Assets.Scripts.ComboBox
                 _prunedPanelItems.Add(key);
             }
 
-            List<string> toAddBack = _prunedPanelItems.Where(x => x.ToLower().Contains(currText)).ToList();
-            foreach (string key in toAddBack)
+            var toAddBack = _prunedPanelItems.Where(x => x.ToLower().Contains(currText)).ToList();
+            foreach (var key in toAddBack)
             {
                 //            Debug.Log("adding back key " + key);
                 panelObjects[key].SetActive(true);

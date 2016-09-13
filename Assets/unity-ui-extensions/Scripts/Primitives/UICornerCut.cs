@@ -19,29 +19,28 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Assets.Scripts.Primitives {
+namespace Assets.Scripts.Primitives
+{
     [AddComponentMenu("UI/Extensions/Primitives/Cut Corners")]
     public class UICornerCut : UIPrimitiveBase
     {
-         public Vector2 cornerSize = new Vector2(16, 16);
-
-        [Header("Corners to cut")]
-        public bool cutUL = true;
-        public bool cutUR;
-        public bool cutLL;
-        public bool cutLR;
- 
-        [Tooltip("Up-Down colors become Left-Right colors")]
-        public bool makeColumns = false;
- 
-        [Header("Color the cut bars differently")]
-        public bool useColorUp;
-//        [HideUnless("useColorUp")]
-        public Color32 colorUp = Color.blue;
- 
-        public bool useColorDown;
 //        [HideUnless("useColorDown")]
         public Color32 colorDown = Color.green;
+//        [HideUnless("useColorUp")]
+        public Color32 colorUp = Color.blue;
+        public Vector2 cornerSize = new Vector2(16, 16);
+        public bool cutLL;
+        public bool cutLR;
+
+        [Header("Corners to cut")] public bool cutUL = true;
+
+        public bool cutUR;
+
+        [Tooltip("Up-Down colors become Left-Right colors")] public bool makeColumns = false;
+
+        public bool useColorDown;
+
+        [Header("Color the cut bars differently")] public bool useColorUp;
 
         protected override void OnPopulateMesh(VertexHelper vh)
         {
@@ -49,15 +48,14 @@ namespace Assets.Scripts.Primitives {
             var rectNew = rect;
 
             Color32 color32 = color;
-            bool up = cutUL | cutUR;
-            bool down = cutLL | cutLR;
-            bool left = cutLL | cutUL;
-            bool right = cutLR | cutUR;
-            bool any = up | down;
+            var up = cutUL | cutUR;
+            var down = cutLL | cutLR;
+            var left = cutLL | cutUL;
+            var right = cutLR | cutUR;
+            var any = up | down;
 
             if (any && cornerSize.sqrMagnitude > 0)
             {
-
                 //nibble off the sides
                 vh.Clear();
                 if (left)
@@ -117,43 +115,46 @@ namespace Assets.Scripts.Primitives {
                     AddSquare(new Rect(rectNew.xMin, rect.yMin, rectNew.width, rect.height), rect, color32, vh);
                 else
                     AddSquare(new Rect(rect.xMin, rectNew.yMin, rect.width, rectNew.height), rect, color32, vh);
-
             }
         }
- 
-        private static void AddSquare(Rect rect, Rect rectUV, Color32 color32, VertexHelper vh) {
-            int v0 = AddVert(rect.xMin, rect.yMin, rectUV, color32, vh);
-            int v1 = AddVert(rect.xMin, rect.yMax, rectUV, color32, vh);
-            int v2 = AddVert(rect.xMax, rect.yMax, rectUV, color32, vh);
-            int v3 = AddVert(rect.xMax, rect.yMin, rectUV, color32, vh);
- 
+
+        private static void AddSquare(Rect rect, Rect rectUV, Color32 color32, VertexHelper vh)
+        {
+            var v0 = AddVert(rect.xMin, rect.yMin, rectUV, color32, vh);
+            var v1 = AddVert(rect.xMin, rect.yMax, rectUV, color32, vh);
+            var v2 = AddVert(rect.xMax, rect.yMax, rectUV, color32, vh);
+            var v3 = AddVert(rect.xMax, rect.yMin, rectUV, color32, vh);
+
             vh.AddTriangle(v0, v1, v2);
             vh.AddTriangle(v2, v3, v0);
         }
- 
-        private static void AddSquare(Vector2 a, Vector2 b, Vector2 c, Vector2 d, Rect rectUV, Color32 color32, VertexHelper vh) {
-            int v0 = AddVert(a.x, a.y, rectUV, color32, vh);
-            int v1 = AddVert(b.x, b.y, rectUV, color32, vh);
-            int v2 = AddVert(c.x, c.y, rectUV, color32, vh);
-            int v3 = AddVert(d.x, d.y, rectUV, color32, vh);
- 
+
+        private static void AddSquare(Vector2 a, Vector2 b, Vector2 c, Vector2 d, Rect rectUV, Color32 color32,
+            VertexHelper vh)
+        {
+            var v0 = AddVert(a.x, a.y, rectUV, color32, vh);
+            var v1 = AddVert(b.x, b.y, rectUV, color32, vh);
+            var v2 = AddVert(c.x, c.y, rectUV, color32, vh);
+            var v3 = AddVert(d.x, d.y, rectUV, color32, vh);
+
             vh.AddTriangle(v0, v1, v2);
             vh.AddTriangle(v2, v3, v0);
         }
- 
+
         /// <summary>
-        /// Auto UV handler within the assigned area
+        ///     Auto UV handler within the assigned area
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="area"></param>
         /// <param name="color32"></param>
         /// <param name="vh"></param>
-        private static int AddVert(float x, float y, Rect area, Color32 color32, VertexHelper vh) {
+        private static int AddVert(float x, float y, Rect area, Color32 color32, VertexHelper vh)
+        {
             var uv = new Vector2(
                 Mathf.InverseLerp(area.xMin, area.xMax, x),
                 Mathf.InverseLerp(area.yMin, area.yMax, y)
-            );
+                );
             vh.AddVert(new Vector3(x, y), color32, uv);
             return vh.currentVertCount - 1;
         }

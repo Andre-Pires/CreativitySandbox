@@ -12,17 +12,17 @@ namespace Assets.Scripts.Effects.Shaders
     [RequireComponent(typeof(RectTransform))]
     public class UILinearDodgeEffect : MonoBehaviour
     {
-        MaskableGraphic mGraphic;
+        private MaskableGraphic mGraphic;
 
         // Use this for initialization
-        void Start()
+        private void Start()
         {
             SetMaterial();
         }
 
         public void SetMaterial()
         {
-            mGraphic = this.GetComponent<MaskableGraphic>();
+            mGraphic = GetComponent<MaskableGraphic>();
             if (mGraphic != null)
             {
                 if (mGraphic.material == null || mGraphic.material.name == "Default UI Material")
@@ -36,6 +36,7 @@ namespace Assets.Scripts.Effects.Shaders
                 Debug.LogError("Please attach component to a Graphical UI component");
             }
         }
+
         public void OnValidate()
         {
             SetMaterial();

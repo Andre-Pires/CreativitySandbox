@@ -11,40 +11,42 @@ namespace Assets.Scripts.InputModules
     public class AimerInputModule : PointerInputModule
     {
         /// <summary>
-        /// The Input axis name used to activate the object under the reticle.
+        ///     The object under aimer. A static access field that lets you know what is under the aimer.
+        ///     This field can return null.
+        /// </summary>
+        public static GameObject objectUnderAimer;
+
+        /// <summary>
+        ///     The Input axis name used to activate the object under the reticle.
         /// </summary>
         public string activateAxis = "Submit";
 
         /// <summary>
-        /// The aimer offset position. Aimer is center screen use this offset to change that.
+        ///     The aimer offset position. Aimer is center screen use this offset to change that.
         /// </summary>
         public Vector2 aimerOffset = new Vector2(0, 0);
 
-        /// <summary>
-        /// The object under aimer. A static access field that lets you know what is under the aimer.
-        /// This field can return null.
-        /// </summary>
-        public static GameObject objectUnderAimer;
-
-        protected AimerInputModule() { }
+        protected AimerInputModule()
+        {
+        }
 
         public override void ActivateModule()
         {
-            StandaloneInputModule StandAloneSystem = GetComponent<StandaloneInputModule>();
+            var StandAloneSystem = GetComponent<StandaloneInputModule>();
 
             if (StandAloneSystem != null && StandAloneSystem.enabled)
             {
                 Debug.LogError("Aimer Input Module is incompatible with the StandAloneInputSystem, " +
-                    "please remove it from the Event System in this scene or disable it when this module is in use");
+                               "please remove it from the Event System in this scene or disable it when this module is in use");
             }
         }
 
         public override void Process()
         {
-            bool pressed = Input.GetButtonDown(activateAxis);
-            bool released = Input.GetButtonUp(activateAxis);
+            var pressed = Input.GetButtonDown(activateAxis);
+            var released = Input.GetButtonUp(activateAxis);
 
-            PointerEventData pointer = GetAimerPointerEventData();
+            var pointer = GetAimerPointerEventData();
 
             ProcessInteraction(pointer, pressed, released);
 
@@ -65,7 +67,7 @@ namespace Assets.Scripts.InputModules
 
             pointerData.Reset();
 
-            pointerData.position = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f) + aimerOffset;
+            pointerData.position = new Vector2(Screen.width*0.5f, Screen.height*0.5f) + aimerOffset;
 
             eventSystem.RaycastAll(pointerData, m_RaycastResultCache);
             var raycast = FindFirstRaycast(m_RaycastResultCache);
@@ -78,7 +80,8 @@ namespace Assets.Scripts.InputModules
         {
             var currentOverGo = pointer.pointerCurrentRaycast.gameObject;
 
-            objectUnderAimer = ExecuteEvents.GetEventHandler<ISubmitHandler>(currentOverGo);//we only want objects that we can submit on.
+            objectUnderAimer = ExecuteEvents.GetEventHandler<ISubmitHandler>(currentOverGo);
+                //we only want objects that we can submit on.
 
             if (pressed)
             {
@@ -115,7 +118,7 @@ namespace Assets.Scripts.InputModules
                 pointer.pointerDrag = ExecuteEvents.GetEventHandler<IDragHandler>(currentOverGo);
 
                 if (pointer.pointerDrag != null)
-                    ExecuteEvents.Execute<IBeginDragHandler>(pointer.pointerDrag, pointer, ExecuteEvents.beginDragHandler);
+                    ExecuteEvents.Execute(pointer.pointerDrag, pointer, ExecuteEvents.beginDragHandler);
             }
 
             if (released)
@@ -131,7 +134,7 @@ namespace Assets.Scripts.InputModules
                 // PointerClick
                 if (pointer.pointerPress == pointerUpHandler && pointer.eligibleForClick)
                 {
-                    float time = Time.unscaledTime;
+                    var time = Time.unscaledTime;
 
                     if (time - pointer.clickTime < 0.3f)
                         ++pointer.clickCount;

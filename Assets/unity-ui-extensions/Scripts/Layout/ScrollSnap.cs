@@ -22,6 +22,8 @@ namespace Assets.Scripts.Layout
     [AddComponentMenu("UI/Extensions/Scroll Snap")]
     public class ScrollSnap : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
     {
+        public delegate void PageSnapChange(int page);
+
         // needed becouse of reversed behavior of axis Y compared to X
         // (positions of children lower in children list in horizontal directions grows when in vertical it gets smaller)
         public enum ScrollDirection
@@ -30,84 +32,80 @@ namespace Assets.Scripts.Layout
             Vertical
         }
 
-        public delegate void PageSnapChange(int page);
-
-        public event PageSnapChange onPageChange;
+        [Tooltip("Sets minimum width of list items to 1/itemsVisibleAtOnce.")] public bool autoLayoutItems = true;
 
         public ScrollDirection direction = ScrollDirection.Horizontal;
+
+        private bool fastSwipe; //to determine if a fast swipe was performed
+
+        protected int fastSwipeCounter;
+
+        protected int fastSwipeTarget = 10;
+
+        public int fastSwipeThreshold = 100;
+
+        protected bool fastSwipeTimer;
+
+        protected int itemsCount;
+
+        protected float itemSize;
+
+        [Tooltip("Number of items visible in one page of scroll frame.")] [Range(1, 100)] public int itemsVisibleAtOnce
+            = 1;
+
+        protected bool lerp;
+
+        protected Vector3 lerpTarget;
+
+        [Tooltip("If you wish to update scrollbar numberOfSteps to number of active children on list.")] public bool
+            linkScrolbarSteps = false;
+
+        [Tooltip("If you wish to update scrollrect sensitivity to size of list element.")] public bool
+            linkScrolrectScrollSensitivity = false;
+
+        protected Vector2 listContainerCachedSize;
+
+        protected float listContainerMaxPosition;
+
+        // item list related
+        protected float listContainerMinPosition;
+
+        protected RectTransform listContainerRectTransform;
+
+        protected float listContainerSize;
+
+        protected Transform listContainerTransform;
+
+        [Tooltip("Button to go to the next page. (optional)")] public Button nextButton;
+
+        // anchor points to lerp to to see child on certain indexes
+        protected Vector3[] pageAnchorPositions;
+
+        protected int pageOnDragStart;
+
+        private int pages;
+
+        protected Vector3 positionOnDragStart;
+
+        [Tooltip("Button to go to the previous page. (optional)")] public Button prevButton;
+
+        protected RectTransform rectTransform;
 
         protected ScrollRect scrollRect;
 
         protected RectTransform scrollRectTransform;
 
-        protected Transform listContainerTransform;
-
-        protected RectTransform rectTransform;
-
-        int pages;
-
-        protected int startingPage = 0;
-
-        // anchor points to lerp to to see child on certain indexes
-        protected Vector3[] pageAnchorPositions;
-
-        protected Vector3 lerpTarget;
-
-        protected bool lerp;
-
-        // item list related
-        protected float listContainerMinPosition;
-
-        protected float listContainerMaxPosition;
-
-        protected float listContainerSize;
-
-        protected RectTransform listContainerRectTransform;
-
-        protected Vector2 listContainerCachedSize;
-
-        protected float itemSize;
-
-        protected int itemsCount = 0;
-
-        [Tooltip("Button to go to the next page. (optional)")]
-        public Button nextButton;
-
-        [Tooltip("Button to go to the previous page. (optional)")]
-        public Button prevButton;
-
-        [Tooltip("Number of items visible in one page of scroll frame.")]
-        [Range(1, 100)]
-        public int itemsVisibleAtOnce = 1;
-
-        [Tooltip("Sets minimum width of list items to 1/itemsVisibleAtOnce.")]
-        public bool autoLayoutItems = true;
-
-        [Tooltip("If you wish to update scrollbar numberOfSteps to number of active children on list.")]
-        public bool linkScrolbarSteps = false;
-
-        [Tooltip("If you wish to update scrollrect sensitivity to size of list element.")]
-        public bool linkScrolrectScrollSensitivity = false;
-
-        public Boolean useFastSwipe = true;
-
-        public int fastSwipeThreshold = 100;
-
         // drag related
         protected bool startDrag = true;
 
-        protected Vector3 positionOnDragStart = new Vector3();
+        protected int startingPage;
 
-        protected int pageOnDragStart;
+        public bool useFastSwipe = true;
 
-        protected bool fastSwipeTimer = false;
-
-        protected int fastSwipeCounter = 0;
-
-        protected int fastSwipeTarget = 10;
+        public event PageSnapChange onPageChange;
 
         // Use this for initialization
-        void Awake()
+        private void Awake()
         {
             lerp = false;
 
@@ -124,22 +122,16 @@ namespace Assets.Scripts.Layout
 
             if (nextButton)
             {
-                nextButton.GetComponent<Button>().onClick.AddListener(() =>
-                {
-                    NextScreen();
-                });
+                nextButton.GetComponent<Button>().onClick.AddListener(() => { NextScreen(); });
             }
 
             if (prevButton)
             {
-                prevButton.GetComponent<Button>().onClick.AddListener(() =>
-                {
-                    PreviousScreen();
-                });
+                prevButton.GetComponent<Button>().onClick.AddListener(() => { PreviousScreen(); });
             }
         }
 
-        void Start()
+        private void Start()
         {
             Awake();
         }
@@ -148,15 +140,15 @@ namespace Assets.Scripts.Layout
         {
             float size = 0;
             float currentSize = 0;
-            if (direction == ScrollSnap.ScrollDirection.Horizontal)
+            if (direction == ScrollDirection.Horizontal)
             {
-                size = scrollRectTransform.rect.width / itemsVisibleAtOnce;
-                currentSize = listContainerRectTransform.rect.width / itemsCount;
+                size = scrollRectTransform.rect.width/itemsVisibleAtOnce;
+                currentSize = listContainerRectTransform.rect.width/itemsCount;
             }
             else
             {
-                size = scrollRectTransform.rect.height / itemsVisibleAtOnce;
-                currentSize = listContainerRectTransform.rect.height / itemsCount;
+                size = scrollRectTransform.rect.height/itemsVisibleAtOnce;
+                currentSize = listContainerRectTransform.rect.height/itemsCount;
             }
 
             itemSize = size;
@@ -168,11 +160,11 @@ namespace Assets.Scripts.Layout
 
             if (autoLayoutItems && currentSize != size && itemsCount > 0)
             {
-                if (direction == ScrollSnap.ScrollDirection.Horizontal)
+                if (direction == ScrollDirection.Horizontal)
                 {
                     foreach (var tr in listContainerTransform)
                     {
-                        GameObject child = ((Transform)tr).gameObject;
+                        var child = ((Transform) tr).gameObject;
                         if (child.activeInHierarchy)
                         {
                             var childLayout = child.GetComponent<LayoutElement>();
@@ -190,7 +182,7 @@ namespace Assets.Scripts.Layout
                 {
                     foreach (var tr in listContainerTransform)
                     {
-                        GameObject child = ((Transform)tr).gameObject;
+                        var child = ((Transform) tr).gameObject;
                         if (child.activeInHierarchy)
                         {
                             var childLayout = child.GetComponent<LayoutElement>();
@@ -212,11 +204,11 @@ namespace Assets.Scripts.Layout
             if (!listContainerRectTransform.rect.size.Equals(listContainerCachedSize))
             {
                 // checking how many children of list are active
-                int activeCount = 0;
+                var activeCount = 0;
 
                 foreach (var tr in listContainerTransform)
                 {
-                    if (((Transform)tr).gameObject.activeInHierarchy)
+                    if (((Transform) tr).gameObject.activeInHierarchy)
                     {
                         activeCount++;
                     }
@@ -243,10 +235,10 @@ namespace Assets.Scripts.Layout
                         for (var i = 0; i < pages; i++)
                         {
                             pageAnchorPositions[i] = new Vector3(
-                                listContainerMaxPosition - itemSize * i,
+                                listContainerMaxPosition - itemSize*i,
                                 listContainerTransform.localPosition.y,
                                 listContainerTransform.localPosition.z
-                            );
+                                );
                         }
                     }
                     else
@@ -264,9 +256,9 @@ namespace Assets.Scripts.Layout
                         {
                             pageAnchorPositions[i] = new Vector3(
                                 listContainerTransform.localPosition.x,
-                                listContainerMinPosition + itemSize * i,
+                                listContainerMinPosition + itemSize*i,
                                 listContainerTransform.localPosition.z
-                            );
+                                );
                         }
                     }
 
@@ -281,20 +273,20 @@ namespace Assets.Scripts.Layout
                 }
 
                 itemsCount = activeCount;
-                listContainerCachedSize.Set(listContainerRectTransform.rect.size.x, listContainerRectTransform.rect.size.y);
+                listContainerCachedSize.Set(listContainerRectTransform.rect.size.x,
+                    listContainerRectTransform.rect.size.y);
             }
-
         }
 
         public void ResetPage()
         {
             if (direction == ScrollDirection.Horizontal)
             {
-                scrollRect.horizontalNormalizedPosition = pages > 1 ? (float)startingPage / (float)(pages - 1) : 0;
+                scrollRect.horizontalNormalizedPosition = pages > 1 ? startingPage/(float) (pages - 1) : 0;
             }
             else
             {
-                scrollRect.verticalNormalizedPosition = pages > 1 ? (float)(pages - startingPage - 1) / (float)(pages - 1) : 0;
+                scrollRect.verticalNormalizedPosition = pages > 1 ? (pages - startingPage - 1)/(float) (pages - 1) : 0;
             }
         }
 
@@ -336,7 +328,7 @@ namespace Assets.Scripts.Layout
             }
         }
 
-        void LateUpdate()
+        private void LateUpdate()
         {
             UpdateListItemsSize();
             UpdateListItemPositions();
@@ -345,7 +337,8 @@ namespace Assets.Scripts.Layout
             {
                 UpdateScrollbar(false);
 
-                listContainerTransform.localPosition = Vector3.Lerp(listContainerTransform.localPosition, lerpTarget, 7.5f * Time.deltaTime);
+                listContainerTransform.localPosition = Vector3.Lerp(listContainerTransform.localPosition, lerpTarget,
+                    7.5f*Time.deltaTime);
 
                 if (Vector3.Distance(listContainerTransform.localPosition, lerpTarget) < 0.001f)
                 {
@@ -367,8 +360,6 @@ namespace Assets.Scripts.Layout
                 fastSwipeCounter++;
             }
         }
-
-        private bool fastSwipe = false; //to determine if a fast swipe was performed
 
 
         //Function for switching screens with buttons
@@ -404,7 +395,7 @@ namespace Assets.Scripts.Layout
         {
             if (pageOnDragStart < pages - 1)
             {
-                int targetPage = Mathf.Min(pages - 1, pageOnDragStart + itemsVisibleAtOnce);
+                var targetPage = Mathf.Min(pages - 1, pageOnDragStart + itemsVisibleAtOnce);
                 lerp = true;
 
                 lerpTarget = pageAnchorPositions[targetPage];
@@ -418,7 +409,7 @@ namespace Assets.Scripts.Layout
         {
             if (pageOnDragStart > 0)
             {
-                int targetPage = Mathf.Max(0, pageOnDragStart - itemsVisibleAtOnce);
+                var targetPage = Mathf.Max(0, pageOnDragStart - itemsVisibleAtOnce);
                 lerp = true;
 
                 lerpTarget = pageAnchorPositions[targetPage];
@@ -444,7 +435,7 @@ namespace Assets.Scripts.Layout
                 pos = Mathf.Clamp(pos, 0, listContainerSize);
             }
 
-            float page = pos / itemSize;
+            var page = pos/itemSize;
 
             return Mathf.Clamp(Mathf.RoundToInt(page), 0, pages);
         }
@@ -483,6 +474,7 @@ namespace Assets.Scripts.Layout
         }
 
         #region Interfaces
+
         public void OnBeginDrag(PointerEventData eventData)
         {
             UpdateScrollbar(false);
@@ -554,6 +546,7 @@ namespace Assets.Scripts.Layout
                 startDrag = false;
             }
         }
+
         #endregion
     }
 }

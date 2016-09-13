@@ -7,10 +7,10 @@ namespace UnityStandardAssets.Utility
     [Serializable]
     public class LerpControlledBob
     {
-        public float BobDuration;
         public float BobAmount;
+        public float BobDuration;
 
-        private float m_Offset = 0f;
+        private float m_Offset;
 
 
         // provides the offset that can be used
@@ -23,7 +23,7 @@ namespace UnityStandardAssets.Utility
         public IEnumerator DoBobCycle()
         {
             // make the camera move down slightly
-            float t = 0f;
+            var t = 0f;
             while (t < BobDuration)
             {
                 m_Offset = Mathf.Lerp(0f, BobAmount, t/BobDuration);

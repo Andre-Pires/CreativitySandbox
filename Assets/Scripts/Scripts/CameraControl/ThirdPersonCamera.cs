@@ -7,48 +7,47 @@ namespace Assets.Scripts.Scripts.CameraControl
 {
     public class ThirdPersonCamera : MonoBehaviour
     {
-
         private const float MIN_Y_ANGLE = 10.0f;
         private const float MAX_Y_ANGLE = 70.0f;
         private const float MIN_ZOOM = 5.0f;
         private const float MAX_ZOOM = 75.0f;
-
-        private Camera _camera;
-        public Transform BirdViewLookAt;
-        public Transform CloseUpLookAt;
-        private Transform _lookAtInUse;
-
-        private bool _birdEyeViewActive = true;
         private const float BIRD_EYE_VIEW_DIST = 50.0f;
 
-        private float currentDistance = 50.0f;
-        private float zoomSensitivity = 50.0f;
-        private float currentX = 0.0f;
-        private float currentY = 40.0f;
-        private float sensitivityX = 4.0f;
-        private float sensitivityY = 1.0f;
+        private bool _birdEyeViewActive = true;
+
+        private Camera _camera;
 
         private RaycastHit _hit;
+        private Transform _lookAtInUse;
         private Ray _ray;
 
         //touch specific fields
         private Touch _touch;
-        private float _touchDist = 0;
-        private float _touchSensitivityX = 60.0f;
-        private float _touchSensitivityY = 50.0f;
-        private float _touchZoomSensitivity = 25.0f;
+        private float _touchDist;
 
         //the two fingers must be close to each other to activate orbiting the camera
-        private float _touchOrbitDist = 400.0f;
+        private readonly float _touchOrbitDist = 400.0f;
+        private readonly float _touchSensitivityX = 60.0f;
+        private readonly float _touchSensitivityY = 50.0f;
+        private readonly float _touchZoomSensitivity = 25.0f;
+        public Transform BirdViewLookAt;
+        public Transform CloseUpLookAt;
+
+        private float currentDistance = 50.0f;
+        private float currentX;
+        private float currentY = 40.0f;
+        private float sensitivityX = 4.0f;
+        private float sensitivityY = 1.0f;
+        private readonly float zoomSensitivity = 50.0f;
 
         private void Start()
         {
             _camera = Camera.main;
 
             //in order to reduce the load of taking very high resolution screenshots in higher res devices
-            #if UNITY_ANDROID
-                Screen.SetResolution(Mathf.Min(1920, Screen.width), Mathf.Min(1080, Screen.height), true);
-            #endif
+#if UNITY_ANDROID
+            Screen.SetResolution(Mathf.Min(1920, Screen.width), Mathf.Min(1080, Screen.height), true);
+#endif
 
             //start looking at the center of the set
             BirdViewLookAt = GameObject.FindGameObjectWithTag("Scenario").transform;
@@ -65,13 +64,13 @@ namespace Assets.Scripts.Scripts.CameraControl
                 BirdViewLookAt = GameObject.FindGameObjectWithTag("Scenario").transform;
             }
 
-            #if UNITY_ANDROID
-                HandleTouchInput();
-            #endif
-            
-            #if (UNITY_STANDALONE || UNITY_EDITOR)
-                HandleMouseInput();
-            #endif
+#if UNITY_ANDROID
+            HandleTouchInput();
+#endif
+
+#if (UNITY_STANDALONE || UNITY_EDITOR)
+            HandleMouseInput();
+#endif
 
             if (!_birdEyeViewActive)
             {
@@ -83,21 +82,22 @@ namespace Assets.Scripts.Scripts.CameraControl
         private void HandleTouchInput()
         {
             //rotating the camera
-            if (Input.touchCount == 2 && Input.GetTouch(0).phase == TouchPhase.Moved && Input.GetTouch(1).phase == TouchPhase.Moved)
+            if (Input.touchCount == 2 && Input.GetTouch(0).phase == TouchPhase.Moved &&
+                Input.GetTouch(1).phase == TouchPhase.Moved)
             {
                 var touch1 = Input.GetTouch(0);
 
                 var touch2 = Input.GetTouch(1);
 
-                float dist = Vector2.Distance(touch1.position, touch2.position);
+                var dist = Vector2.Distance(touch1.position, touch2.position);
 
 
                 if (dist < _touchOrbitDist)
                 {
                     _touch = touch1;
 
-                    currentX += _touch.deltaPosition.x * _touchSensitivityX * 0.02f;
-                    currentY -= _touch.deltaPosition.y * _touchSensitivityY * 0.02f;
+                    currentX += _touch.deltaPosition.x*_touchSensitivityX*0.02f;
+                    currentY -= _touch.deltaPosition.y*_touchSensitivityY*0.02f;
                     currentY = Mathf.Clamp(currentY, MIN_Y_ANGLE, MAX_Y_ANGLE);
                 }
             }
@@ -106,26 +106,28 @@ namespace Assets.Scripts.Scripts.CameraControl
             if (!_birdEyeViewActive)
             {
                 //zoom camera
-                if (Input.touchCount == 2 && (Input.GetTouch(0).phase == TouchPhase.Moved || Input.GetTouch(1).phase == TouchPhase.Moved))
+                if (Input.touchCount == 2 &&
+                    (Input.GetTouch(0).phase == TouchPhase.Moved || Input.GetTouch(1).phase == TouchPhase.Moved))
                 {
                     var touch1 = Input.GetTouch(0);
 
                     var touch2 = Input.GetTouch(1);
 
-                    float dist = Vector2.Distance(touch1.position, touch2.position);
+                    var dist = Vector2.Distance(touch1.position, touch2.position);
 
                     if (dist > _touchDist)
                     {
-                        currentDistance -= Vector2.Distance(touch1.deltaPosition, touch2.deltaPosition) * _touchZoomSensitivity / 10;
+                        currentDistance -= Vector2.Distance(touch1.deltaPosition, touch2.deltaPosition)*
+                                           _touchZoomSensitivity/10;
                     }
                     else
                     {
-                        currentDistance += Vector2.Distance(touch1.deltaPosition, touch2.deltaPosition) * _touchZoomSensitivity / 10;
+                        currentDistance += Vector2.Distance(touch1.deltaPosition, touch2.deltaPosition)*
+                                           _touchZoomSensitivity/10;
                     }
 
                     currentDistance = Mathf.Clamp(currentDistance, MIN_ZOOM, MAX_ZOOM);
                     _touchDist = dist;
-
                 }
             }
         }
@@ -144,7 +146,7 @@ namespace Assets.Scripts.Scripts.CameraControl
             //only when allowing changing lookat and zooming
             if (!_birdEyeViewActive)
             {
-                currentDistance += Input.GetAxis("Mouse ScrollWheel") * zoomSensitivity;
+                currentDistance += Input.GetAxis("Mouse ScrollWheel")*zoomSensitivity;
                 currentDistance = Mathf.Clamp(currentDistance, MIN_ZOOM, MAX_ZOOM);
             }
         }
@@ -154,8 +156,8 @@ namespace Assets.Scripts.Scripts.CameraControl
             if (Input.GetButtonUp("Fire1"))
             {
                 _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                int layer = 8;
-                int layerMask = 1 << layer;
+                var layer = 8;
+                var layerMask = 1 << layer;
 
                 //if we selected a cube change the look at (layer only considers cubes)
                 if (Physics.Raycast(_ray, out _hit, 100, layerMask))
@@ -168,8 +170,6 @@ namespace Assets.Scripts.Scripts.CameraControl
 
         private void LateUpdate()
         {
-
-            
             if (_birdEyeViewActive)
             {
                 _lookAtInUse = BirdViewLookAt;
@@ -195,17 +195,20 @@ namespace Assets.Scripts.Scripts.CameraControl
                 }
             }
 
-            
-            float translationSpeed = 3.0f;  //This will determine translation speed
-            float rotationSpeed = 50.0f;  //This will determine rotation speed
-            float lookAtSpeed = 6.0f;  //This will determine lookAt speed
 
-            Vector3 dir = new Vector3(0, 0, -currentDistance);
-            Quaternion rotation = Quaternion.Slerp(_camera.transform.rotation, Quaternion.Euler(currentY, currentX, 0), rotationSpeed * Time.deltaTime);
-            _camera.transform.position = Vector3.Lerp(_camera.transform.position, _lookAtInUse.position + rotation * dir, translationSpeed * Time.deltaTime);
+            var translationSpeed = 3.0f; //This will determine translation speed
+            var rotationSpeed = 50.0f; //This will determine rotation speed
+            var lookAtSpeed = 6.0f; //This will determine lookAt speed
 
-            Vector3 direction = _lookAtInUse.position - _camera.transform.position;
-            _camera.transform.rotation = Quaternion.Slerp(_camera.transform.rotation, Quaternion.LookRotation(direction, Vector3.up), lookAtSpeed * Time.deltaTime);
+            var dir = new Vector3(0, 0, -currentDistance);
+            var rotation = Quaternion.Slerp(_camera.transform.rotation, Quaternion.Euler(currentY, currentX, 0),
+                rotationSpeed*Time.deltaTime);
+            _camera.transform.position = Vector3.Lerp(_camera.transform.position, _lookAtInUse.position + rotation*dir,
+                translationSpeed*Time.deltaTime);
+
+            var direction = _lookAtInUse.position - _camera.transform.position;
+            _camera.transform.rotation = Quaternion.Slerp(_camera.transform.rotation,
+                Quaternion.LookRotation(direction, Vector3.up), lookAtSpeed*Time.deltaTime);
         }
 
         public void ChangeCameraMode()
@@ -217,6 +220,5 @@ namespace Assets.Scripts.Scripts.CameraControl
                 currentDistance = BIRD_EYE_VIEW_DIST;
             }
         }
-
     }
 }

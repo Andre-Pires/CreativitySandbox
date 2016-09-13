@@ -8,6 +8,5 @@ namespace Assets.Scripts.HSVPicker
 {
     public class HSVSliderEvent : UnityEvent<Color>
     {
-
     }
 }

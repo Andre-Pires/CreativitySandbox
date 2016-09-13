@@ -10,55 +10,50 @@ namespace Assets.Scripts.Effects
     [AddComponentMenu("UI/Effects/Extensions/SoftMaskScript")]
     public class SoftMaskScript : MonoBehaviour
     {
-        Material mat;
-        Canvas canvas;
+        [Tooltip("Texture to be used to do the soft alpha")] public Texture AlphaMask;
 
-        [Tooltip("The area that is to be used as the container.")]
-        public RectTransform MaskArea;
-        RectTransform myRect;
+        private Vector2 AlphaUV;
+        private Canvas canvas;
 
-        [Tooltip("A Rect Transform that can be used to scale and move the mask - Does not apply to Text UI Components being masked")]
-        public RectTransform maskScalingRect;
+        [Tooltip("If set to true, this mask is applied to all child Text and Graphic objects belonging to this object.")
+        ] public bool CascadeToALLChildren;
 
-        [Tooltip("Texture to be used to do the soft alpha")]
-        public Texture AlphaMask;
+        private Vector2 centre;
+        private Rect contentRect;
 
-        [Tooltip("At what point to apply the alpha min range 0-1")]
-        [Range(0, 1)]
-        public float CutOff = 0;
+        [Tooltip("At what point to apply the alpha min range 0-1")] [Range(0, 1)] public float CutOff;
 
-        [Tooltip("Implement a hard blend based on the Cutoff")]
-        public bool HardBlend = false;
+        [Tooltip("If Mask Scaling Rect is given and this value is true, the area around the mask will not be clipped")] public bool DontClipMaskScalingRect;
 
-        [Tooltip("Flip the masks alpha value")]
-        public bool FlipAlphaMask = false;
+        [Tooltip("Flip the masks alpha value")] public bool FlipAlphaMask;
 
-        [Tooltip("If Mask Scaling Rect is given and this value is true, the area around the mask will not be clipped")]
-        public bool DontClipMaskScalingRect = false;
+        [Tooltip("Implement a hard blend based on the Cutoff")] public bool HardBlend;
 
-        [Tooltip("If set to true, this mask is applied to all child Text and Graphic objects belonging to this object.")]
-        public bool CascadeToALLChildren;
-        Vector3[] worldCorners;
+        private bool isText;
 
-        Vector2 AlphaUV;
+        [Tooltip("The area that is to be used as the container.")] public RectTransform MaskArea;
 
-        Vector2 min;
-        Vector2 max = Vector2.one;
-        Vector2 p;
-        Vector2 siz;
-        Vector2 tp = new Vector2(.5f, .5f);
+        private Rect maskRect;
+
+        [Tooltip(
+            "A Rect Transform that can be used to scale and move the mask - Does not apply to Text UI Components being masked"
+            )] public RectTransform maskScalingRect;
+
+        private Material mat;
 
 
-        bool MaterialNotSupported; // UI items like toggles, we can stil lcascade down to them though :)
-        Rect maskRect;
-        Rect contentRect;
+        private bool MaterialNotSupported; // UI items like toggles, we can stil lcascade down to them though :)
+        private Vector2 max = Vector2.one;
 
-        Vector2 centre;
-
-        bool isText = false;
+        private Vector2 min;
+        private RectTransform myRect;
+        private Vector2 p;
+        private Vector2 siz;
+        private readonly Vector2 tp = new Vector2(.5f, .5f);
+        private Vector3[] worldCorners;
 
         // Use this for initialization
-        void Start()
+        private void Start()
         {
             myRect = GetComponent<RectTransform>();
 
@@ -91,7 +86,7 @@ namespace Assets.Scripts.Effects
             }
             if (CascadeToALLChildren)
             {
-                for (int c = 0; c < transform.childCount; c++)
+                for (var c = 0; c < transform.childCount; c++)
                 {
                     SetSAM(transform.GetChild(c));
                 }
@@ -99,14 +94,13 @@ namespace Assets.Scripts.Effects
 
             MaterialNotSupported = mat == null;
         }
-        
-        void SetSAM(Transform t)
+
+        private void SetSAM(Transform t)
         {
-            SoftMaskScript thisSam = t.gameObject.GetComponent<SoftMaskScript>();
+            var thisSam = t.gameObject.GetComponent<SoftMaskScript>();
             if (thisSam == null)
             {
                 thisSam = t.gameObject.AddComponent<SoftMaskScript>();
-
             }
             thisSam.MaskArea = MaskArea;
             thisSam.AlphaMask = AlphaMask;
@@ -118,12 +112,12 @@ namespace Assets.Scripts.Effects
             thisSam.CascadeToALLChildren = CascadeToALLChildren;
         }
 
-        void GetCanvas()
+        private void GetCanvas()
         {
-            Transform t = transform;
+            var t = transform;
 
-            int lvlLimit = 100;
-            int lvl = 0;
+            var lvlLimit = 100;
+            var lvl = 0;
 
             while (canvas == null && lvl < lvlLimit)
             {
@@ -137,12 +131,12 @@ namespace Assets.Scripts.Effects
             }
         }
 
-        void Update()
+        private void Update()
         {
             SetMask();
         }
 
-        void SetMask()
+        private void SetMask()
         {
             if (MaterialNotSupported)
             {
@@ -165,12 +159,12 @@ namespace Assets.Scripts.Effects
                 {
                     worldCorners = new Vector3[4];
                     MaskArea.GetWorldCorners(worldCorners);
-                    siz = (worldCorners[2] - worldCorners[0]);
+                    siz = worldCorners[2] - worldCorners[0];
                     p = MaskArea.transform.position;
                 }
 
-                min = p - (new Vector2(siz.x, siz.y) * .5f);
-                max = p + (new Vector2(siz.x, siz.y) * .5f);
+                min = p - new Vector2(siz.x, siz.y)*.5f;
+                max = p + new Vector2(siz.x, siz.y)*.5f;
             }
             else // Need to do our calculations in tex space for Image.
             {
@@ -182,29 +176,33 @@ namespace Assets.Scripts.Effects
                 // Get the centre offset
                 if (maskScalingRect != null)
                 {
-                     centre = myRect.transform.InverseTransformPoint(maskScalingRect.transform.TransformPoint(maskScalingRect.rect.center));
+                    centre =
+                        myRect.transform.InverseTransformPoint(
+                            maskScalingRect.transform.TransformPoint(maskScalingRect.rect.center));
                 }
                 else
                 {
-                    centre = myRect.transform.InverseTransformPoint(MaskArea.transform.TransformPoint(MaskArea.rect.center));
+                    centre =
+                        myRect.transform.InverseTransformPoint(MaskArea.transform.TransformPoint(MaskArea.rect.center));
                 }
-                centre += (Vector2)myRect.transform.InverseTransformPoint(myRect.transform.position) - myRect.rect.center;
+                centre += (Vector2) myRect.transform.InverseTransformPoint(myRect.transform.position) -
+                          myRect.rect.center;
 
                 // Set the scale for mapping texcoords mask
-                AlphaUV = new Vector2(maskRect.width / contentRect.width, maskRect.height / contentRect.height);
+                AlphaUV = new Vector2(maskRect.width/contentRect.width, maskRect.height/contentRect.height);
 
                 // set my min and max to the centre offest
                 min = centre;
                 max = min;
 
-                siz = new Vector2(maskRect.width, maskRect.height) * .5f;
+                siz = new Vector2(maskRect.width, maskRect.height)*.5f;
                 // Move them out to the min max extreams
                 min -= siz;
                 max += siz;
 
                 // Now move these into texture space. 0 - 1
-                min = new Vector2(min.x / contentRect.width, min.y / contentRect.height) + tp;
-                max = new Vector2(max.x / contentRect.width, max.y / contentRect.height) + tp;
+                min = new Vector2(min.x/contentRect.width, min.y/contentRect.height) + tp;
+                max = new Vector2(max.x/contentRect.width, max.y/contentRect.height) + tp;
             }
 
             mat.SetFloat("_HardBlend", HardBlend ? 1 : 0);

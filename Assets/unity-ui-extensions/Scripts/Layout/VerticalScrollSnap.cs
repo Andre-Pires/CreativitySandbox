@@ -3,6 +3,7 @@
 /// Updated by ddreaper - removed dependency on a custom ScrollRect script. Now implements drag interfaces and standard Scroll Rect.
 
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -13,75 +14,70 @@ namespace Assets.Scripts.Layout
     [AddComponentMenu("Layout/Extensions/Vertical Scroll Snap")]
     public class VerticalScrollSnap : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
     {
-        private Transform _screensContainer;
+        [Tooltip("The currently active page")] [SerializeField] private int _currentScreen;
+
+        private int _fastSwipeCounter;
+        private readonly int _fastSwipeTarget = 30;
+
+        private bool _fastSwipeTimer;
+        private bool _lerp;
+        private Vector3 _lerp_target;
+
+
+        private List<Vector3> _positions;
 
         private int _screens = 1;
-
-        private bool _fastSwipeTimer = false;
-        private int _fastSwipeCounter = 0;
-        private int _fastSwipeTarget = 30;
-
-
-        private System.Collections.Generic.List<Vector3> _positions;
+        private Transform _screensContainer;
         private ScrollRect _scroll_rect;
-        private Vector3 _lerp_target;
-        private bool _lerp;
-
-        [Tooltip("The gameobject that contains toggles which suggest pagination. (optional)")]
-        public GameObject Pagination;
-
-        [Tooltip("Button to go to the next page. (optional)")]
-        public GameObject NextButton;
-        [Tooltip("Button to go to the previous page. (optional)")]
-        public GameObject PrevButton;
-        [Tooltip("Transition speed between pages. (optional)")]
-        public float transitionSpeed = 7.5f;
-
-        public Boolean UseFastSwipe = true;
-        public int FastSwipeThreshold = 100;
 
         private bool _startDrag = true;
-        private Vector3 _startPosition = new Vector3();
+        private Vector3 _startPosition;
 
-        [Tooltip("The currently active page")]
-        [SerializeField]
-        private int _currentScreen;
+        private bool fastSwipe; //to determine if a fast swipe was performed
+        public int FastSwipeThreshold = 100;
 
-        [Tooltip("The screen / page to start the control on")]
-        public int StartingScreen = 1;
+        [Tooltip("Button to go to the next page. (optional)")] public GameObject NextButton;
 
-        [Tooltip("The distance between two pages, by default 3 times the width of the control")]
-        public int PageStep = 0;
+        [Tooltip("The distance between two pages, by default 3 times the width of the control")] public int PageStep;
+
+        [Tooltip("The gameobject that contains toggles which suggest pagination. (optional)")] public GameObject
+            Pagination;
+
+        [Tooltip("Button to go to the previous page. (optional)")] public GameObject PrevButton;
+
+        [Tooltip("The screen / page to start the control on")] public int StartingScreen = 1;
+
+        [Tooltip("Transition speed between pages. (optional)")] public float transitionSpeed = 7.5f;
+
+        public bool UseFastSwipe = true;
 
         public int CurrentPage
         {
-            get
-            {
-                return _currentScreen;
-            }
+            get { return _currentScreen; }
         }
-        
+
         // Use this for initialization
-        void Start()
+        private void Start()
         {
             _scroll_rect = gameObject.GetComponent<ScrollRect>();
 
             if (_scroll_rect.horizontalScrollbar || _scroll_rect.verticalScrollbar)
             {
-                Debug.LogWarning("Warning, using scrollbors with the Scroll Snap controls is not advised as it causes unpredictable results");
+                Debug.LogWarning(
+                    "Warning, using scrollbors with the Scroll Snap controls is not advised as it causes unpredictable results");
             }
 
             _screensContainer = _scroll_rect.content;
             if (PageStep == 0)
             {
-                PageStep = (int)_scroll_rect.GetComponent<RectTransform>().rect.height * 3;
+                PageStep = (int) _scroll_rect.GetComponent<RectTransform>().rect.height*3;
             }
             DistributePages();
 
             _lerp = false;
             _currentScreen = StartingScreen;
 
-            _scroll_rect.verticalNormalizedPosition = (float)(_currentScreen - 1) / (float)(_screens - 1);
+            _scroll_rect.verticalNormalizedPosition = (_currentScreen - 1)/(float) (_screens - 1);
 
             ChangeBulletsInfo(_currentScreen);
 
@@ -92,11 +88,12 @@ namespace Assets.Scripts.Layout
                 PrevButton.GetComponent<Button>().onClick.AddListener(() => { PreviousScreen(); });
         }
 
-        void Update()
+        private void Update()
         {
             if (_lerp)
             {
-                _screensContainer.localPosition = Vector3.Lerp(_screensContainer.localPosition, _lerp_target, transitionSpeed * Time.deltaTime);
+                _screensContainer.localPosition = Vector3.Lerp(_screensContainer.localPosition, _lerp_target,
+                    transitionSpeed*Time.deltaTime);
                 if (Vector3.Distance(_screensContainer.localPosition, _lerp_target) < 0.005f)
                 {
                     _lerp = false;
@@ -113,10 +110,7 @@ namespace Assets.Scripts.Layout
             {
                 _fastSwipeCounter++;
             }
-
         }
-
-        private bool fastSwipe = false; //to determine if a fast swipe was performed
 
 
         //Function for switching screens with buttons
@@ -183,12 +177,12 @@ namespace Assets.Scripts.Layout
 
 
         //find the closest registered point to the releasing point
-        private Vector3 FindClosestFrom(Vector3 start, System.Collections.Generic.List<Vector3> positions)
+        private Vector3 FindClosestFrom(Vector3 start, List<Vector3> positions)
         {
-            Vector3 closest = Vector3.zero;
-            float distance = Mathf.Infinity;
+            var closest = Vector3.zero;
+            var distance = Mathf.Infinity;
 
-            foreach (Vector3 position in _positions)
+            foreach (var position in _positions)
             {
                 if (Vector3.Distance(start, position) < distance)
                 {
@@ -212,9 +206,9 @@ namespace Assets.Scripts.Layout
         private void ChangeBulletsInfo(int currentScreen)
         {
             if (Pagination)
-                for (int i = 0; i < Pagination.transform.childCount; i++)
+                for (var i = 0; i < Pagination.transform.childCount; i++)
                 {
-                    Pagination.transform.GetChild(i).GetComponent<Toggle>().isOn = (currentScreen == i)
+                    Pagination.transform.GetChild(i).GetComponent<Toggle>().isOn = currentScreen == i
                         ? true
                         : false;
                 }
@@ -225,38 +219,38 @@ namespace Assets.Scripts.Layout
         {
             float _offset = 0;
             float _dimension = 0;
-            Vector2 panelDimensions = gameObject.GetComponent<RectTransform>().sizeDelta;
+            var panelDimensions = gameObject.GetComponent<RectTransform>().sizeDelta;
             float currentYPosition = 0;
 
-            for (int i = 0; i < _screensContainer.transform.childCount; i++)
+            for (var i = 0; i < _screensContainer.transform.childCount; i++)
             {
-                RectTransform child = _screensContainer.transform.GetChild(i).gameObject.GetComponent<RectTransform>();
-                currentYPosition = _offset + i * PageStep;
+                var child = _screensContainer.transform.GetChild(i).gameObject.GetComponent<RectTransform>();
+                currentYPosition = _offset + i*PageStep;
                 child.sizeDelta = new Vector2(panelDimensions.x, panelDimensions.y);
-                child.anchoredPosition = new Vector2(0f - panelDimensions.x / 2, currentYPosition + panelDimensions.y / 2);
+                child.anchoredPosition = new Vector2(0f - panelDimensions.x/2, currentYPosition + panelDimensions.y/2);
             }
 
-            _dimension = currentYPosition + _offset * -1;
+            _dimension = currentYPosition + _offset*-1;
 
-            _screensContainer.GetComponent<RectTransform>().offsetMax = new Vector2(0f,_dimension);
+            _screensContainer.GetComponent<RectTransform>().offsetMax = new Vector2(0f, _dimension);
 
             _screens = _screensContainer.childCount;
 
-            _positions = new System.Collections.Generic.List<Vector3>();
+            _positions = new List<Vector3>();
 
             if (_screens > 0)
             {
-                for (int i = 0; i < _screens; ++i)
+                for (var i = 0; i < _screens; ++i)
                 {
-                    _scroll_rect.verticalNormalizedPosition = (float)i / (float)(_screens - 1);
+                    _scroll_rect.verticalNormalizedPosition = i/(float) (_screens - 1);
                     _positions.Add(_screensContainer.localPosition);
                 }
             }
         }
 
-        int GetPageforPosition(Vector3 pos)
+        private int GetPageforPosition(Vector3 pos)
         {
-            for (int i = 0; i < _positions.Count; i++)
+            for (var i = 0; i < _positions.Count; i++)
             {
                 if (_positions[i] == pos)
                 {
@@ -265,7 +259,8 @@ namespace Assets.Scripts.Layout
             }
             return 0;
         }
-        void OnValidate()
+
+        private void OnValidate()
         {
             var childCount = gameObject.GetComponent<ScrollRect>().content.childCount;
             if (StartingScreen > childCount)
@@ -279,7 +274,7 @@ namespace Assets.Scripts.Layout
         }
 
         /// <summary>
-        /// Add a new child to this Scroll Snap and recalculate it's children
+        ///     Add a new child to this Scroll Snap and recalculate it's children
         /// </summary>
         /// <param name="GO">GameObject to add to the ScrollSnap</param>
         public void AddChild(GameObject GO)
@@ -288,12 +283,12 @@ namespace Assets.Scripts.Layout
             GO.transform.SetParent(_screensContainer);
             DistributePages();
 
-            _scroll_rect.verticalNormalizedPosition = (float)(_currentScreen) / (_screens - 1);
+            _scroll_rect.verticalNormalizedPosition = (float) _currentScreen/(_screens - 1);
         }
 
         /// <summary>
-        /// Remove a new child to this Scroll Snap and recalculate it's children 
-        /// *Note, this is an index address (0-x)
+        ///     Remove a new child to this Scroll Snap and recalculate it's children
+        ///     *Note, this is an index address (0-x)
         /// </summary>
         /// <param name="index"></param>
         /// <param name="ChildRemoved"></param>
@@ -306,7 +301,7 @@ namespace Assets.Scripts.Layout
             }
             _scroll_rect.verticalNormalizedPosition = 0;
             var children = _screensContainer.transform;
-            int i = 0;
+            var i = 0;
             foreach (Transform child in children)
             {
                 if (i == index)
@@ -323,10 +318,11 @@ namespace Assets.Scripts.Layout
                 _currentScreen = _screens - 1;
             }
 
-            _scroll_rect.verticalNormalizedPosition = (float)(_currentScreen) / (_screens - 1);
+            _scroll_rect.verticalNormalizedPosition = (float) _currentScreen/(_screens - 1);
         }
 
         #region Interfaces
+
         public void OnBeginDrag(PointerEventData eventData)
         {
             _startPosition = _screensContainer.localPosition;
@@ -373,7 +369,7 @@ namespace Assets.Scripts.Layout
                 {
                     _lerp = true;
                     _lerp_target = FindClosestFrom(_screensContainer.localPosition, _positions);
-                        _currentScreen = GetPageforPosition(_lerp_target);
+                    _currentScreen = GetPageforPosition(_lerp_target);
                 }
             }
         }
@@ -387,6 +383,7 @@ namespace Assets.Scripts.Layout
                 _startDrag = false;
             }
         }
+
         #endregion
     }
 }

@@ -9,39 +9,35 @@ namespace Assets.Scripts.InputModules
     [AddComponentMenu("Event/Extensions/GamePad Input Module")]
     public class GamePadInputModule : BaseInputModule
     {
+        /// <summary>
+        ///     Name of the submit button.
+        /// </summary>
+        [SerializeField] private string m_CancelButton = "Cancel";
+
+        private int m_ConsecutiveMoveCount;
+
+        [SerializeField] private string m_HorizontalAxis = "Horizontal";
+
+        [SerializeField] private float m_InputActionsPerSecond = 10;
+
+        private Vector2 m_LastMoveVector;
         private float m_PrevActionTime;
-        Vector2 m_LastMoveVector;
-        int m_ConsecutiveMoveCount = 0;
+
+        [SerializeField] private float m_RepeatDelay = 0.1f;
+
+        /// <summary>
+        ///     Name of the submit button.
+        /// </summary>
+        [SerializeField] private string m_SubmitButton = "Submit";
+
+        /// <summary>
+        ///     Name of the vertical axis for movement (if axis events are used).
+        /// </summary>
+        [SerializeField] private string m_VerticalAxis = "Vertical";
 
         protected GamePadInputModule()
-        {}
-
-        [SerializeField]
-        private string m_HorizontalAxis = "Horizontal";
-
-        /// <summary>
-        /// Name of the vertical axis for movement (if axis events are used).
-        /// </summary>
-        [SerializeField]
-        private string m_VerticalAxis = "Vertical";
-
-        /// <summary>
-        /// Name of the submit button.
-        /// </summary>
-        [SerializeField]
-        private string m_SubmitButton = "Submit";
-
-        /// <summary>
-        /// Name of the submit button.
-        /// </summary>
-        [SerializeField]
-        private string m_CancelButton = "Cancel";
-
-        [SerializeField]
-        private float m_InputActionsPerSecond = 10;
-
-        [SerializeField]
-        private float m_RepeatDelay = 0.1f;
+        {
+        }
 
         public float inputActionsPerSecond
         {
@@ -56,7 +52,7 @@ namespace Assets.Scripts.InputModules
         }
 
         /// <summary>
-        /// Name of the horizontal axis for movement (if axis events are used).
+        ///     Name of the horizontal axis for movement (if axis events are used).
         /// </summary>
         public string horizontalAxis
         {
@@ -65,7 +61,7 @@ namespace Assets.Scripts.InputModules
         }
 
         /// <summary>
-        /// Name of the vertical axis for movement (if axis events are used).
+        ///     Name of the vertical axis for movement (if axis events are used).
         /// </summary>
         public string verticalAxis
         {
@@ -100,12 +96,12 @@ namespace Assets.Scripts.InputModules
 
         public override void ActivateModule()
         {
-            StandaloneInputModule StandAloneSystem = GetComponent<StandaloneInputModule>();
+            var StandAloneSystem = GetComponent<StandaloneInputModule>();
 
             if (StandAloneSystem && StandAloneSystem.enabled)
             {
                 Debug.LogError("StandAloneInputSystem should not be used with the GamePadInputModule, " +
-                    "please remove it from the Event System in this scene or disable it when this module is in use");
+                               "please remove it from the Event System in this scene or disable it when this module is in use");
             }
 
             base.ActivateModule();
@@ -124,7 +120,7 @@ namespace Assets.Scripts.InputModules
 
         public override void Process()
         {
-            bool usedEvent = SendUpdateEventToSelectedObject();
+            var usedEvent = SendUpdateEventToSelectedObject();
 
             if (eventSystem.sendNavigationEvents)
             {
@@ -137,7 +133,7 @@ namespace Assets.Scripts.InputModules
         }
 
         /// <summary>
-        /// Process submit keys.
+        ///     Process submit keys.
         /// </summary>
         protected bool SendSubmitEventToSelectedObject()
         {
@@ -155,7 +151,7 @@ namespace Assets.Scripts.InputModules
 
         private Vector2 GetRawMoveVector()
         {
-            Vector2 move = Vector2.zero;
+            var move = Vector2.zero;
             move.x = Input.GetAxisRaw(m_HorizontalAxis);
             move.y = Input.GetAxisRaw(m_VerticalAxis);
 
@@ -177,13 +173,13 @@ namespace Assets.Scripts.InputModules
         }
 
         /// <summary>
-        /// Process events.
+        ///     Process events.
         /// </summary>
         protected bool SendMoveEventToSelectedObject()
         {
-            float time = Time.unscaledTime;
+            var time = Time.unscaledTime;
 
-            Vector2 movement = GetRawMoveVector();
+            var movement = GetRawMoveVector();
             if (Mathf.Approximately(movement.x, 0f) && Mathf.Approximately(movement.y, 0f))
             {
                 m_ConsecutiveMoveCount = 0;
@@ -191,17 +187,17 @@ namespace Assets.Scripts.InputModules
             }
 
             // If user pressed key again, always allow event
-            bool allow = Input.GetButtonDown(m_HorizontalAxis) || Input.GetButtonDown(m_VerticalAxis);
-            bool similarDir = (Vector2.Dot(movement, m_LastMoveVector) > 0);
+            var allow = Input.GetButtonDown(m_HorizontalAxis) || Input.GetButtonDown(m_VerticalAxis);
+            var similarDir = Vector2.Dot(movement, m_LastMoveVector) > 0;
             if (!allow)
             {
                 // Otherwise, user held down key or axis.
                 // If direction didn't change at least 90 degrees, wait for delay before allowing consequtive event.
                 if (similarDir && m_ConsecutiveMoveCount == 1)
-                    allow = (time > m_PrevActionTime + m_RepeatDelay);
+                    allow = time > m_PrevActionTime + m_RepeatDelay;
                 // If direction changed at least 90 degree, or we already had the delay, repeat at repeat rate.
                 else
-                    allow = (time > m_PrevActionTime + 1f / m_InputActionsPerSecond);
+                    allow = time > m_PrevActionTime + 1f/m_InputActionsPerSecond;
             }
             if (!allow)
                 return false;

@@ -10,78 +10,95 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Assets.Scripts.Layout {
+namespace Assets.Scripts.Layout
+{
     /// <summary>
-    /// TODO:
-    /// - add automatic child sizing, like in the HorizontalOrVerticalLayoutGroup.cs
-    /// - nicer anchor handling for initial child positions
+    ///     TODO:
+    ///     - add automatic child sizing, like in the HorizontalOrVerticalLayoutGroup.cs
+    ///     - nicer anchor handling for initial child positions
     /// </summary>
     [AddComponentMenu("Layout/Extensions/Curved Layout")]
-    public class CurvedLayout : LayoutGroup {
+    public class CurvedLayout : LayoutGroup
+    {
+        // the slope can be moved by altering this setting, it could be constrained to the 0-1 range, but other values are usefull for animations
+        public float centerpoint = 0.5f;
         public Vector3 CurveOffset;
 
         // Yes these two could be combined into a single vector
         // but this makes it easier to use?
-        [Tooltip("axis along which to place the items, Normalized before use")]
-        public Vector3 itemAxis;
-        [Tooltip("size of each item along the Normalized axis")]
-        public float itemSize;
+        [Tooltip("axis along which to place the items, Normalized before use")] public Vector3 itemAxis;
 
-        // the slope can be moved by altering this setting, it could be constrained to the 0-1 range, but other values are usefull for animations
-        public float centerpoint = 0.5f;
+        [Tooltip("size of each item along the Normalized axis")] public float itemSize;
 
-        protected override void OnEnable() { base.OnEnable(); CalculateRadial(); }
-        public override void SetLayoutHorizontal() {
-        }
-        public override void SetLayoutVertical() {
-        }
-        public override void CalculateLayoutInputVertical() {
+        protected override void OnEnable()
+        {
+            base.OnEnable();
             CalculateRadial();
         }
-        public override void CalculateLayoutInputHorizontal() {
+
+        public override void SetLayoutHorizontal()
+        {
+        }
+
+        public override void SetLayoutVertical()
+        {
+        }
+
+        public override void CalculateLayoutInputVertical()
+        {
             CalculateRadial();
         }
+
+        public override void CalculateLayoutInputHorizontal()
+        {
+            CalculateRadial();
+        }
+
 #if UNITY_EDITOR
-        protected override void OnValidate() {
+        protected override void OnValidate()
+        {
             base.OnValidate();
             CalculateRadial();
         }
 #endif
 
-        void CalculateRadial() {
+        private void CalculateRadial()
+        {
             m_Tracker.Clear();
             if (transform.childCount == 0)
                 return;
 
             //one liner for figuring out the desired pivot (should be moved into a utility function)
-            Vector2 pivot = new Vector2(((int)childAlignment % 3) * 0.5f, ((int)childAlignment / 3) * 0.5f);
+            var pivot = new Vector2((int) childAlignment%3*0.5f, (int) childAlignment/3*0.5f);
 
             //this seems to work ok-ish
-            Vector3 lastPos = new Vector3(
+            var lastPos = new Vector3(
                 GetStartOffset(0, GetTotalPreferredSize(0)),
                 GetStartOffset(1, GetTotalPreferredSize(1)),
                 0f
-            );
+                );
 
             // 0 = first, 1 = last child
             float lerp = 0;
             //no need to catch divide by 0 as childCount > 0
-            float step = 1f / transform.childCount;
+            var step = 1f/transform.childCount;
 
             //normalize and create a distance between items
-            var dist = itemAxis.normalized * itemSize;
+            var dist = itemAxis.normalized*itemSize;
 
-            for (int i = 0; i < transform.childCount; i++) {
-                RectTransform child = (RectTransform)transform.GetChild(i);
-                if (child != null) {
+            for (var i = 0; i < transform.childCount; i++)
+            {
+                var child = (RectTransform) transform.GetChild(i);
+                if (child != null)
+                {
                     //stop the user from altering certain values in the editor
                     m_Tracker.Add(this, child,
-                    DrivenTransformProperties.Anchors |
-                    DrivenTransformProperties.AnchoredPosition |
-                    DrivenTransformProperties.Pivot);
-                    Vector3 vPos = lastPos + dist;
+                        DrivenTransformProperties.Anchors |
+                        DrivenTransformProperties.AnchoredPosition |
+                        DrivenTransformProperties.Pivot);
+                    var vPos = lastPos + dist;
 
-                    child.localPosition = lastPos = vPos + (lerp - centerpoint) * CurveOffset;
+                    child.localPosition = lastPos = vPos + (lerp - centerpoint)*CurveOffset;
 
                     child.pivot = pivot;
                     //child anchors are not yet calculated, each child should set it's own size for now
@@ -89,7 +106,6 @@ namespace Assets.Scripts.Layout {
                     lerp += step;
                 }
             }
-
         }
     }
 }

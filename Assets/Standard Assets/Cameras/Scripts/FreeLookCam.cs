@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
 
@@ -6,6 +5,14 @@ namespace UnityStandardAssets.Cameras
 {
     public class FreeLookCam : PivotBasedCameraRig
     {
+        private const float k_LookDistance = 100f; // How far in front of the pivot the character's look target is.
+        public float CurrentZoom;
+
+        private Vector3 InitPos;
+        private Vector3 InitRotation;
+        [SerializeField] private readonly bool m_LockCursor = false; // Whether the cursor should be hidden and locked.
+
+        private float m_LookAngle; // The rig's y axis rotation.
         // This script is designed to be placed on the root object of a camera rig,
         // comprising 3 gameobjects, each parented to the next:
 
@@ -13,31 +20,36 @@ namespace UnityStandardAssets.Cameras
         // 		Pivot
         // 			Camera
 
-        [SerializeField] private float m_MoveSpeed = 1f;                      // How fast the rig will move to keep up with the target's position.
-        [Range(0f, 10f)] [SerializeField] private float m_TurnSpeed = 1.5f;   // How fast the rig will rotate from user input.
-        [SerializeField] private float m_TurnSmoothing = 0.0f;                // How much smoothing to apply to the turn input, to reduce mouse-turn jerkiness
-        [SerializeField] private float m_TiltMax = 75f;                       // The maximum value of the x axis rotation of the pivot.
-        [SerializeField] private float m_TiltMin = 45f;                       // The minimum value of the x axis rotation of the pivot.
-        [SerializeField] private bool m_LockCursor = false;                   // Whether the cursor should be hidden and locked.
-        [SerializeField] private bool m_VerticalAutoReturn = false;           // set wether or not the vertical axis should auto return
+        [SerializeField] private readonly float m_MoveSpeed = 1f;
+            // How fast the rig will move to keep up with the target's position.
 
-        private float m_LookAngle;                    // The rig's y axis rotation.
-        private float m_TiltAngle;                    // The pivot's x axis rotation.
-        private const float k_LookDistance = 100f;    // How far in front of the pivot the character's look target is.
-		private Vector3 m_PivotEulers;
-		private Quaternion m_PivotTargetRot;
-		private Quaternion m_TransformTargetRot;
+        private Vector3 m_PivotEulers;
+        private Quaternion m_PivotTargetRot;
+        private float m_TiltAngle; // The pivot's x axis rotation.
+
+        [SerializeField] private readonly float m_TiltMax = 75f;
+            // The maximum value of the x axis rotation of the pivot.
+
+        [SerializeField] private readonly float m_TiltMin = 45f;
+            // The minimum value of the x axis rotation of the pivot.
+
+        private Quaternion m_TransformTargetRot;
+
+        [SerializeField] private readonly float m_TurnSmoothing = 0.0f;
+            // How much smoothing to apply to the turn input, to reduce mouse-turn jerkiness
+
+        [Range(0f, 10f)] [SerializeField] private readonly float m_TurnSpeed = 1.5f;
+            // How fast the rig will rotate from user input.
+
+        [SerializeField] private readonly bool m_VerticalAutoReturn = false;
+            // set wether or not the vertical axis should auto return
 
         public float PanSpeed = 10.0f;
         public float ScrollSpeed = 15f;
 
-        private Vector3 InitPos;
-        private Vector3 InitRotation;
-
         public Vector2 ZoomRange = new Vector2(-5, 5);
-        public float CurrentZoom = 0.0f;
-        public float ZoomZpeed = 1.0f;
         public float ZoomRotation = 1.0f;
+        public float ZoomZpeed = 1.0f;
 
         protected override void Awake()
         {
@@ -45,10 +57,10 @@ namespace UnityStandardAssets.Cameras
             // Lock or unlock the cursor.
             Cursor.lockState = m_LockCursor ? CursorLockMode.Locked : CursorLockMode.None;
             Cursor.visible = !m_LockCursor;
-			m_PivotEulers = m_Pivot.rotation.eulerAngles;
+            m_PivotEulers = m_Pivot.rotation.eulerAngles;
 
-	        m_PivotTargetRot = m_Pivot.transform.localRotation;
-			m_TransformTargetRot = transform.localRotation;
+            m_PivotTargetRot = m_Pivot.transform.localRotation;
+            m_TransformTargetRot = transform.localRotation;
         }
 
 
@@ -67,38 +79,43 @@ namespace UnityStandardAssets.Cameras
             //PAN
             if (Input.GetKey(KeyCode.Mouse1))
             {
-                transform.Translate(Vector3.right * Time.deltaTime * PanSpeed * (Input.mousePosition.x - Screen.width * 0.5f) / (Screen.width * 0.5f), Space.World);
-                transform.Translate(Vector3.forward * Time.deltaTime * PanSpeed * (Input.mousePosition.y - Screen.height * 0.5f) / (Screen.height * 0.5f), Space.World);
+                transform.Translate(
+                    Vector3.right*Time.deltaTime*PanSpeed*(Input.mousePosition.x - Screen.width*0.5f)/
+                    (Screen.width*0.5f), Space.World);
+                transform.Translate(
+                    Vector3.forward*Time.deltaTime*PanSpeed*(Input.mousePosition.y - Screen.height*0.5f)/
+                    (Screen.height*0.5f), Space.World);
             }
             else
             {
                 if (Input.GetKey("d"))
                 {
-                    transform.Translate(Vector3.right * Time.deltaTime * ScrollSpeed, Space.World);
+                    transform.Translate(Vector3.right*Time.deltaTime*ScrollSpeed, Space.World);
                 }
                 else if (Input.GetKey("a"))
                 {
-                    transform.Translate(Vector3.right * Time.deltaTime * -ScrollSpeed, Space.World);
+                    transform.Translate(Vector3.right*Time.deltaTime*-ScrollSpeed, Space.World);
                 }
 
                 if (Input.GetKey("w"))
                 {
-                    transform.Translate(Vector3.forward * Time.deltaTime * ScrollSpeed, Space.World);
+                    transform.Translate(Vector3.forward*Time.deltaTime*ScrollSpeed, Space.World);
                 }
                 else if (Input.GetKey("s"))
                 {
-                    transform.Translate(Vector3.forward * Time.deltaTime * -ScrollSpeed, Space.World);
+                    transform.Translate(Vector3.forward*Time.deltaTime*-ScrollSpeed, Space.World);
                 }
             }
 
             //ZOOM IN/OUT
 
-            CurrentZoom -= Input.GetAxis("Mouse ScrollWheel") * Time.deltaTime * 1000 * ZoomZpeed;
+            CurrentZoom -= Input.GetAxis("Mouse ScrollWheel")*Time.deltaTime*1000*ZoomZpeed;
 
             CurrentZoom = Mathf.Clamp(CurrentZoom, ZoomRange.x, ZoomRange.y);
 
-            transform.position -= new Vector3(0, (transform.position.y - (InitPos.y + CurrentZoom)) * 0.1f, 0);
-            transform.eulerAngles -= new Vector3((transform.eulerAngles.x - (InitRotation.x + CurrentZoom * ZoomRotation)) * 0.1f, 0, 0);
+            transform.position -= new Vector3(0, (transform.position.y - (InitPos.y + CurrentZoom))*0.1f, 0);
+            transform.eulerAngles -=
+                new Vector3((transform.eulerAngles.x - (InitRotation.x + CurrentZoom*ZoomRotation))*0.1f, 0, 0);
         }
 
 
@@ -119,8 +136,8 @@ namespace UnityStandardAssets.Cameras
 
         private void HandleRotationMovement()
         {
-			if(Time.timeScale < float.Epsilon)
-			return;
+            if (Time.timeScale < float.Epsilon)
+                return;
 
             // Read the user input
             var x = CrossPlatformInputManager.GetAxis("Mouse X");
@@ -148,18 +165,20 @@ namespace UnityStandardAssets.Cameras
             }
 
             // Tilt input around X is applied to the pivot (the child of this object)
-			m_PivotTargetRot = Quaternion.Euler(m_TiltAngle, m_PivotEulers.y , m_PivotEulers.z);
+            m_PivotTargetRot = Quaternion.Euler(m_TiltAngle, m_PivotEulers.y, m_PivotEulers.z);
 
-			if (m_TurnSmoothing > 0)
-			{
-				m_Pivot.localRotation = Quaternion.Slerp(m_Pivot.localRotation, m_PivotTargetRot, m_TurnSmoothing * Time.deltaTime);
-				transform.localRotation = Quaternion.Slerp(transform.localRotation, m_TransformTargetRot, m_TurnSmoothing * Time.deltaTime);
-			}
-			else
-			{
-				m_Pivot.localRotation = m_PivotTargetRot;
-				transform.localRotation = m_TransformTargetRot;
-			}
+            if (m_TurnSmoothing > 0)
+            {
+                m_Pivot.localRotation = Quaternion.Slerp(m_Pivot.localRotation, m_PivotTargetRot,
+                    m_TurnSmoothing*Time.deltaTime);
+                transform.localRotation = Quaternion.Slerp(transform.localRotation, m_TransformTargetRot,
+                    m_TurnSmoothing*Time.deltaTime);
+            }
+            else
+            {
+                m_Pivot.localRotation = m_PivotTargetRot;
+                transform.localRotation = m_TransformTargetRot;
+            }
         }
     }
 }

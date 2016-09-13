@@ -1,17 +1,17 @@
+using System;
 using UnityEngine;
 
 namespace Assets.Scripts.Utilities.Serialization.ExampleScriptsAndClasses
 {
-    [System.Serializable]
+    [Serializable]
     public class TestClass
     {
-
-        public string myString;
+        public Color color;
         public GameObject go;
         public string go_id;
+        public int[] myArray = {2, 43, 12};
+
+        public string myString;
         public Vector3 somePosition;
-        public Color color;
-        public int[] myArray = new int[] { 2, 43, 12 };
     }
 }
-

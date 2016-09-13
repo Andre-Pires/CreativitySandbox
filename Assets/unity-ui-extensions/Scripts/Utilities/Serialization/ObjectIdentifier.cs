@@ -6,38 +6,37 @@
 //which is what the palyer will see when inspecting it.
 //To clarify again: A GameObject's (and thus, prefab's) name should be the same as prefabName, while the varialbe "name" in this script can be anything you want (or nothing at all).
 
+using System;
 using UnityEngine;
 
 namespace Assets.Scripts.Utilities.Serialization
 {
     public class ObjectIdentifier : MonoBehaviour
     {
+        public bool dontSave = false;
+
+        public string id;
+        public string idParent;
 
         //public string name;
         public string prefabName;
 
-        public string id;
-        public string idParent;
-        public bool dontSave = false;
-
         public void SetID()
         {
-
-            id = System.Guid.NewGuid().ToString();
+            id = Guid.NewGuid().ToString();
             CheckForRelatives();
         }
 
         private void CheckForRelatives()
         {
-
             if (transform.parent == null)
             {
                 idParent = null;
             }
             else
             {
-                ObjectIdentifier[] childrenIds = GetComponentsInChildren<ObjectIdentifier>();
-                foreach (ObjectIdentifier idScript in childrenIds)
+                var childrenIds = GetComponentsInChildren<ObjectIdentifier>();
+                foreach (var idScript in childrenIds)
                 {
                     if (idScript.transform.gameObject != gameObject)
                     {
@@ -49,4 +48,3 @@ namespace Assets.Scripts.Utilities.Serialization
         }
     }
 }
-

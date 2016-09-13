@@ -9,12 +9,12 @@ namespace Assets.Scripts.ComboBox
     [RequireComponent(typeof(RectTransform), typeof(Button))]
     public class DropDownListButton
     {
-        public RectTransform rectTransform;
         public Button btn;
-        public Text txt;
         public Image btnImg;
-        public Image img;
         public GameObject gameobject;
+        public Image img;
+        public RectTransform rectTransform;
+        public Text txt;
 
         public DropDownListButton(GameObject btnObj)
         {

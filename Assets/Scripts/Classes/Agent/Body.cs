@@ -1,48 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Classes.Helpers;
-using Assets.Scripts.Scripts.UI;
 using UnityEngine;
 
 namespace Assets.Scripts.Classes.Agent
 {
     public class Body : MonoBehaviour
     {
-        private Configuration.Size _size;
-        private Transform _body;
         private const float InitialPlacementRadius = 26.0f;
 
         //blinking and color
-        private readonly Color _negativeColor = Color.black;
-        private readonly Color _positiveColor = Color.white;
-        private Color _pieceColor = Color.white;
-        private Configuration.BlinkingSpeed _currentBlinkSpeed = Configuration.BlinkingSpeed.VerySlow;
-        private Configuration.BlinkingStatus _currentBlinkStatus = Configuration.BlinkingStatus.Stopped;
-
-        //dragging fields
-        public bool Dragging;
-        private Transform _objectToDrag;
-        private Vector3 _distance;
+        private readonly Color _blinkColor = Color.white;
+        private Transform _body;
 
         private List<Collider> _collidersToIgnore;
+        private Configuration.BlinkingSpeed _currentBlinkSpeed = Configuration.BlinkingSpeed.Stopped;
+
+        //rotation
+        private float _currentRotation;
+        private Vector3 _distance;
 
         //double click - change color
         private bool _firstClick;
         private float _initialTime;
         private float _interval = 0.6f;
+        private Transform _objectToDrag;
+        private Color _pieceColor = Color.white;
+        private Configuration.Size _size;
 
-        //rotation
-        private float _currentRotation;
+        //dragging fields
+        public bool Dragging;
 
 
         public void Init(Configuration.Size size, Transform body)
         {
             _size = size;
             _body = body;
-       
+
             //using size's enum index to select correct multiplier
-            _body.localScale = Vector3.one* Configuration.Instance.AvailableSizes[size];
+            _body.localScale = Vector3.one*Configuration.Instance.SizeValues[size];
 
             //place cube in a vacant position in the set
             Utility.PlaceNewGameObject(_body, Vector3.zero, InitialPlacementRadius);
@@ -57,21 +53,19 @@ namespace Assets.Scripts.Classes.Agent
 
         public void Update()
         {
-            
             Blink();
 
 
-           HandleRotationInput();
+            HandleRotationInput();
 
-            if (Input.touchCount < 3 || UnityEngine.Application.platform != RuntimePlatform.Android)
-            {
-                HandleDragging();
-            }
+
+            HandleDragging();
         }
 
         public void LateUpdate()
         {
-            CheckBlinkChange();
+            //TODO - remove this
+            //CheckBlinkChange();
         }
 
         public void SetupBehavior(Color pieceColor, Configuration.BlinkingSpeed speed)
@@ -83,15 +77,17 @@ namespace Assets.Scripts.Classes.Agent
 
         private void Blink()
         {
-            if (_currentBlinkStatus != Configuration.BlinkingStatus.Stopped)
+            if (_currentBlinkSpeed != Configuration.BlinkingSpeed.Stopped)
             {
-                Color colorToUse = _currentBlinkStatus == Configuration.BlinkingStatus.Positive ? _positiveColor : _negativeColor;
-                float duration = Configuration.Instance.AvailableBlinkingSpeeds[_currentBlinkSpeed];
-                float lerp = Mathf.PingPong(Time.time, duration) / duration;
+                var colorToUse = _blinkColor;
+                var duration = Configuration.Instance.BlinkingSpeedsValues[_currentBlinkSpeed];
+                var lerp = Mathf.PingPong(Time.time, duration)/duration;
                 _body.GetComponent<Renderer>().material.color = Color.Lerp(_pieceColor, colorToUse, lerp);
             }
         }
 
+        //TODO - remove this
+        /*
         private void ToggleBlinking()
         {
             int enumLength = Enum.GetNames(typeof(Configuration.BlinkingStatus)).Length;
@@ -100,8 +96,9 @@ namespace Assets.Scripts.Classes.Agent
 
             //always reset color to eliminate inconsistencies
             _body.GetComponent<Renderer>().material.color = _pieceColor;
-        }
+        }*/
 
+        /*
         private void CheckBlinkChange()
         {
             if (_firstClick)
@@ -128,27 +125,30 @@ namespace Assets.Scripts.Classes.Agent
                 }
             }
         }
+        */
 
         private void HandleRotationInput()
         {
-            float rotationSpeed;  //This will determine rotation speed
-            float lerpSpeed;     //This will determine lerp speed
+            float rotationSpeed; //This will determine rotation speed
+            float lerpSpeed; //This will determine lerp speed
 
-            #if UNITY_ANDROID
+#if UNITY_ANDROID
             if (Input.touchCount == 2)
             {
-                int layer = 8;
-                int layerMask = 1 << layer;
+                var layer = 8;
+                var layerMask = 1 << layer;
 
                 Touch touchSlider;
                 var touch1 = Input.GetTouch(0);
                 var touch2 = Input.GetTouch(1);
-              
-                if (touch1.phase == TouchPhase.Stationary && Utility.Instance.CheckIfClicked(_body.transform, layerMask, touch1.position))
+
+                if (touch1.phase == TouchPhase.Stationary &&
+                    Utility.Instance.CheckIfClicked(_body.transform, layerMask, touch1.position))
                 {
                     touchSlider = touch2;
                 }
-                else if (touch2.phase == TouchPhase.Stationary && Utility.Instance.CheckIfClicked(_body.transform, layerMask, touch2.position))
+                else if (touch2.phase == TouchPhase.Stationary &&
+                         Utility.Instance.CheckIfClicked(_body.transform, layerMask, touch2.position))
                 {
                     touchSlider = touch1;
                 }
@@ -157,27 +157,29 @@ namespace Assets.Scripts.Classes.Agent
                     return;
                 }
 
-               
+
                 rotationSpeed = 2.0f;
                 lerpSpeed = 10.0f;
-        
-                _currentRotation += touchSlider.deltaPosition.y * rotationSpeed;
-                _body.rotation = Quaternion.Slerp(_body.transform.rotation, Quaternion.Euler(0, _currentRotation, 0), lerpSpeed * Time.deltaTime);
-            }
-            #endif
 
-            #if UNITY_STANDALONE || UNITY_EDITOR
+                _currentRotation += touchSlider.deltaPosition.y*rotationSpeed;
+                _body.rotation = Quaternion.Slerp(_body.transform.rotation, Quaternion.Euler(0, _currentRotation, 0),
+                    lerpSpeed*Time.deltaTime);
+            }
+#endif
+
+#if UNITY_STANDALONE || UNITY_EDITOR
             if (Input.GetMouseButton(0))
             {
                 if (Utility.Instance.CheckIfClicked(_body.transform))
                 {
-                    lerpSpeed = 100.0f; 
+                    lerpSpeed = 100.0f;
                     rotationSpeed = 50.0f;
-                    _currentRotation += Input.GetAxis("Mouse ScrollWheel") * rotationSpeed;
-                    _body.rotation = Quaternion.Slerp(_body.transform.rotation, Quaternion.Euler(0, _currentRotation, 0), lerpSpeed * Time.deltaTime);
+                    _currentRotation += Input.GetAxis("Mouse ScrollWheel")*rotationSpeed;
+                    _body.rotation = Quaternion.Slerp(_body.transform.rotation, Quaternion.Euler(0, _currentRotation, 0),
+                        lerpSpeed*Time.deltaTime);
                 }
             }
-            #endif
+#endif
         }
 
         private void HandleDragging()
@@ -188,7 +190,7 @@ namespace Assets.Scripts.Classes.Agent
 
             if (Input.GetMouseButtonDown(0))
             {
-                if(Utility.Instance.CheckIfClicked(_objectToDrag))
+                if (Utility.Instance.CheckIfClicked(_objectToDrag))
                 {
                     Dragging = true;
                     _distance = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y,
@@ -200,10 +202,12 @@ namespace Assets.Scripts.Classes.Agent
             {
                 if (Dragging)
                 {
-                    Vector3 distanceToScreen = Camera.main.WorldToScreenPoint(transform.position);
-                    Vector3 posMove = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, distanceToScreen.z));
+                    var distanceToScreen = Camera.main.WorldToScreenPoint(transform.position);
+                    var posMove =
+                        Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y,
+                            distanceToScreen.z));
 
-                    Vector3 futurePos = new Vector3(posMove.x - _distance.x, transform.position.y, posMove.z - _distance.z);
+                    var futurePos = new Vector3(posMove.x - _distance.x, transform.position.y, posMove.z - _distance.z);
 
                     if (!IsColliding(futurePos))
                         _objectToDrag.position = futurePos;
@@ -218,10 +222,10 @@ namespace Assets.Scripts.Classes.Agent
 
         private bool IsColliding(Vector3 position)
         {
-            Collider[] hitColliders = Physics.OverlapSphere(position, _objectToDrag.localScale.x / 2);
-            int numberOfCollidersHit = hitColliders.Length;
+            var hitColliders = Physics.OverlapSphere(position, _objectToDrag.localScale.x/2);
+            var numberOfCollidersHit = hitColliders.Length;
 
-            foreach (Collider collider in _collidersToIgnore)
+            foreach (var collider in _collidersToIgnore)
             {
                 if (hitColliders.Contains(collider))
                 {
@@ -235,11 +239,7 @@ namespace Assets.Scripts.Classes.Agent
                 Debug.Log("collided with something");
                 return true;
             }
-            else
-            {
-                return false;
-            }
-
+            return false;
         }
 
         public void OnDrawGizmos()

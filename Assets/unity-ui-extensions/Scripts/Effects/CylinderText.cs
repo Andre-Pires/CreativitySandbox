@@ -23,39 +23,42 @@ namespace Assets.Scripts.Effects
                 rectTrans = GetComponent<RectTransform>();
         }
 #endif
+
         protected override void Awake()
         {
             base.Awake();
             rectTrans = GetComponent<RectTransform>();
             OnRectTransformDimensionsChange();
         }
+
         protected override void OnEnable()
         {
             base.OnEnable();
             rectTrans = GetComponent<RectTransform>();
             OnRectTransformDimensionsChange();
         }
+
         public override void ModifyMesh(VertexHelper vh)
         {
-            if (! IsActive()) return;
+            if (!IsActive()) return;
 
-            int count = vh.currentVertCount;
+            var count = vh.currentVertCount;
             if (!IsActive() || count == 0)
             {
                 return;
             }
-            for (int index = 0; index < vh.currentVertCount; index++)
+            for (var index = 0; index < vh.currentVertCount; index++)
             {
-                UIVertex uiVertex = new UIVertex();
+                var uiVertex = new UIVertex();
                 vh.PopulateUIVertex(ref uiVertex, index);
 
                 // get x position
-                var x = uiVertex.position.x;                
+                var x = uiVertex.position.x;
 
                 // calculate bend based on pivot and radius
-                uiVertex.position.z = -radius * Mathf.Cos(x / radius);
-                uiVertex.position.x = radius * Mathf.Sin(x / radius);
-                
+                uiVertex.position.z = -radius*Mathf.Cos(x/radius);
+                uiVertex.position.x = radius*Mathf.Sin(x/radius);
+
                 vh.SetUIVertex(uiVertex, index);
             }
         }

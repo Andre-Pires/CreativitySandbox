@@ -11,57 +11,26 @@ namespace Assets.Scripts.SelectionBox
 {
     public class ExampleSelectable : MonoBehaviour, IBoxSelectable
     {
-
-        #region Implemented members of IBoxSelectable
-        bool _selected = false;
-        public bool selected
-        {
-            get
-            {
-                return _selected;
-            }
-
-            set
-            {
-                _selected = value;
-            }
-        }
-
-        bool _preSelected = false;
-        public bool preSelected
-        {
-            get
-            {
-                return _preSelected;
-            }
-
-            set
-            {
-                _preSelected = value;
-            }
-        }
-        #endregion
+        private Image image;
 
         //We want the test object to be either a UI element, a 2D element or a 3D element, so we'll get the appropriate components
-        SpriteRenderer spriteRenderer;
-        Image image;
-        Text text;
+        private SpriteRenderer spriteRenderer;
+        private Text text;
 
-        void Start()
+        private void Start()
         {
             spriteRenderer = transform.GetComponent<SpriteRenderer>();
             image = transform.GetComponent<Image>();
             text = transform.GetComponent<Text>();
         }
 
-        void Update()
+        private void Update()
         {
-
             //What the game object does with the knowledge that it is selected is entirely up to it.
             //In this case we're just going to change the color.
 
             //White if deselected.
-            Color color = Color.white;
+            var color = Color.white;
 
             if (preSelected)
             {
@@ -87,12 +56,24 @@ namespace Assets.Scripts.SelectionBox
             {
                 image.color = color;
             }
-            else if (GetComponent<UnityEngine.Renderer>())
+            else if (GetComponent<Renderer>())
             {
-                GetComponent<UnityEngine.Renderer>().material.color = color;
+                GetComponent<Renderer>().material.color = color;
             }
-
-
         }
+
+        #region Implemented members of IBoxSelectable
+
+        public bool selected { get; set; }
+
+        public ExampleSelectable()
+        {
+            preSelected = false;
+            selected = false;
+        }
+
+        public bool preSelected { get; set; }
+
+        #endregion
     }
 }

@@ -7,20 +7,18 @@ namespace Assets.Scripts.HSVPicker
 {
     public class ColorPickerTester : MonoBehaviour
     {
-        public Renderer pickerRenderer;
         public HSVPicker picker;
+        public Renderer pickerRenderer;
 
-        void Awake()
+        private void Awake()
         {
             pickerRenderer = GetComponent<Renderer>();
         }
+
         // Use this for initialization
-        void Start()
+        private void Start()
         {
-            picker.onValueChanged.AddListener(color =>
-            {
-                pickerRenderer.material.color = color;
-            });
+            picker.onValueChanged.AddListener(color => { pickerRenderer.material.color = color; });
         }
     }
 }

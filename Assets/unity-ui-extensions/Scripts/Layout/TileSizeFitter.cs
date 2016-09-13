@@ -1,6 +1,7 @@
 /// Credit Ges
 /// Sourced from - http://forum.unity3d.com/threads/scripts-useful-4-6-scripts-collection.264161/page-3#post-2280109
 
+using System;
 using Assets.Scripts.Utilities;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -13,36 +14,48 @@ namespace Assets.Scripts.Layout
     [AddComponentMenu("Layout/Extensions/Tile Size Fitter")]
     public class TileSizeFitter : UIBehaviour, ILayoutSelfController
     {
-        [SerializeField]
-        private Vector2 m_Border = Vector2.zero;
-        public Vector2 Border { get { return m_Border; } set { if (SetPropertyUtility.SetStruct(ref m_Border, value)) SetDirty(); } }
+        [SerializeField] private Vector2 m_Border = Vector2.zero;
 
-        [SerializeField]
-        private Vector2 m_TileSize = Vector2.zero;
-        public Vector2 TileSize { get { return m_TileSize; } set { if (SetPropertyUtility.SetStruct(ref m_TileSize, value)) SetDirty(); } }
+        [NonSerialized] private RectTransform m_Rect;
 
-        [System.NonSerialized]
-        private RectTransform m_Rect;
-        private RectTransform rectTransform { get { if (m_Rect == null) m_Rect = GetComponent<RectTransform>(); return m_Rect; } }
+        [SerializeField] private Vector2 m_TileSize = Vector2.zero;
 
         private DrivenRectTransformTracker m_Tracker;
 
-        #region Unity Lifetime calls
-
-        protected override void OnEnable()
+        public Vector2 Border
         {
-            base.OnEnable();
-            SetDirty();
+            get { return m_Border; }
+            set
+            {
+                if (SetPropertyUtility.SetStruct(ref m_Border, value)) SetDirty();
+            }
         }
 
-        protected override void OnDisable()
+        public Vector2 TileSize
         {
-            m_Tracker.Clear();
-            LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
-            base.OnDisable();
+            get { return m_TileSize; }
+            set
+            {
+                if (SetPropertyUtility.SetStruct(ref m_TileSize, value)) SetDirty();
+            }
         }
 
-        #endregion
+        private RectTransform rectTransform
+        {
+            get
+            {
+                if (m_Rect == null) m_Rect = GetComponent<RectTransform>();
+                return m_Rect;
+            }
+        }
+
+        public virtual void SetLayoutHorizontal()
+        {
+        }
+
+        public virtual void SetLayoutVertical()
+        {
+        }
 
         protected override void OnRectTransformDimensionsChange()
         {
@@ -66,13 +79,13 @@ namespace Assets.Scripts.Layout
             m_Tracker.Add(this, rectTransform,
                 DrivenTransformProperties.SizeDeltaX |
                 DrivenTransformProperties.SizeDeltaY);
-            Vector2 sizeDelta = GetParentSize() - Border;
+            var sizeDelta = GetParentSize() - Border;
             if (TileSize.x > 0.001f)
-                sizeDelta.x -= Mathf.Floor(sizeDelta.x / TileSize.x) * TileSize.x;
+                sizeDelta.x -= Mathf.Floor(sizeDelta.x/TileSize.x)*TileSize.x;
             else
                 sizeDelta.x = 0;
             if (TileSize.y > 0.001f)
-                sizeDelta.y -= Mathf.Floor(sizeDelta.y / TileSize.y) * TileSize.y;
+                sizeDelta.y -= Mathf.Floor(sizeDelta.y/TileSize.y)*TileSize.y;
             else
                 sizeDelta.y = 0;
             rectTransform.sizeDelta = -sizeDelta;
@@ -80,14 +93,11 @@ namespace Assets.Scripts.Layout
 
         private Vector2 GetParentSize()
         {
-            RectTransform parent = rectTransform.parent as RectTransform;
+            var parent = rectTransform.parent as RectTransform;
             if (!parent)
                 return Vector2.zero;
             return parent.rect.size;
         }
-
-        public virtual void SetLayoutHorizontal() { }
-        public virtual void SetLayoutVertical() { }
 
         protected void SetDirty()
         {
@@ -105,5 +115,22 @@ namespace Assets.Scripts.Layout
             SetDirty();
         }
 #endif
+
+        #region Unity Lifetime calls
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            SetDirty();
+        }
+
+        protected override void OnDisable()
+        {
+            m_Tracker.Clear();
+            LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
+            base.OnDisable();
+        }
+
+        #endregion
     }
 }

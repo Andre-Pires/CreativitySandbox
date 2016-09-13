@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 
@@ -6,12 +5,12 @@ namespace UnityStandardAssets.Utility
 {
     public class DragRigidbody : MonoBehaviour
     {
-        const float k_Spring = 50.0f;
-        const float k_Damper = 5.0f;
-        const float k_Drag = 10.0f;
-        const float k_AngularDrag = 5.0f;
-        const float k_Distance = 0.2f;
-        const bool k_AttachToCenterOfMass = false;
+        private const float k_Spring = 50.0f;
+        private const float k_Damper = 5.0f;
+        private const float k_Drag = 10.0f;
+        private const float k_AngularDrag = 5.0f;
+        private const float k_Distance = 0.2f;
+        private const bool k_AttachToCenterOfMass = false;
 
         private SpringJoint m_SpringJoint;
 
@@ -27,11 +26,11 @@ namespace UnityStandardAssets.Utility
             var mainCamera = FindCamera();
 
             // We need to actually hit an object
-            RaycastHit hit = new RaycastHit();
+            var hit = new RaycastHit();
             if (
                 !Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition).origin,
-                                 mainCamera.ScreenPointToRay(Input.mousePosition).direction, out hit, 100,
-                                 Physics.DefaultRaycastLayers))
+                    mainCamera.ScreenPointToRay(Input.mousePosition).direction, out hit, 100,
+                    Physics.DefaultRaycastLayers))
             {
                 return;
             }
@@ -44,7 +43,7 @@ namespace UnityStandardAssets.Utility
             if (!m_SpringJoint)
             {
                 var go = new GameObject("Rigidbody dragger");
-                Rigidbody body = go.AddComponent<Rigidbody>();
+                var body = go.AddComponent<Rigidbody>();
                 m_SpringJoint = go.AddComponent<SpringJoint>();
                 body.isKinematic = true;
             }

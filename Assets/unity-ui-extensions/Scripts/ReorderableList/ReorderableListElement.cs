@@ -9,7 +9,6 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts.ReorderableList
 {
-
     [RequireComponent(typeof(RectTransform))]
     public class ReorderableListElement : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
     {
@@ -53,14 +52,14 @@ namespace Assets.Scripts.ReorderableList
                         IsAClone = _reorderableList.CloneDraggedObject,
                         SourceObject = _reorderableList.CloneDraggedObject ? gameObject : _draggingObject.gameObject,
                         FromList = _reorderableList,
-                        FromIndex = _fromIndex,
+                        FromIndex = _fromIndex
                     });
                 }
             }
             //Else Duplicate
             else
             {
-                GameObject clone = (GameObject)Instantiate(gameObject);
+                var clone = Instantiate(gameObject);
                 _draggingObject = clone.GetComponent<RectTransform>();
             }
 
@@ -86,7 +85,7 @@ namespace Assets.Scripts.ReorderableList
                     IsAClone = _reorderableList.CloneDraggedObject,
                     SourceObject = _reorderableList.CloneDraggedObject ? gameObject : _draggingObject.gameObject,
                     FromList = _reorderableList,
-                    FromIndex = _fromIndex,
+                    FromIndex = _fromIndex
                 });
             }
 
@@ -104,10 +103,10 @@ namespace Assets.Scripts.ReorderableList
 
             //Set dragging object on cursor
             _draggingObject.position = eventData.position;
-            
+
             //Check everything under the cursor to find a ReorderableList
             EventSystem.current.RaycastAll(eventData, _raycastResults);
-            for (int i = 0; i < _raycastResults.Count; i++)
+            for (var i = 0; i < _raycastResults.Count; i++)
             {
                 _currentReorderableListRaycasted = _raycastResults[i].gameObject.GetComponent<ReorderableList>();
                 if (_currentReorderableListRaycasted != null)
@@ -121,7 +120,6 @@ namespace Assets.Scripts.ReorderableList
             {
                 RefreshSizes();
                 _fakeElement.transform.SetParent(_reorderableList.DraggableArea, false);
-
             }
             //Else find the best position on the list and put fake element on the right index  
             else
@@ -129,10 +127,10 @@ namespace Assets.Scripts.ReorderableList
                 if (_fakeElement.parent != _currentReorderableListRaycasted)
                     _fakeElement.SetParent(_currentReorderableListRaycasted.Content, false);
 
-                float minDistance = float.PositiveInfinity;
-                int targetIndex = 0;
+                var minDistance = float.PositiveInfinity;
+                var targetIndex = 0;
                 float dist = 0;
-                for (int j = 0; j < _currentReorderableListRaycasted.Content.childCount; j++)
+                for (var j = 0; j < _currentReorderableListRaycasted.Content.childCount; j++)
                 {
                     var c = _currentReorderableListRaycasted.Content.GetChild(j).GetComponent<RectTransform>();
 
@@ -141,7 +139,8 @@ namespace Assets.Scripts.ReorderableList
                     else if (_currentReorderableListRaycasted.ContentLayout is HorizontalLayoutGroup)
                         dist = Mathf.Abs(c.position.x - eventData.position.x);
                     else if (_currentReorderableListRaycasted.ContentLayout is GridLayoutGroup)
-                        dist = (Mathf.Abs(c.position.x - eventData.position.x) + Mathf.Abs(c.position.y - eventData.position.y));
+                        dist = Mathf.Abs(c.position.x - eventData.position.x) +
+                               Mathf.Abs(c.position.y - eventData.position.y);
 
                     if (dist < minDistance)
                     {
@@ -153,7 +152,6 @@ namespace Assets.Scripts.ReorderableList
                 RefreshSizes();
                 _fakeElement.SetSiblingIndex(targetIndex);
                 _fakeElement.gameObject.SetActive(true);
-
             }
         }
 
@@ -218,9 +216,10 @@ namespace Assets.Scripts.ReorderableList
 
         private void RefreshSizes()
         {
-            Vector2 size = _draggingObjectOriginalSize;
+            var size = _draggingObjectOriginalSize;
 
-            if (_currentReorderableListRaycasted != null && _currentReorderableListRaycasted.IsDropable && _currentReorderableListRaycasted.Content.childCount > 0)
+            if (_currentReorderableListRaycasted != null && _currentReorderableListRaycasted.IsDropable &&
+                _currentReorderableListRaycasted.Content.childCount > 0)
             {
                 var firstChild = _currentReorderableListRaycasted.Content.GetChild(0);
                 if (firstChild != null)

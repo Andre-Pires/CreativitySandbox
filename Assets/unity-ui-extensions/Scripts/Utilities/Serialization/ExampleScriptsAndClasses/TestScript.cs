@@ -5,14 +5,15 @@ namespace Assets.Scripts.Utilities.Serialization.ExampleScriptsAndClasses
 {
     public class TestScript : MonoBehaviour
     {
-
-        public string testString = "Hello";
         public GameObject someGameObject;
         public string someGameObject_id;
         public TestClass testClass = new TestClass();
         public TestClass[] testClassArray = new TestClass[2];
-        [DontSaveField]
-        public Transform TransformThatWontBeSaved;//The [DontSaveField] attribute we wrote ourselves prevents the field from being included in the packed component data
+
+        public string testString = "Hello";
+
+        [DontSaveField] public Transform TransformThatWontBeSaved;
+            //The [DontSaveField] attribute we wrote ourselves prevents the field from being included in the packed component data
 
         public void OnSerialize()
         {
@@ -36,7 +37,7 @@ namespace Assets.Scripts.Utilities.Serialization.ExampleScriptsAndClasses
 
             if (testClassArray != null)
             {
-                foreach (TestClass testClass_cur in testClassArray)
+                foreach (var testClass_cur in testClassArray)
                 {
                     if (testClass_cur.go != null && testClass_cur.go.GetComponent<ObjectIdentifier>())
                     {
@@ -47,26 +48,23 @@ namespace Assets.Scripts.Utilities.Serialization.ExampleScriptsAndClasses
                         testClass_cur.go_id = null;
                     }
                 }
-
             }
         }
 
         public void OnDeserialize()
         {
-
             //Since we saved the ID of the GameObject references, we can now use those to recreate the references. 
             //We just iterate through all the ObjectIdentifier component occurences in the scene, compare their id value to our saved and loaded someGameObject id (etc.) value,
             //and assign the component's GameObject if it matches.
             //Note that the "break" command is important, both because it elimitates unneccessary iterations, 
             //and because continuing after having found a match might for some reason find another, wrong match that makes a null reference.
 
-            ObjectIdentifier[] objectsIdentifiers = FindObjectsOfType(typeof(ObjectIdentifier)) as ObjectIdentifier[];
+            var objectsIdentifiers = FindObjectsOfType(typeof(ObjectIdentifier)) as ObjectIdentifier[];
 
             if (string.IsNullOrEmpty(someGameObject_id) == false)
             {
-                foreach (ObjectIdentifier objectIdentifier in objectsIdentifiers)
+                foreach (var objectIdentifier in objectsIdentifiers)
                 {
-
                     if (string.IsNullOrEmpty(objectIdentifier.id) == false)
                     {
                         if (objectIdentifier.id == someGameObject_id)
@@ -80,11 +78,11 @@ namespace Assets.Scripts.Utilities.Serialization.ExampleScriptsAndClasses
 
             if (testClassArray != null)
             {
-                foreach (TestClass testClass_cur in testClassArray)
+                foreach (var testClass_cur in testClassArray)
                 {
                     if (string.IsNullOrEmpty(testClass_cur.go_id) == false)
                     {
-                        foreach (ObjectIdentifier objectIdentifier in objectsIdentifiers)
+                        foreach (var objectIdentifier in objectsIdentifiers)
                         {
                             if (string.IsNullOrEmpty(objectIdentifier.id) == false)
                             {

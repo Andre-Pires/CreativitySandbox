@@ -4,9 +4,9 @@ namespace Assets.Scripts.Classes.Helpers
 {
     public class Utility
     {
+        public static Utility _instance;
         private RaycastHit _hit;
         private Ray _ray;
-        public static Utility _instance;
 
         //  Instance 	
         public static Utility Instance

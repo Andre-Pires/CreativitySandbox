@@ -17,15 +17,7 @@ namespace Assets.Scripts.Classes.Helpers
 
     public class Constants
     {
-        public static readonly string[] PersonalitiesStrings =
-        {
-            "Tímido", "Sociável", "Resmungão", "Amigável",
-            "Realista", "Imaginativo", "Estrangeiro"
-        };
-
-        //set related constants
-        public Dictionary<Scenario, string> ScenarioPath;
-        public Dictionary<Scenario, Material> ScenarioSkybox;
+        public static Dictionary<Configuration.Personality, string> PersonalitiesStrings;
 
         //file paths
         public static string ImageFilePath = UnityEngine.Application.platform == RuntimePlatform.Android
@@ -38,10 +30,24 @@ namespace Assets.Scripts.Classes.Helpers
 
         // Singleton 	
         private static Constants _instance;
+        //set related constants
+        public Dictionary<Scenario, string> ScenarioPath;
+        public Dictionary<Scenario, Material> ScenarioSkybox;
 
         // Construct 	
         private Constants()
         {
+            PersonalitiesStrings = new Dictionary<Configuration.Personality, string>
+            {
+                {Configuration.Personality.Shy, "Tímido"},
+                {Configuration.Personality.Sociable, "Sociável"},
+                {Configuration.Personality.Grumpy, "Resmungão"},
+                {Configuration.Personality.Friendly, "Amigável"},
+                {Configuration.Personality.Realist, "Realista"},
+                {Configuration.Personality.Imaginative, "Imaginativo"},
+                {Configuration.Personality.Foreigner, "Estrangeiro"}
+            };
+
             ScenarioPath = new Dictionary<Scenario, string>
             {
                 {Scenario.ForestDay, "Prefabs/Forest/ForestSet(Clear)"},
@@ -82,7 +88,7 @@ namespace Assets.Scripts.Classes.Helpers
 
         public string GetPersonalityString(Configuration.Personality personality)
         {
-            return PersonalitiesStrings[(int) personality];
+            return PersonalitiesStrings[personality];
         }
     }
 }

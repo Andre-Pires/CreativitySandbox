@@ -1,16 +1,13 @@
 ﻿using UnityEngine;
-using System.Collections;
-using Assets.Scripts.Scripts.UI;
 
 namespace Assets.Scripts.Scripts.UI
 {
     public class SaveVideoRecordings : MonoBehaviour
     {
+        public delegate void OnSelectEvent();
+
         // Singleton 	
         private static SaveVideoRecordings _instance;
-
-        public delegate void OnSelectEvent();
-        public event OnSelectEvent OnSelect;
 
         // Construct 	
         private SaveVideoRecordings()
@@ -23,14 +20,15 @@ namespace Assets.Scripts.Scripts.UI
             get
             {
                 if (_instance == null)
-                    _instance = GameObject.FindObjectOfType(typeof(SaveVideoRecordings)) as SaveVideoRecordings;
+                    _instance = FindObjectOfType(typeof(SaveVideoRecordings)) as SaveVideoRecordings;
                 return _instance;
             }
-
         }
 
+        public event OnSelectEvent OnSelect;
+
         // Handle our Ray and Hit
-        void Update()
+        private void Update()
         {
         }
 
@@ -39,6 +37,5 @@ namespace Assets.Scripts.Scripts.UI
             // Notify of the event!
             OnSelect();
         }
-
     }
 }

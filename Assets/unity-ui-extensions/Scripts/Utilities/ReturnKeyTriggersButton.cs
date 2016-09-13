@@ -15,18 +15,8 @@ namespace Assets.Scripts.Utilities
         private EventSystem _system;
 
         public Button button;
-        private bool highlight = true;
+        private readonly bool highlight = true;
         public float highlightDuration = 0.2f;
-        
-        void Start()
-        {
-            _system = EventSystem.current;
-        }
-
-        void RemoveHighlight()
-        {
-            button.OnPointerExit(new PointerEventData(_system));
-        }
 
         public void OnSubmit(BaseEventData eventData)
         {
@@ -34,6 +24,16 @@ namespace Assets.Scripts.Utilities
             button.OnPointerClick(new PointerEventData(_system));
 
             if (highlight) Invoke("RemoveHighlight", highlightDuration);
+        }
+
+        private void Start()
+        {
+            _system = EventSystem.current;
+        }
+
+        private void RemoveHighlight()
+        {
+            button.OnPointerExit(new PointerEventData(_system));
         }
     }
 }

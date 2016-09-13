@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using Assets.Scripts.Classes.Helpers;
+﻿using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.IO;
 using Assets.Scripts.Classes.UI;
-using Assets.Scripts.Scripts;
 using Assets.Scripts.Scripts.CameraControl;
 using UnityEngine;
 
@@ -10,10 +8,9 @@ namespace Assets.Scripts.Classes
 {
     public class Application : MonoBehaviour
     {
-        
         private Agent.Agent _agent;
-        private GameObject _scene;
         private Configuration _configuration;
+        private GameObject _scene;
         private ScreenRecorder _screenRecorder;
         private UIManager _UIManager;
 
@@ -43,18 +40,26 @@ namespace Assets.Scripts.Classes
         // Update is called once per frame
         private void Update()
         {
-            if(_agent != null)
+            if (_agent != null)
                 _agent.Update();
 
             if (Input.GetKeyDown(KeyCode.Escape))
                 UnityEngine.Application.Quit();
+
+            _UIManager.Update();
         }
 
-        void OnDrawGizmos()
+        private void OnDrawGizmos()
         {
-            if(!UnityEngine.Application.isPlaying) return;
+            if (!UnityEngine.Application.isPlaying) return;
 
             _agent.OnDrawGizmos();
+        }
+
+        private void OnGUI()
+        {
+            _UIManager.OnGUI();
+            _agent.OnGUI();
         }
     }
 }

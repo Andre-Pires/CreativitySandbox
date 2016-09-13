@@ -33,7 +33,7 @@ namespace Assets.Scripts.ReorderableList
         private IEnumerator RefreshChildren()
         {
             //Handle new chilren
-            for (int i = 0; i < _rect.childCount; i++)
+            for (var i = 0; i < _rect.childCount; i++)
             {
                 if (_cachedChildren.Contains(_rect.GetChild(i)))
                     continue;
@@ -51,7 +51,7 @@ namespace Assets.Scripts.ReorderableList
             yield return 0;
 
             //Remove deleted child
-            for (int i = _cachedChildren.Count - 1; i >= 0; i--)
+            for (var i = _cachedChildren.Count - 1; i >= 0; i--)
             {
                 if (_cachedChildren[i] == null)
                 {

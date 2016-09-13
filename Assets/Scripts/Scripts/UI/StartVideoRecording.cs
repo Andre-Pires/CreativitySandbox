@@ -4,11 +4,10 @@ namespace Assets.Scripts.Scripts.UI
 {
     public class StartVideoRecording : MonoBehaviour
     {
+        public delegate void OnSelectEvent();
+
         // Singleton 	
         private static StartVideoRecording _instance;
-
-        public delegate void OnSelectEvent();
-        public event OnSelectEvent OnSelect;
 
         // Construct 	
         private StartVideoRecording()
@@ -21,14 +20,15 @@ namespace Assets.Scripts.Scripts.UI
             get
             {
                 if (_instance == null)
-                    _instance = GameObject.FindObjectOfType(typeof(StartVideoRecording)) as StartVideoRecording;
+                    _instance = FindObjectOfType(typeof(StartVideoRecording)) as StartVideoRecording;
                 return _instance;
             }
-
         }
 
+        public event OnSelectEvent OnSelect;
+
         // Handle our Ray and Hit
-        void Update()
+        private void Update()
         {
         }
 
@@ -37,7 +37,5 @@ namespace Assets.Scripts.Scripts.UI
             // Notify of the event!
             OnSelect();
         }
-
     }
 }
- 

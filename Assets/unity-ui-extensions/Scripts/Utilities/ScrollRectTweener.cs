@@ -9,21 +9,27 @@ using UnityEngine.UI;
 namespace Assets.Scripts.Utilities
 {
     [RequireComponent(typeof(ScrollRect))]
-	[AddComponentMenu("UI/Extensions/ScrollRectTweener")]
+    [AddComponentMenu("UI/Extensions/ScrollRectTweener")]
     public class ScrollRectTweener : MonoBehaviour, IDragHandler
     {
-
-        ScrollRect scrollRect;
-        Vector2 startPos;
-        Vector2 targetPos;
-
-        bool wasHorizontal;
-        bool wasVertical;
-
-        public float moveSpeed = 5000f;
         public bool disableDragWhileTweening = false;
 
-        void Awake()
+        public float moveSpeed = 5000f;
+
+        private ScrollRect scrollRect;
+        private Vector2 startPos;
+        private Vector2 targetPos;
+
+        private bool wasHorizontal;
+        private bool wasVertical;
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            if (!disableDragWhileTweening)
+                StopScroll();
+        }
+
+        private void Awake()
         {
             scrollRect = GetComponent<ScrollRect>();
             wasHorizontal = scrollRect.horizontal;
@@ -55,18 +61,19 @@ namespace Assets.Scripts.Utilities
             Scroll(normalizedPos, GetScrollDuration(normalizedPos));
         }
 
-        float GetScrollDuration(Vector2 normalizedPos)
+        private float GetScrollDuration(Vector2 normalizedPos)
         {
-            Vector2 currentPos = GetCurrentPos();
-            return Vector2.Distance(DeNormalize(currentPos), DeNormalize(normalizedPos)) / moveSpeed;
+            var currentPos = GetCurrentPos();
+            return Vector2.Distance(DeNormalize(currentPos), DeNormalize(normalizedPos))/moveSpeed;
         }
 
-        Vector2 DeNormalize(Vector2 normalizedPos)
+        private Vector2 DeNormalize(Vector2 normalizedPos)
         {
-            return new Vector2(normalizedPos.x * scrollRect.content.rect.width, normalizedPos.y * scrollRect.content.rect.height);
+            return new Vector2(normalizedPos.x*scrollRect.content.rect.width,
+                normalizedPos.y*scrollRect.content.rect.height);
         }
 
-        Vector2 GetCurrentPos()
+        private Vector2 GetCurrentPos()
         {
             return new Vector2(scrollRect.horizontalNormalizedPosition, scrollRect.verticalNormalizedPosition);
         }
@@ -83,16 +90,15 @@ namespace Assets.Scripts.Utilities
             StartCoroutine(DoMove(duration));
         }
 
-        IEnumerator DoMove(float duration)
+        private IEnumerator DoMove(float duration)
         {
-
             // Abort if movement would be too short
             if (duration < 0.05f)
                 yield break;
 
-            Vector2 posOffset = targetPos - startPos;
+            var posOffset = targetPos - startPos;
 
-            float currentTime = 0f;
+            var currentTime = 0f;
             while (currentTime < duration)
             {
                 currentTime += Time.deltaTime;
@@ -109,35 +115,28 @@ namespace Assets.Scripts.Utilities
         public Vector2 EaseVector(float currentTime, Vector2 startValue, Vector2 changeInValue, float duration)
         {
             return new Vector2(
-                changeInValue.x * Mathf.Sin(currentTime / duration * (Mathf.PI / 2)) + startValue.x,
-                changeInValue.y * Mathf.Sin(currentTime / duration * (Mathf.PI / 2)) + startValue.y
+                changeInValue.x*Mathf.Sin(currentTime/duration*(Mathf.PI/2)) + startValue.x,
+                changeInValue.y*Mathf.Sin(currentTime/duration*(Mathf.PI/2)) + startValue.y
                 );
         }
 
-        public void OnDrag(PointerEventData eventData)
-        {
-            if (!disableDragWhileTweening)
-                StopScroll();
-        }
-
-        void StopScroll()
+        private void StopScroll()
         {
             StopAllCoroutines();
             if (disableDragWhileTweening)
                 RestoreScrollability();
         }
 
-        void LockScrollability()
+        private void LockScrollability()
         {
             scrollRect.horizontal = false;
             scrollRect.vertical = false;
         }
 
-        void RestoreScrollability()
+        private void RestoreScrollability()
         {
             scrollRect.horizontal = wasHorizontal;
             scrollRect.vertical = wasVertical;
         }
-
     }
 }

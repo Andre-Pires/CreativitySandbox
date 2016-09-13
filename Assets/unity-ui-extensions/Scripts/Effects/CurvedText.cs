@@ -31,33 +31,38 @@ namespace Assets.Scripts.Effects
                 OnRectTransformDimensionsChange();
         }
 #endif
+
         protected override void Awake()
         {
             base.Awake();
             rectTrans = GetComponent<RectTransform>();
             OnRectTransformDimensionsChange();
         }
+
         protected override void OnEnable()
         {
             base.OnEnable();
             rectTrans = GetComponent<RectTransform>();
             OnRectTransformDimensionsChange();
         }
+
         public override void ModifyMesh(VertexHelper vh)
         {
-            int count = vh.currentVertCount;
+            var count = vh.currentVertCount;
             if (!IsActive() || count == 0)
             {
                 return;
             }
-            for (int index = 0; index < vh.currentVertCount; index++)
+            for (var index = 0; index < vh.currentVertCount; index++)
             {
-                UIVertex uiVertex = new UIVertex();
+                var uiVertex = new UIVertex();
                 vh.PopulateUIVertex(ref uiVertex, index);
-                uiVertex.position.y += curveForText.Evaluate(rectTrans.rect.width * rectTrans.pivot.x + uiVertex.position.x) * curveMultiplier;
+                uiVertex.position.y +=
+                    curveForText.Evaluate(rectTrans.rect.width*rectTrans.pivot.x + uiVertex.position.x)*curveMultiplier;
                 vh.SetUIVertex(uiVertex, index);
             }
         }
+
         protected override void OnRectTransformDimensionsChange()
         {
             var tmpRect = curveForText[curveForText.length - 1];

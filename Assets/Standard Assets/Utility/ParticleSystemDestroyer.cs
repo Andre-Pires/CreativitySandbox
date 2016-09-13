@@ -1,21 +1,19 @@
-using System;
 using System.Collections;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace UnityStandardAssets.Utility
 {
     public class ParticleSystemDestroyer : MonoBehaviour
     {
+        private bool m_EarlyStop;
+
+        private float m_MaxLifetime;
+        public float maxDuration = 10;
         // allows a particle system to exist for a specified duration,
         // then shuts off emission, and waits for all particles to expire
         // before destroying the gameObject
 
         public float minDuration = 8;
-        public float maxDuration = 10;
-
-        private float m_MaxLifetime;
-        private bool m_EarlyStop;
 
 
         private IEnumerator Start()
@@ -30,7 +28,7 @@ namespace UnityStandardAssets.Utility
 
             // wait for random duration
 
-            float stopTime = Time.time + Random.Range(minDuration, maxDuration);
+            var stopTime = Time.time + Random.Range(minDuration, maxDuration);
 
             while (Time.time < stopTime || m_EarlyStop)
             {

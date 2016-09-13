@@ -8,21 +8,22 @@ using Assets.Scripts.ReorderableList;
 using Assets.Scripts.SelectionBox;
 using Assets.Scripts.ToolTips.BoundTooltip;
 using Assets.Scripts.Utilities;
+using UnityEditor.Events;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using UnityEngine.UI.Extensions;
 
 namespace UnityEditor.UI
 {
     /// <summary>
-    /// This script adds the Extensions UI menu options to the Unity Editor.
+    ///     This script adds the Extensions UI menu options to the Unity Editor.
     /// </summary>
-
-    static internal class ExtensionMenuOptions
+    internal static class ExtensionMenuOptions
     {
         #region Unity Builder section  - Do not change unless UI Source (Editor\MenuOptions) changes
+
         #region Unity Builder properties  - Do not change unless UI Source (Editor\MenuOptions) changes
+
         private const string kUILayerName = "UI";
         private const float kWidth = 160f;
         private const float kThickHeight = 30f;
@@ -33,17 +34,20 @@ namespace UnityEditor.UI
         private const string kKnobPath = "UI/Skin/Knob.psd";
         private const string kCheckmarkPath = "UI/Skin/Checkmark.psd";
 
-        private static Vector2 s_ThickGUIElementSize = new Vector2(kWidth, kThickHeight);
-        private static Vector2 s_ThinGUIElementSize = new Vector2(kWidth, kThinHeight);
-        private static Vector2 s_ImageGUIElementSize = new Vector2(100f, 100f);
-        private static Color s_DefaultSelectableColor = new Color(1f, 1f, 1f, 1f);
-        private static Color s_TextColor = new Color(50f / 255f, 50f / 255f, 50f / 255f, 1f);
+        private static readonly Vector2 s_ThickGUIElementSize = new Vector2(kWidth, kThickHeight);
+        private static readonly Vector2 s_ThinGUIElementSize = new Vector2(kWidth, kThinHeight);
+        private static readonly Vector2 s_ImageGUIElementSize = new Vector2(100f, 100f);
+        private static readonly Color s_DefaultSelectableColor = new Color(1f, 1f, 1f, 1f);
+        private static readonly Color s_TextColor = new Color(50f/255f, 50f/255f, 50f/255f, 1f);
+
         #endregion
+
         #region Unity Builder methods - Do not change unless UI Source (Editor\MenuOptions) changes
+
         private static void SetPositionVisibleinSceneView(RectTransform canvasRTransform, RectTransform itemTransform)
         {
             // Find the best scene view
-            SceneView sceneView = SceneView.lastActiveSceneView;
+            var sceneView = SceneView.lastActiveSceneView;
             if (sceneView == null && SceneView.sceneViews.Count > 0)
                 sceneView = SceneView.sceneViews[0] as SceneView;
 
@@ -53,28 +57,33 @@ namespace UnityEditor.UI
 
             // Create world space Plane from canvas position.
             Vector2 localPlanePosition;
-            Camera camera = sceneView.camera;
-            Vector3 position = Vector3.zero;
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRTransform, new Vector2(camera.pixelWidth / 2, camera.pixelHeight / 2), camera, out localPlanePosition))
+            var camera = sceneView.camera;
+            var position = Vector3.zero;
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRTransform,
+                new Vector2(camera.pixelWidth/2, camera.pixelHeight/2), camera, out localPlanePosition))
             {
                 // Adjust for canvas pivot
-                localPlanePosition.x = localPlanePosition.x + canvasRTransform.sizeDelta.x * canvasRTransform.pivot.x;
-                localPlanePosition.y = localPlanePosition.y + canvasRTransform.sizeDelta.y * canvasRTransform.pivot.y;
+                localPlanePosition.x = localPlanePosition.x + canvasRTransform.sizeDelta.x*canvasRTransform.pivot.x;
+                localPlanePosition.y = localPlanePosition.y + canvasRTransform.sizeDelta.y*canvasRTransform.pivot.y;
 
                 localPlanePosition.x = Mathf.Clamp(localPlanePosition.x, 0, canvasRTransform.sizeDelta.x);
                 localPlanePosition.y = Mathf.Clamp(localPlanePosition.y, 0, canvasRTransform.sizeDelta.y);
 
                 // Adjust for anchoring
-                position.x = localPlanePosition.x - canvasRTransform.sizeDelta.x * itemTransform.anchorMin.x;
-                position.y = localPlanePosition.y - canvasRTransform.sizeDelta.y * itemTransform.anchorMin.y;
+                position.x = localPlanePosition.x - canvasRTransform.sizeDelta.x*itemTransform.anchorMin.x;
+                position.y = localPlanePosition.y - canvasRTransform.sizeDelta.y*itemTransform.anchorMin.y;
 
                 Vector3 minLocalPosition;
-                minLocalPosition.x = canvasRTransform.sizeDelta.x * (0 - canvasRTransform.pivot.x) + itemTransform.sizeDelta.x * itemTransform.pivot.x;
-                minLocalPosition.y = canvasRTransform.sizeDelta.y * (0 - canvasRTransform.pivot.y) + itemTransform.sizeDelta.y * itemTransform.pivot.y;
+                minLocalPosition.x = canvasRTransform.sizeDelta.x*(0 - canvasRTransform.pivot.x) +
+                                     itemTransform.sizeDelta.x*itemTransform.pivot.x;
+                minLocalPosition.y = canvasRTransform.sizeDelta.y*(0 - canvasRTransform.pivot.y) +
+                                     itemTransform.sizeDelta.y*itemTransform.pivot.y;
 
                 Vector3 maxLocalPosition;
-                maxLocalPosition.x = canvasRTransform.sizeDelta.x * (1 - canvasRTransform.pivot.x) - itemTransform.sizeDelta.x * itemTransform.pivot.x;
-                maxLocalPosition.y = canvasRTransform.sizeDelta.y * (1 - canvasRTransform.pivot.y) - itemTransform.sizeDelta.y * itemTransform.pivot.y;
+                maxLocalPosition.x = canvasRTransform.sizeDelta.x*(1 - canvasRTransform.pivot.x) -
+                                     itemTransform.sizeDelta.x*itemTransform.pivot.x;
+                maxLocalPosition.y = canvasRTransform.sizeDelta.y*(1 - canvasRTransform.pivot.y) -
+                                     itemTransform.sizeDelta.y*itemTransform.pivot.y;
 
                 position.x = Mathf.Clamp(position.x, minLocalPosition.x, maxLocalPosition.x);
                 position.y = Mathf.Clamp(position.y, minLocalPosition.y, maxLocalPosition.y);
@@ -87,18 +96,18 @@ namespace UnityEditor.UI
 
         private static GameObject CreateUIElementRoot(string name, MenuCommand menuCommand, Vector2 size)
         {
-            GameObject parent = menuCommand.context as GameObject;
+            var parent = menuCommand.context as GameObject;
             if (parent == null || parent.GetComponentInParent<Canvas>() == null)
             {
                 parent = GetOrCreateCanvasGameObject();
             }
-            GameObject child = new GameObject(name);
+            var child = new GameObject(name);
 
             Undo.RegisterCreatedObjectUndo(child, "Create " + name);
             Undo.SetTransformParent(child.transform, parent.transform, "Parent " + child.name);
             GameObjectUtility.SetParentAndAlign(child, parent);
 
-            RectTransform rectTransform = child.AddComponent<RectTransform>();
+            var rectTransform = child.AddComponent<RectTransform>();
             rectTransform.sizeDelta = size;
             if (parent != menuCommand.context) // not a context click, so center in sceneview
             {
@@ -108,21 +117,21 @@ namespace UnityEditor.UI
             return child;
         }
 
-        static GameObject CreateUIObject(string name, GameObject parent)
+        private static GameObject CreateUIObject(string name, GameObject parent)
         {
-            GameObject go = new GameObject(name);
+            var go = new GameObject(name);
             go.AddComponent<RectTransform>();
             GameObjectUtility.SetParentAndAlign(go, parent);
             return go;
         }
 
-        static public void AddCanvas(MenuCommand menuCommand)
+        public static void AddCanvas(MenuCommand menuCommand)
         {
             var go = CreateNewUI();
             GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
             if (go.transform.parent as RectTransform)
             {
-                RectTransform rect = go.transform as RectTransform;
+                var rect = go.transform as RectTransform;
                 rect.anchorMin = Vector2.zero;
                 rect.anchorMax = Vector2.one;
                 rect.anchoredPosition = Vector2.zero;
@@ -131,12 +140,12 @@ namespace UnityEditor.UI
             Selection.activeGameObject = go;
         }
 
-        static public GameObject CreateNewUI()
+        public static GameObject CreateNewUI()
         {
             // Root for the UI
             var root = new GameObject("Canvas");
             root.layer = LayerMask.NameToLayer(kUILayerName);
-            Canvas canvas = root.AddComponent<Canvas>();
+            var canvas = root.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             root.AddComponent<CanvasScaler>();
             root.AddComponent<GraphicRaycaster>();
@@ -149,7 +158,7 @@ namespace UnityEditor.UI
 
         public static void CreateEventSystem(MenuCommand menuCommand)
         {
-            GameObject parent = menuCommand.context as GameObject;
+            var parent = menuCommand.context as GameObject;
             CreateEventSystem(true, parent);
         }
 
@@ -178,12 +187,12 @@ namespace UnityEditor.UI
         }
 
         // Helper function that returns a Canvas GameObject; preferably a parent of the selection, or other existing Canvas.
-        static public GameObject GetOrCreateCanvasGameObject()
+        public static GameObject GetOrCreateCanvasGameObject()
         {
-            GameObject selectedGo = Selection.activeGameObject;
+            var selectedGo = Selection.activeGameObject;
 
             // Try to find a gameobject that is the selected GO or one if its parents.
-            Canvas canvas = (selectedGo != null) ? selectedGo.GetComponentInParent<Canvas>() : null;
+            var canvas = selectedGo != null ? selectedGo.GetComponentInParent<Canvas>() : null;
             if (canvas != null && canvas.gameObject.activeInHierarchy)
                 return canvas.gameObject;
 
@@ -193,12 +202,12 @@ namespace UnityEditor.UI
                 return canvas.gameObject;
 
             // No canvas in the scene at all? Then create a new one.
-            return ExtensionMenuOptions.CreateNewUI();
+            return CreateNewUI();
         }
 
         private static void SetDefaultColorTransitionValues(Selectable slider)
         {
-            ColorBlock colors = slider.colors;
+            var colors = slider.colors;
             colors.highlightedColor = new Color(0.882f, 0.882f, 0.882f);
             colors.pressedColor = new Color(0.698f, 0.698f, 0.698f);
             colors.disabledColor = new Color(0.521f, 0.521f, 0.521f);
@@ -211,43 +220,47 @@ namespace UnityEditor.UI
             // since there's no point in that, and it's good to keep them as consistent as possible.
             lbl.color = s_TextColor;
         }
+
         #endregion
+
         #endregion
 
         #region UI Extensions "Create" Menu items
 
         #region Scroll Snap controls
+
         [MenuItem("GameObject/UI/Extensions/Horizontal Scroll Snap", false)]
-        static public void AddHorizontalScrollSnap(MenuCommand menuCommand)
+        public static void AddHorizontalScrollSnap(MenuCommand menuCommand)
         {
-            GameObject horizontalScrollSnapRoot = CreateUIElementRoot("Horizontal Scroll Snap", menuCommand, s_ThickGUIElementSize);
+            var horizontalScrollSnapRoot = CreateUIElementRoot("Horizontal Scroll Snap", menuCommand,
+                s_ThickGUIElementSize);
 
-            GameObject childContent = CreateUIObject("Content", horizontalScrollSnapRoot);
+            var childContent = CreateUIObject("Content", horizontalScrollSnapRoot);
 
-            GameObject childPage01 = CreateUIObject("Page_01", childContent);
+            var childPage01 = CreateUIObject("Page_01", childContent);
 
-            GameObject childText = CreateUIObject("Text", childPage01);
+            var childText = CreateUIObject("Text", childPage01);
 
             // Set RectTransform to stretch
-            RectTransform rectTransformScrollSnapRoot = horizontalScrollSnapRoot.GetComponent<RectTransform>();
+            var rectTransformScrollSnapRoot = horizontalScrollSnapRoot.GetComponent<RectTransform>();
             rectTransformScrollSnapRoot.anchorMin = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchoredPosition = Vector2.zero;
             rectTransformScrollSnapRoot.sizeDelta = new Vector2(300f, 150f);
 
 
-            Image image = horizontalScrollSnapRoot.AddComponent<Image>();
+            var image = horizontalScrollSnapRoot.AddComponent<Image>();
             image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kBackgroundSpriteResourcePath);
             image.type = Image.Type.Sliced;
             image.color = new Color(1f, 1f, 1f, 0.392f);
 
-            ScrollRect sr = horizontalScrollSnapRoot.AddComponent<ScrollRect>();
+            var sr = horizontalScrollSnapRoot.AddComponent<ScrollRect>();
             sr.vertical = false;
             sr.horizontal = true;
             horizontalScrollSnapRoot.AddComponent<HorizontalScrollSnap>();
 
             //Setup Content container
-            RectTransform rectTransformContent = childContent.GetComponent<RectTransform>();
+            var rectTransformContent = childContent.GetComponent<RectTransform>();
             rectTransformContent.anchorMin = Vector2.zero;
             rectTransformContent.anchorMax = new Vector2(1f, 1f);
             rectTransformContent.sizeDelta = Vector2.zero;
@@ -255,24 +268,24 @@ namespace UnityEditor.UI
             sr.content = rectTransformContent;
 
             //Setup 1st Child
-            Image pageImage = childPage01.AddComponent<Image>();
+            var pageImage = childPage01.AddComponent<Image>();
             pageImage.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kStandardSpritePath);
             pageImage.type = Image.Type.Sliced;
             pageImage.color = s_DefaultSelectableColor;
 
-            RectTransform rectTransformPage01 = childPage01.GetComponent<RectTransform>();
+            var rectTransformPage01 = childPage01.GetComponent<RectTransform>();
             rectTransformPage01.anchorMin = new Vector2(0f, 0.5f);
             rectTransformPage01.anchorMax = new Vector2(0f, 0.5f);
             rectTransformPage01.pivot = new Vector2(0f, 0.5f);
 
             //Setup Text on Page01
-            Text text = childText.AddComponent<Text>();
+            var text = childText.AddComponent<Text>();
             text.text = "Page_01";
             text.alignment = TextAnchor.MiddleCenter;
             text.color = new Color(0.196f, 0.196f, 0.196f);
 
             //Setup Text 1st Child
-            RectTransform rectTransformPage01Text = childText.GetComponent<RectTransform>();
+            var rectTransformPage01Text = childText.GetComponent<RectTransform>();
             rectTransformPage01Text.anchorMin = new Vector2(0.5f, 0.5f);
             rectTransformPage01Text.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransformPage01Text.pivot = new Vector2(0.5f, 0.5f);
@@ -283,36 +296,36 @@ namespace UnityEditor.UI
         }
 
         [MenuItem("GameObject/UI/Extensions/Vertical Scroll Snap", false)]
-        static public void AddVerticallScrollSnap(MenuCommand menuCommand)
+        public static void AddVerticallScrollSnap(MenuCommand menuCommand)
         {
-            GameObject verticalScrollSnapRoot = CreateUIElementRoot("Vertical Scroll Snap", menuCommand, s_ThickGUIElementSize);
+            var verticalScrollSnapRoot = CreateUIElementRoot("Vertical Scroll Snap", menuCommand, s_ThickGUIElementSize);
 
-            GameObject childContent = CreateUIObject("Content", verticalScrollSnapRoot);
+            var childContent = CreateUIObject("Content", verticalScrollSnapRoot);
 
-            GameObject childPage01 = CreateUIObject("Page_01", childContent);
+            var childPage01 = CreateUIObject("Page_01", childContent);
 
-            GameObject childText = CreateUIObject("Text", childPage01);
+            var childText = CreateUIObject("Text", childPage01);
 
             // Set RectTransform to stretch
-            RectTransform rectTransformScrollSnapRoot = verticalScrollSnapRoot.GetComponent<RectTransform>();
+            var rectTransformScrollSnapRoot = verticalScrollSnapRoot.GetComponent<RectTransform>();
             rectTransformScrollSnapRoot.anchorMin = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchoredPosition = Vector2.zero;
             rectTransformScrollSnapRoot.sizeDelta = new Vector2(300f, 150f);
 
 
-            Image image = verticalScrollSnapRoot.AddComponent<Image>();
+            var image = verticalScrollSnapRoot.AddComponent<Image>();
             image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kBackgroundSpriteResourcePath);
             image.type = Image.Type.Sliced;
             image.color = new Color(1f, 1f, 1f, 0.392f);
 
-            ScrollRect sr = verticalScrollSnapRoot.AddComponent<ScrollRect>();
+            var sr = verticalScrollSnapRoot.AddComponent<ScrollRect>();
             sr.vertical = true;
             sr.horizontal = false;
             verticalScrollSnapRoot.AddComponent<VerticalScrollSnap>();
 
             //Setup Content container
-            RectTransform rectTransformContent = childContent.GetComponent<RectTransform>();
+            var rectTransformContent = childContent.GetComponent<RectTransform>();
             rectTransformContent.anchorMin = Vector2.zero;
             rectTransformContent.anchorMax = new Vector2(1f, 1f);
             //rectTransformContent.anchoredPosition = Vector2.zero;
@@ -321,27 +334,28 @@ namespace UnityEditor.UI
             sr.content = rectTransformContent;
 
             //Setup 1st Child
-            Image pageImage = childPage01.AddComponent<Image>();
+            var pageImage = childPage01.AddComponent<Image>();
             pageImage.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kStandardSpritePath);
             pageImage.type = Image.Type.Sliced;
             pageImage.color = s_DefaultSelectableColor;
 
-            RectTransform rectTransformPage01 = childPage01.GetComponent<RectTransform>();
+            var rectTransformPage01 = childPage01.GetComponent<RectTransform>();
             rectTransformPage01.anchorMin = new Vector2(0.5f, 0f);
             rectTransformPage01.anchorMax = new Vector2(0.5f, 0f);
-            rectTransformPage01.anchoredPosition = new Vector2(-rectTransformPage01.sizeDelta.x / 2, rectTransformPage01.sizeDelta.y / 2);
+            rectTransformPage01.anchoredPosition = new Vector2(-rectTransformPage01.sizeDelta.x/2,
+                rectTransformPage01.sizeDelta.y/2);
             //rectTransformPage01.anchoredPosition = Vector2.zero;
             //rectTransformPage01.sizeDelta = Vector2.zero;
             rectTransformPage01.pivot = new Vector2(0f, 0.5f);
 
             //Setup Text on Page01
-            Text text = childText.AddComponent<Text>();
+            var text = childText.AddComponent<Text>();
             text.text = "Page_01";
             text.alignment = TextAnchor.MiddleCenter;
             text.color = new Color(0.196f, 0.196f, 0.196f);
 
             //Setup Text 1st Child
-            RectTransform rectTransformPage01Text = childText.GetComponent<RectTransform>();
+            var rectTransformPage01Text = childText.GetComponent<RectTransform>();
             rectTransformPage01Text.anchorMin = new Vector2(0.5f, 0.5f);
             rectTransformPage01Text.anchorMax = new Vector2(0.5f, 0.5f);
             //rectTransformPage01Text.anchoredPosition = Vector2.zero;
@@ -355,44 +369,46 @@ namespace UnityEditor.UI
         }
 
         #region New ScrollSnapCode
-        static public void FixedScrollSnapBase(MenuCommand menuCommand, string name, ScrollSnap.ScrollDirection direction, int itemVisible, int itemCount, Vector2 itemSize)
+
+        public static void FixedScrollSnapBase(MenuCommand menuCommand, string name,
+            ScrollSnap.ScrollDirection direction, int itemVisible, int itemCount, Vector2 itemSize)
         {
-            GameObject scrollSnapRoot = CreateUIElementRoot(name, menuCommand, s_ThickGUIElementSize);
-            GameObject itemList = CreateUIObject("List", scrollSnapRoot);
+            var scrollSnapRoot = CreateUIElementRoot(name, menuCommand, s_ThickGUIElementSize);
+            var itemList = CreateUIObject("List", scrollSnapRoot);
 
             // Set RectTransform to stretch
-            RectTransform rectTransformScrollSnapRoot = scrollSnapRoot.GetComponent<RectTransform>();
+            var rectTransformScrollSnapRoot = scrollSnapRoot.GetComponent<RectTransform>();
             rectTransformScrollSnapRoot.anchorMin = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchoredPosition = Vector2.zero;
 
             if (direction == ScrollSnap.ScrollDirection.Horizontal)
             {
-                rectTransformScrollSnapRoot.sizeDelta = new Vector2(itemVisible * itemSize.x, itemSize.y);
+                rectTransformScrollSnapRoot.sizeDelta = new Vector2(itemVisible*itemSize.x, itemSize.y);
             }
             else
             {
-                rectTransformScrollSnapRoot.sizeDelta = new Vector2(itemSize.x, itemVisible * itemSize.y);
+                rectTransformScrollSnapRoot.sizeDelta = new Vector2(itemSize.x, itemVisible*itemSize.y);
             }
 
-            Image image = scrollSnapRoot.AddComponent<Image>();
+            var image = scrollSnapRoot.AddComponent<Image>();
             image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kBackgroundSpriteResourcePath);
             image.type = Image.Type.Sliced;
             image.color = new Color(1f, 1f, 1f, 1f);
 
-            Mask listMask = scrollSnapRoot.AddComponent<Mask>();
+            var listMask = scrollSnapRoot.AddComponent<Mask>();
             listMask.showMaskGraphic = false;
 
-            ScrollRect scrollRect = scrollSnapRoot.AddComponent<ScrollRect>();
+            var scrollRect = scrollSnapRoot.AddComponent<ScrollRect>();
             scrollRect.vertical = direction == ScrollSnap.ScrollDirection.Vertical;
             scrollRect.horizontal = direction == ScrollSnap.ScrollDirection.Horizontal;
 
-            ScrollSnap scrollSnap = scrollSnapRoot.AddComponent<ScrollSnap>();
+            var scrollSnap = scrollSnapRoot.AddComponent<ScrollSnap>();
             scrollSnap.direction = direction;
             scrollSnap.itemsVisibleAtOnce = itemVisible;
 
             //Setup Content container
-            RectTransform rectTransformContent = itemList.GetComponent<RectTransform>();
+            var rectTransformContent = itemList.GetComponent<RectTransform>();
             rectTransformContent.anchorMin = Vector2.zero;
             rectTransformContent.anchorMax = new Vector2(1f, 1f);
             rectTransformContent.sizeDelta = Vector2.zero;
@@ -402,28 +418,28 @@ namespace UnityEditor.UI
             if (direction == ScrollSnap.ScrollDirection.Horizontal)
             {
                 itemList.AddComponent<HorizontalLayoutGroup>();
-                ContentSizeFitter sizeFitter = itemList.AddComponent<ContentSizeFitter>();
+                var sizeFitter = itemList.AddComponent<ContentSizeFitter>();
                 sizeFitter.horizontalFit = ContentSizeFitter.FitMode.MinSize;
             }
             else
             {
                 itemList.AddComponent<VerticalLayoutGroup>();
-                ContentSizeFitter sizeFitter = itemList.AddComponent<ContentSizeFitter>();
+                var sizeFitter = itemList.AddComponent<ContentSizeFitter>();
                 sizeFitter.verticalFit = ContentSizeFitter.FitMode.MinSize;
             }
 
             //Setup children
             for (var i = 0; i < itemCount; i++)
             {
-                GameObject item = CreateUIObject(string.Format("Item_{0:00}", i), itemList);
-                GameObject childText = CreateUIObject("Text", item);
+                var item = CreateUIObject(string.Format("Item_{0:00}", i), itemList);
+                var childText = CreateUIObject("Text", item);
 
-                Image pageImage = item.AddComponent<Image>();
+                var pageImage = item.AddComponent<Image>();
                 pageImage.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kStandardSpritePath);
                 pageImage.type = Image.Type.Sliced;
                 pageImage.color = s_DefaultSelectableColor;
 
-                LayoutElement elementLayout = item.AddComponent<LayoutElement>();
+                var elementLayout = item.AddComponent<LayoutElement>();
                 if (direction == ScrollSnap.ScrollDirection.Horizontal)
                 {
                     elementLayout.minWidth = itemSize.x;
@@ -433,19 +449,19 @@ namespace UnityEditor.UI
                     elementLayout.minHeight = itemSize.y;
                 }
 
-                RectTransform rectTransformPage01 = item.GetComponent<RectTransform>();
+                var rectTransformPage01 = item.GetComponent<RectTransform>();
                 rectTransformPage01.anchorMin = new Vector2(0f, 0.5f);
                 rectTransformPage01.anchorMax = new Vector2(0f, 0.5f);
                 rectTransformPage01.pivot = new Vector2(0f, 0.5f);
 
                 //Setup Text on Page01
-                Text text = childText.AddComponent<Text>();
+                var text = childText.AddComponent<Text>();
                 text.text = item.name;
                 text.alignment = TextAnchor.MiddleCenter;
                 text.color = new Color(0.196f, 0.196f, 0.196f);
 
                 //Setup Text 1st Child
-                RectTransform rectTransformPage01Text = childText.GetComponent<RectTransform>();
+                var rectTransformPage01Text = childText.GetComponent<RectTransform>();
                 rectTransformPage01Text.anchorMin = new Vector2(0.5f, 0.5f);
                 rectTransformPage01Text.anchorMax = new Vector2(0.5f, 0.5f);
                 rectTransformPage01Text.pivot = new Vector2(0.5f, 0.5f);
@@ -454,58 +470,64 @@ namespace UnityEditor.UI
         }
 
         [MenuItem("GameObject/UI/Extensions/Fixed Item Scroll/Snap Horizontal Single Item", false)]
-        static public void AddFixedItemScrollSnapHorizontalSingle(MenuCommand menuCommand)
+        public static void AddFixedItemScrollSnapHorizontalSingle(MenuCommand menuCommand)
         {
-            FixedScrollSnapBase(menuCommand, "Scroll Snap Horizontal Single", ScrollSnap.ScrollDirection.Horizontal, 1, 3, new Vector2(100, 100));
+            FixedScrollSnapBase(menuCommand, "Scroll Snap Horizontal Single", ScrollSnap.ScrollDirection.Horizontal, 1,
+                3, new Vector2(100, 100));
         }
 
         [MenuItem("GameObject/UI/Extensions/Fixed Item Scroll/Snap Horizontal Multiple Items", false)]
-        static public void AddFixedItemScrollSnapHorizontalMultiple(MenuCommand menuCommand)
+        public static void AddFixedItemScrollSnapHorizontalMultiple(MenuCommand menuCommand)
         {
-            FixedScrollSnapBase(menuCommand, "Scroll Snap Horizontal Multiple", ScrollSnap.ScrollDirection.Horizontal, 3, 15, new Vector2(100, 100));
+            FixedScrollSnapBase(menuCommand, "Scroll Snap Horizontal Multiple", ScrollSnap.ScrollDirection.Horizontal, 3,
+                15, new Vector2(100, 100));
         }
 
         [MenuItem("GameObject/UI/Extensions/Fixed Item Scroll/Snap Vertical Single Item", false)]
-        static public void AddFixedItemScrollSnapVerticalSingle(MenuCommand menuCommand)
+        public static void AddFixedItemScrollSnapVerticalSingle(MenuCommand menuCommand)
         {
-            FixedScrollSnapBase(menuCommand, "Scroll Snap Vertical Multiple", ScrollSnap.ScrollDirection.Vertical, 1, 3, new Vector2(100, 100));
+            FixedScrollSnapBase(menuCommand, "Scroll Snap Vertical Multiple", ScrollSnap.ScrollDirection.Vertical, 1, 3,
+                new Vector2(100, 100));
         }
 
         [MenuItem("GameObject/UI/Extensions/Fixed Item Scroll/Snap Vertical Multiple Items", false)]
-        static public void AddFixedItemScrollSnapVerticalMultiple(MenuCommand menuCommand)
+        public static void AddFixedItemScrollSnapVerticalMultiple(MenuCommand menuCommand)
         {
-            FixedScrollSnapBase(menuCommand, "Scroll Snap Vertical Multiple", ScrollSnap.ScrollDirection.Vertical, 3, 15, new Vector2(100, 100));
+            FixedScrollSnapBase(menuCommand, "Scroll Snap Vertical Multiple", ScrollSnap.ScrollDirection.Vertical, 3, 15,
+                new Vector2(100, 100));
         }
+
         #endregion
 
         #endregion
 
         #region UIVertical Scroller
+
         [MenuItem("GameObject/UI/Extensions/UI Vertical Scroller", false)]
-        static public void AddUIVerticallScroller(MenuCommand menuCommand)
+        public static void AddUIVerticallScroller(MenuCommand menuCommand)
         {
-            GameObject uiVerticalScrollerRoot = CreateUIElementRoot("UI Vertical Scroller", menuCommand, s_ThickGUIElementSize);
+            var uiVerticalScrollerRoot = CreateUIElementRoot("UI Vertical Scroller", menuCommand, s_ThickGUIElementSize);
 
-            GameObject uiScrollerCenter = CreateUIObject("Center", uiVerticalScrollerRoot);
+            var uiScrollerCenter = CreateUIObject("Center", uiVerticalScrollerRoot);
 
-            GameObject childContent = CreateUIObject("Content", uiVerticalScrollerRoot);
+            var childContent = CreateUIObject("Content", uiVerticalScrollerRoot);
 
             // Set RectTransform to stretch
-            RectTransform rectTransformScrollSnapRoot = uiVerticalScrollerRoot.GetComponent<RectTransform>();
+            var rectTransformScrollSnapRoot = uiVerticalScrollerRoot.GetComponent<RectTransform>();
             rectTransformScrollSnapRoot.anchorMin = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchoredPosition = Vector2.zero;
             rectTransformScrollSnapRoot.sizeDelta = new Vector2(500f, 150f);
 
             // Add required ScrollRect
-            ScrollRect sr = uiVerticalScrollerRoot.AddComponent<ScrollRect>();
+            var sr = uiVerticalScrollerRoot.AddComponent<ScrollRect>();
             sr.vertical = true;
             sr.horizontal = false;
             sr.movementType = ScrollRect.MovementType.Unrestricted;
             var uiscr = uiVerticalScrollerRoot.AddComponent<UIVerticalScroller>();
 
             //Setup container center point
-            RectTransform rectTransformCenter = uiScrollerCenter.GetComponent<RectTransform>();
+            var rectTransformCenter = uiScrollerCenter.GetComponent<RectTransform>();
             rectTransformCenter.anchorMin = new Vector2(0f, 0.3f);
             rectTransformCenter.anchorMax = new Vector2(1f, 0.6f);
             rectTransformCenter.sizeDelta = Vector2.zero;
@@ -513,7 +535,7 @@ namespace UnityEditor.UI
             uiscr._center = uiScrollerCenter.GetComponent<RectTransform>();
 
             //Setup Content container
-            RectTransform rectTransformContent = childContent.GetComponent<RectTransform>();
+            var rectTransformContent = childContent.GetComponent<RectTransform>();
             rectTransformContent.anchorMin = Vector2.zero;
             rectTransformContent.anchorMax = new Vector2(1f, 1f);
             rectTransformContent.sizeDelta = Vector2.zero;
@@ -521,37 +543,37 @@ namespace UnityEditor.UI
             sr.content = rectTransformContent;
 
             // Add sample children
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
-                GameObject childPage = CreateUIObject("Page_" + i, childContent);
+                var childPage = CreateUIObject("Page_" + i, childContent);
 
-                GameObject childText = CreateUIObject("Text", childPage);
+                var childText = CreateUIObject("Text", childPage);
 
                 //Setup 1st Child
-                Image pageImage = childPage.AddComponent<Image>();
+                var pageImage = childPage.AddComponent<Image>();
                 pageImage.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kStandardSpritePath);
                 pageImage.type = Image.Type.Sliced;
                 pageImage.color = s_DefaultSelectableColor;
 
-                RectTransform rectTransformPage = childPage.GetComponent<RectTransform>();
+                var rectTransformPage = childPage.GetComponent<RectTransform>();
                 rectTransformPage.anchorMin = new Vector2(0f, 0.5f);
                 rectTransformPage.anchorMax = new Vector2(1f, 0.5f);
                 rectTransformPage.sizeDelta = new Vector2(0f, 80f);
                 rectTransformPage.pivot = new Vector2(0.5f, 0.5f);
-                rectTransformPage.localPosition = new Vector3(0, 80 * i, 0);
+                rectTransformPage.localPosition = new Vector3(0, 80*i, 0);
                 childPage.AddComponent<Button>();
 
                 var childCG = childPage.AddComponent<CanvasGroup>();
                 childCG.interactable = false;
 
                 //Setup Text on Item
-                Text text = childText.AddComponent<Text>();
+                var text = childText.AddComponent<Text>();
                 text.text = "Item_" + i;
                 text.alignment = TextAnchor.MiddleCenter;
                 text.color = new Color(0.196f, 0.196f, 0.196f);
 
                 //Setup Text on Item
-                RectTransform rectTransformPageText = childText.GetComponent<RectTransform>();
+                var rectTransformPageText = childText.GetComponent<RectTransform>();
                 rectTransformPageText.anchorMin = new Vector2(0.5f, 0.5f);
                 rectTransformPageText.anchorMax = new Vector2(0.5f, 0.5f);
                 rectTransformPageText.pivot = new Vector2(0.5f, 0.5f);
@@ -559,29 +581,30 @@ namespace UnityEditor.UI
 
             Selection.activeGameObject = uiVerticalScrollerRoot;
         }
+
         #endregion
 
         [MenuItem("GameObject/UI/Extensions/UI Button", false)]
-        static public void AddUIButton(MenuCommand menuCommand)
+        public static void AddUIButton(MenuCommand menuCommand)
         {
-            GameObject uiButtonRoot = CreateUIElementRoot("UI Button", menuCommand, s_ThickGUIElementSize);
-            GameObject childText = CreateUIObject("Text", uiButtonRoot);
+            var uiButtonRoot = CreateUIElementRoot("UI Button", menuCommand, s_ThickGUIElementSize);
+            var childText = CreateUIObject("Text", uiButtonRoot);
 
-            Image image = uiButtonRoot.AddComponent<Image>();
+            var image = uiButtonRoot.AddComponent<Image>();
             image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kStandardSpritePath);
             image.type = Image.Type.Sliced;
             image.color = s_DefaultSelectableColor;
 
-            Button bt = uiButtonRoot.AddComponent<Button>();
+            var bt = uiButtonRoot.AddComponent<Button>();
             uiButtonRoot.AddComponent<UISelectableExtension>();
             SetDefaultColorTransitionValues(bt);
 
-            Text text = childText.AddComponent<Text>();
+            var text = childText.AddComponent<Text>();
             text.text = "Button";
             text.alignment = TextAnchor.MiddleCenter;
             text.color = new Color(0.196f, 0.196f, 0.196f);
 
-            RectTransform textRectTransform = childText.GetComponent<RectTransform>();
+            var textRectTransform = childText.GetComponent<RectTransform>();
             textRectTransform.anchorMin = Vector2.zero;
             textRectTransform.anchorMax = Vector2.one;
             textRectTransform.sizeDelta = Vector2.zero;
@@ -590,28 +613,29 @@ namespace UnityEditor.UI
         }
 
         [MenuItem("GameObject/UI/Extensions/UI Flippable", false)]
-        static public void AddUIFlippableImage(MenuCommand menuCommand)
+        public static void AddUIFlippableImage(MenuCommand menuCommand)
         {
-            GameObject go = CreateUIElementRoot("UI Flippable", menuCommand, s_ImageGUIElementSize);
+            var go = CreateUIElementRoot("UI Flippable", menuCommand, s_ImageGUIElementSize);
             go.AddComponent<Image>();
             go.AddComponent<UIFlippable>();
             Selection.activeGameObject = go;
         }
 
         [MenuItem("GameObject/UI/Extensions/UI Window Base", false)]
-        static public void AddUIWindowBase(MenuCommand menuCommand)
+        public static void AddUIWindowBase(MenuCommand menuCommand)
         {
-            GameObject go = CreateUIElementRoot("UI Window Base", menuCommand, s_ThickGUIElementSize);
+            var go = CreateUIElementRoot("UI Window Base", menuCommand, s_ThickGUIElementSize);
             go.AddComponent<UIWindowBase>();
             go.AddComponent<Image>();
             Selection.activeGameObject = go;
         }
 
         #region Accordian
+
         [MenuItem("GameObject/UI/Extensions/Accordion/Accordion Group", false)]
-        static public void AddAccordionGroup(MenuCommand menuCommand)
+        public static void AddAccordionGroup(MenuCommand menuCommand)
         {
-            GameObject go = CreateUIElementRoot("Accordion Group", menuCommand, s_ThickGUIElementSize);
+            var go = CreateUIElementRoot("Accordion Group", menuCommand, s_ThickGUIElementSize);
             go.AddComponent<VerticalLayoutGroup>();
             go.AddComponent<ContentSizeFitter>();
             go.AddComponent<ToggleGroup>();
@@ -620,36 +644,38 @@ namespace UnityEditor.UI
         }
 
         [MenuItem("GameObject/UI/Extensions/Accordion/Accordion Element", false)]
-        static public void AddAccordionElement(MenuCommand menuCommand)
+        public static void AddAccordionElement(MenuCommand menuCommand)
         {
-            GameObject go = CreateUIElementRoot("Accordion Element", menuCommand, s_ThickGUIElementSize);
+            var go = CreateUIElementRoot("Accordion Element", menuCommand, s_ThickGUIElementSize);
             go.AddComponent<LayoutElement>();
             go.AddComponent<AccordionElement>();
             Selection.activeGameObject = go;
-
         }
+
         #endregion
 
         #region Drop Down controls
+
         [MenuItem("GameObject/UI/Extensions/AutoComplete ComboBox", false)]
-        static public void AddAutoCompleteComboBox(MenuCommand menuCommand)
+        public static void AddAutoCompleteComboBox(MenuCommand menuCommand)
         {
-            GameObject autoCompleteComboBoxRoot = CreateUIElementRoot("AutoCompleteComboBox", menuCommand, s_ThickGUIElementSize);
+            var autoCompleteComboBoxRoot = CreateUIElementRoot("AutoCompleteComboBox", menuCommand,
+                s_ThickGUIElementSize);
 
             //Create Template
-            GameObject itemTemplate = AddButtonAsChild(autoCompleteComboBoxRoot);
+            var itemTemplate = AddButtonAsChild(autoCompleteComboBoxRoot);
 
             //Create Inputfield
-            GameObject inputField = AddInputFieldAsChild(autoCompleteComboBoxRoot);
+            var inputField = AddInputFieldAsChild(autoCompleteComboBoxRoot);
 
             //Create Overlay
-            GameObject overlay = CreateUIObject("Overlay", autoCompleteComboBoxRoot);
-            GameObject overlayScrollPanel = CreateUIObject("ScrollPanel", overlay);
-            GameObject overlayScrollPanelItems = CreateUIObject("Items", overlayScrollPanel);
-            GameObject overlayScrollPanelScrollBar = AddScrollbarAsChild(overlayScrollPanel);
+            var overlay = CreateUIObject("Overlay", autoCompleteComboBoxRoot);
+            var overlayScrollPanel = CreateUIObject("ScrollPanel", overlay);
+            var overlayScrollPanelItems = CreateUIObject("Items", overlayScrollPanel);
+            var overlayScrollPanelScrollBar = AddScrollbarAsChild(overlayScrollPanel);
 
             //Create Arrow Button
-            GameObject arrowButton = AddButtonAsChild(autoCompleteComboBoxRoot);
+            var arrowButton = AddButtonAsChild(autoCompleteComboBoxRoot);
 
             //Setup ComboBox
             var autoCompleteComboBox = autoCompleteComboBoxRoot.AddComponent<AutoCompleteComboBox>();
@@ -670,7 +696,8 @@ namespace UnityEditor.UI
             inputFieldRT.anchorMin = Vector2.zero;
             inputFieldRT.anchorMax = Vector2.one;
             inputFieldRT.sizeDelta = Vector2.zero;
-            Events.UnityEventTools.AddPersistentListener<string>(inputField.GetComponent<InputField>().onValueChanged, new UnityEngine.Events.UnityAction<string>(autoCompleteComboBox.OnValueChanged));
+            UnityEventTools.AddPersistentListener(inputField.GetComponent<InputField>().onValueChanged,
+                autoCompleteComboBox.OnValueChanged);
 
             //Setup Overlay
             var overlayRT = overlay.GetComponent<RectTransform>();
@@ -679,13 +706,14 @@ namespace UnityEditor.UI
             overlayRT.sizeDelta = new Vector2(0f, 1f);
             overlayRT.pivot = new Vector2(0f, 1f);
             overlay.AddComponent<Image>().color = new Color(0.243f, 0.871f, 0f, 0f);
-            Events.UnityEventTools.AddBoolPersistentListener(overlay.AddComponent<Button>().onClick, new UnityEngine.Events.UnityAction<bool>(autoCompleteComboBox.ToggleDropdownPanel), true);
+            UnityEventTools.AddBoolPersistentListener(overlay.AddComponent<Button>().onClick,
+                autoCompleteComboBox.ToggleDropdownPanel, true);
             //Overlay Scroll Panel
             var overlayScrollPanelRT = overlayScrollPanel.GetComponent<RectTransform>();
             overlayScrollPanelRT.position += new Vector3(0, -cbbRT.sizeDelta.y, 0);
             overlayScrollPanelRT.anchorMin = new Vector2(0f, 1f);
             overlayScrollPanelRT.anchorMax = new Vector2(0f, 1f);
-            overlayScrollPanelRT.sizeDelta = new Vector2(cbbRT.sizeDelta.x, cbbRT.sizeDelta.y * 3);
+            overlayScrollPanelRT.sizeDelta = new Vector2(cbbRT.sizeDelta.x, cbbRT.sizeDelta.y*3);
             overlayScrollPanelRT.pivot = new Vector2(0f, 1f);
             overlayScrollPanel.AddComponent<Image>();
             overlayScrollPanel.AddComponent<Mask>();
@@ -721,31 +749,32 @@ namespace UnityEditor.UI
             arrowButtonRT.anchorMax = Vector2.one;
             arrowButtonRT.sizeDelta = new Vector2(cbbRT.sizeDelta.y, cbbRT.sizeDelta.y);
             arrowButtonRT.pivot = Vector2.one;
-            Events.UnityEventTools.AddBoolPersistentListener(arrowButton.GetComponent<Button>().onClick, new UnityEngine.Events.UnityAction<bool>(autoCompleteComboBox.ToggleDropdownPanel), true);
+            UnityEventTools.AddBoolPersistentListener(arrowButton.GetComponent<Button>().onClick,
+                autoCompleteComboBox.ToggleDropdownPanel, true);
             arrowButton.GetComponentInChildren<Text>().text = "▼";
 
             Selection.activeGameObject = autoCompleteComboBoxRoot;
         }
 
         [MenuItem("GameObject/UI/Extensions/ComboBox", false)]
-        static public void AddComboBox(MenuCommand menuCommand)
+        public static void AddComboBox(MenuCommand menuCommand)
         {
-            GameObject comboBoxRoot = CreateUIElementRoot("ComboBox", menuCommand, s_ThickGUIElementSize);
+            var comboBoxRoot = CreateUIElementRoot("ComboBox", menuCommand, s_ThickGUIElementSize);
 
             //Create Template
-            GameObject itemTemplate = AddButtonAsChild(comboBoxRoot);
+            var itemTemplate = AddButtonAsChild(comboBoxRoot);
 
             //Create Inputfield
-            GameObject inputField = AddInputFieldAsChild(comboBoxRoot);
+            var inputField = AddInputFieldAsChild(comboBoxRoot);
 
             //Create Overlay
-            GameObject overlay = CreateUIObject("Overlay", comboBoxRoot);
-            GameObject overlayScrollPanel = CreateUIObject("ScrollPanel", overlay);
-            GameObject overlayScrollPanelItems = CreateUIObject("Items", overlayScrollPanel);
-            GameObject overlayScrollPanelScrollBar = AddScrollbarAsChild(overlayScrollPanel);
+            var overlay = CreateUIObject("Overlay", comboBoxRoot);
+            var overlayScrollPanel = CreateUIObject("ScrollPanel", overlay);
+            var overlayScrollPanelItems = CreateUIObject("Items", overlayScrollPanel);
+            var overlayScrollPanelScrollBar = AddScrollbarAsChild(overlayScrollPanel);
 
             //Create Arrow Button
-            GameObject arrowButton = AddButtonAsChild(comboBoxRoot);
+            var arrowButton = AddButtonAsChild(comboBoxRoot);
 
             //Setup ComboBox
             var comboBox = comboBoxRoot.AddComponent<ComboBox>();
@@ -766,7 +795,8 @@ namespace UnityEditor.UI
             inputFieldRT.anchorMin = Vector2.zero;
             inputFieldRT.anchorMax = Vector2.one;
             inputFieldRT.sizeDelta = Vector2.zero;
-            Events.UnityEventTools.AddPersistentListener<string>(inputField.GetComponent<InputField>().onValueChanged, new UnityEngine.Events.UnityAction<string>(comboBox.OnValueChanged));
+            UnityEventTools.AddPersistentListener(inputField.GetComponent<InputField>().onValueChanged,
+                comboBox.OnValueChanged);
 
             //Setup Overlay
             var overlayRT = overlay.GetComponent<RectTransform>();
@@ -775,13 +805,14 @@ namespace UnityEditor.UI
             overlayRT.sizeDelta = new Vector2(0f, 1f);
             overlayRT.pivot = new Vector2(0f, 1f);
             overlay.AddComponent<Image>().color = new Color(0.243f, 0.871f, 0f, 0f);
-            Events.UnityEventTools.AddBoolPersistentListener(overlay.AddComponent<Button>().onClick, new UnityEngine.Events.UnityAction<bool>(comboBox.ToggleDropdownPanel), true);
+            UnityEventTools.AddBoolPersistentListener(overlay.AddComponent<Button>().onClick,
+                comboBox.ToggleDropdownPanel, true);
             //Overlay Scroll Panel
             var overlayScrollPanelRT = overlayScrollPanel.GetComponent<RectTransform>();
             overlayScrollPanelRT.position += new Vector3(0, -cbbRT.sizeDelta.y, 0);
             overlayScrollPanelRT.anchorMin = new Vector2(0f, 1f);
             overlayScrollPanelRT.anchorMax = new Vector2(0f, 1f);
-            overlayScrollPanelRT.sizeDelta = new Vector2(cbbRT.sizeDelta.x, cbbRT.sizeDelta.y * 3);
+            overlayScrollPanelRT.sizeDelta = new Vector2(cbbRT.sizeDelta.x, cbbRT.sizeDelta.y*3);
             overlayScrollPanelRT.pivot = new Vector2(0f, 1f);
             overlayScrollPanel.AddComponent<Image>();
             overlayScrollPanel.AddComponent<Mask>();
@@ -817,35 +848,36 @@ namespace UnityEditor.UI
             arrowButtonRT.anchorMax = Vector2.one;
             arrowButtonRT.sizeDelta = new Vector2(cbbRT.sizeDelta.y, cbbRT.sizeDelta.y);
             arrowButtonRT.pivot = Vector2.one;
-            Events.UnityEventTools.AddBoolPersistentListener(arrowButton.GetComponent<Button>().onClick, new UnityEngine.Events.UnityAction<bool>(comboBox.ToggleDropdownPanel), true);
+            UnityEventTools.AddBoolPersistentListener(arrowButton.GetComponent<Button>().onClick,
+                comboBox.ToggleDropdownPanel, true);
             arrowButton.GetComponentInChildren<Text>().text = "▼";
 
             Selection.activeGameObject = comboBoxRoot;
         }
 
         [MenuItem("GameObject/UI/Extensions/DropDownList", false)]
-        static public void AddDropDownList(MenuCommand menuCommand)
+        public static void AddDropDownList(MenuCommand menuCommand)
         {
-            GameObject dropDownListRoot = CreateUIElementRoot("DropDownList", menuCommand, s_ThickGUIElementSize);
+            var dropDownListRoot = CreateUIElementRoot("DropDownList", menuCommand, s_ThickGUIElementSize);
 
             //Create Template
-            GameObject itemTemplate = AddButtonAsChild(dropDownListRoot);
-            GameObject itemTemplateImage = AddImageAsChild(itemTemplate);
+            var itemTemplate = AddButtonAsChild(dropDownListRoot);
+            var itemTemplateImage = AddImageAsChild(itemTemplate);
             itemTemplateImage.GetComponent<Transform>().SetSiblingIndex(0);
 
             //Create Main Button
-            GameObject mainButton = AddButtonAsChild(dropDownListRoot);
-            GameObject mainButtonImage = AddImageAsChild(mainButton);
+            var mainButton = AddButtonAsChild(dropDownListRoot);
+            var mainButtonImage = AddImageAsChild(mainButton);
             mainButtonImage.GetComponent<Transform>().SetSiblingIndex(0);
 
             //Create Overlay
-            GameObject overlay = CreateUIObject("Overlay", dropDownListRoot);
-            GameObject overlayScrollPanel = CreateUIObject("ScrollPanel", overlay);
-            GameObject overlayScrollPanelItems = CreateUIObject("Items", overlayScrollPanel);
-            GameObject overlayScrollPanelScrollBar = AddScrollbarAsChild(overlayScrollPanel);
+            var overlay = CreateUIObject("Overlay", dropDownListRoot);
+            var overlayScrollPanel = CreateUIObject("ScrollPanel", overlay);
+            var overlayScrollPanelItems = CreateUIObject("Items", overlayScrollPanel);
+            var overlayScrollPanelScrollBar = AddScrollbarAsChild(overlayScrollPanel);
 
             //Create Arrow Button
-            GameObject arrowText = AddTextAsChild(dropDownListRoot);
+            var arrowText = AddTextAsChild(dropDownListRoot);
 
             //Setup DropDownList
             var dropDownList = dropDownListRoot.AddComponent<DropDownList>();
@@ -876,7 +908,8 @@ namespace UnityEditor.UI
             mainButtonRT.anchorMin = Vector2.zero;
             mainButtonRT.anchorMax = Vector2.one;
             mainButtonRT.sizeDelta = Vector2.zero;
-            Events.UnityEventTools.AddBoolPersistentListener(mainButton.GetComponent<Button>().onClick, new UnityEngine.Events.UnityAction<bool>(dropDownList.ToggleDropdownPanel), true);
+            UnityEventTools.AddBoolPersistentListener(mainButton.GetComponent<Button>().onClick,
+                dropDownList.ToggleDropdownPanel, true);
             var mainButtonText = mainButton.GetComponentInChildren<Text>();
             mainButtonText.alignment = TextAnchor.MiddleLeft;
             mainButtonText.text = "Select Item...";
@@ -904,13 +937,14 @@ namespace UnityEditor.UI
             overlayRT.sizeDelta = new Vector2(0f, 1f);
             overlayRT.pivot = new Vector2(0f, 1f);
             overlay.AddComponent<Image>().color = new Color(0.243f, 0.871f, 0f, 0f);
-            Events.UnityEventTools.AddBoolPersistentListener(overlay.AddComponent<Button>().onClick, new UnityEngine.Events.UnityAction<bool>(dropDownList.ToggleDropdownPanel), true);
+            UnityEventTools.AddBoolPersistentListener(overlay.AddComponent<Button>().onClick,
+                dropDownList.ToggleDropdownPanel, true);
             //Overlay Scroll Panel
             var overlayScrollPanelRT = overlayScrollPanel.GetComponent<RectTransform>();
             overlayScrollPanelRT.position += new Vector3(0, -cbbRT.sizeDelta.y, 0);
             overlayScrollPanelRT.anchorMin = new Vector2(0f, 1f);
             overlayScrollPanelRT.anchorMax = new Vector2(0f, 1f);
-            overlayScrollPanelRT.sizeDelta = new Vector2(cbbRT.sizeDelta.x, cbbRT.sizeDelta.y * 3);
+            overlayScrollPanelRT.sizeDelta = new Vector2(cbbRT.sizeDelta.x, cbbRT.sizeDelta.y*3);
             overlayScrollPanelRT.pivot = new Vector2(0f, 1f);
             overlayScrollPanel.AddComponent<Image>();
             overlayScrollPanel.AddComponent<Mask>();
@@ -954,47 +988,51 @@ namespace UnityEditor.UI
             arrowTextCanvasGroup.blocksRaycasts = false;
             Selection.activeGameObject = dropDownListRoot;
         }
+
         #endregion
 
         #region RTS Selection box
+
         [MenuItem("GameObject/UI/Extensions/Selection Box", false)]
-        static public void AddSelectionBox(MenuCommand menuCommand)
+        public static void AddSelectionBox(MenuCommand menuCommand)
         {
             var go = CreateNewUI();
             go.name = "Selection Box";
             GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
-            RectTransform rect = go.transform as RectTransform;
+            var rect = go.transform as RectTransform;
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
             rect.anchoredPosition = Vector2.zero;
             rect.sizeDelta = Vector2.zero;
 
-            Image image = go.AddComponent<Image>();
+            var image = go.AddComponent<Image>();
             image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kBackgroundSpriteResourcePath);
             image.type = Image.Type.Sliced;
             image.fillCenter = false;
             image.color = new Color(1f, 1f, 1f, 0.392f);
 
 
-            SelectionBox selectableArea = go.AddComponent<SelectionBox>();
+            var selectableArea = go.AddComponent<SelectionBox>();
             selectableArea.selectionMask = rect;
             selectableArea.color = new Color(0.816f, 0.816f, 0.816f, 0.353f);
 
 
-            GameObject childSelectableItem = CreateUIObject("Selectable", go);
+            var childSelectableItem = CreateUIObject("Selectable", go);
             childSelectableItem.AddComponent<Image>();
             childSelectableItem.AddComponent<ExampleSelectable>();
 
 
             Selection.activeGameObject = go;
         }
+
         #endregion
 
         #region Bound Tooltip
+
         [MenuItem("GameObject/UI/Extensions/Bound Tooltip/Tooltip", false)]
-        static public void AddBoundTooltip(MenuCommand menuCommand)
+        public static void AddBoundTooltip(MenuCommand menuCommand)
         {
-            GameObject go = CreateUIElementRoot("Tooltip", menuCommand, s_ImageGUIElementSize);
+            var go = CreateUIElementRoot("Tooltip", menuCommand, s_ImageGUIElementSize);
             var tooltip = go.AddComponent<BoundTooltipTrigger>();
             tooltip.text = "This is my Tooltip Text";
             var boundTooltip = go.AddComponent<Image>();
@@ -1021,7 +1059,8 @@ namespace UnityEditor.UI
                 boundTooltipItemCanvasGroup.interactable = false;
                 boundTooltipItemCanvasGroup.blocksRaycasts = false;
                 var boundTooltipItemImage = boundTooltipItem.AddComponent<Image>();
-                boundTooltipItemImage.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kBackgroundSpriteResourcePath);
+                boundTooltipItemImage.sprite =
+                    AssetDatabase.GetBuiltinExtraResource<Sprite>(kBackgroundSpriteResourcePath);
                 var boundTooltipItemText = CreateUIObject("Text", boundTooltipItem);
                 var boundTooltipItemTextRT = boundTooltipItemText.GetComponent<RectTransform>();
                 boundTooltipItemTextRT.anchorMin = Vector2.zero;
@@ -1041,184 +1080,188 @@ namespace UnityEditor.UI
         #endregion
 
         #region Progress bar
+
         [MenuItem("GameObject/UI/Extensions/Progress Bar", false)]
-        static public void AddSlider(MenuCommand menuCommand)
+        public static void AddSlider(MenuCommand menuCommand)
         {
             // Create GOs Hierarchy
-            GameObject root = CreateUIElementRoot("Progress Bar", menuCommand, s_ThinGUIElementSize);
+            var root = CreateUIElementRoot("Progress Bar", menuCommand, s_ThinGUIElementSize);
 
-            GameObject background = CreateUIObject("Background", root);
-            GameObject fillArea = CreateUIObject("Fill Area", root);
-            GameObject fill = CreateUIObject("Fill", fillArea);
+            var background = CreateUIObject("Background", root);
+            var fillArea = CreateUIObject("Fill Area", root);
+            var fill = CreateUIObject("Fill", fillArea);
 
             // Background
-            Image backgroundImage = background.AddComponent<Image>();
+            var backgroundImage = background.AddComponent<Image>();
             backgroundImage.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kBackgroundSpriteResourcePath);
             backgroundImage.type = Image.Type.Sliced;
             backgroundImage.color = s_DefaultSelectableColor;
-            RectTransform backgroundRect = background.GetComponent<RectTransform>();
+            var backgroundRect = background.GetComponent<RectTransform>();
             backgroundRect.anchorMin = new Vector2(0, 0.25f);
             backgroundRect.anchorMax = new Vector2(1, 0.75f);
             backgroundRect.sizeDelta = new Vector2(0, 0);
 
             // Fill Area
-            RectTransform fillAreaRect = fillArea.GetComponent<RectTransform>();
+            var fillAreaRect = fillArea.GetComponent<RectTransform>();
             fillAreaRect.anchorMin = new Vector2(0, 0.25f);
             fillAreaRect.anchorMax = new Vector2(1, 0.75f);
             fillAreaRect.anchoredPosition = Vector2.zero;
             fillAreaRect.sizeDelta = Vector2.zero;
 
             // Fill
-            Image fillImage = fill.AddComponent<Image>();
+            var fillImage = fill.AddComponent<Image>();
             fillImage.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kStandardSpritePath);
             fillImage.type = Image.Type.Sliced;
             fillImage.color = s_DefaultSelectableColor;
 
-            RectTransform fillRect = fill.GetComponent<RectTransform>();
+            var fillRect = fill.GetComponent<RectTransform>();
             fillRect.sizeDelta = Vector2.zero;
 
             // Setup slider component
-            Slider slider = root.AddComponent<Slider>();
+            var slider = root.AddComponent<Slider>();
             slider.value = 0;
             slider.fillRect = fill.GetComponent<RectTransform>();
             slider.targetGraphic = fillImage;
             slider.direction = Slider.Direction.LeftToRight;
             SetDefaultColorTransitionValues(slider);
         }
+
         #endregion
 
         #region Primitives
 
         [MenuItem("GameObject/UI/Extensions/Primitives/UI Line Renderer", false)]
-        static public void AddUILineRenderer(MenuCommand menuCommand)
+        public static void AddUILineRenderer(MenuCommand menuCommand)
         {
-            GameObject go = CreateUIElementRoot("UI LineRenderer", menuCommand, s_ImageGUIElementSize);
+            var go = CreateUIElementRoot("UI LineRenderer", menuCommand, s_ImageGUIElementSize);
             go.AddComponent<UILineRenderer>();
             Selection.activeGameObject = go;
         }
 
         [MenuItem("GameObject/UI/Extensions/Primitives/UI Line Texture Renderer", false)]
-        static public void AddUILineTextureRenderer(MenuCommand menuCommand)
+        public static void AddUILineTextureRenderer(MenuCommand menuCommand)
         {
-            GameObject go = CreateUIElementRoot("UI LineTextureRenderer", menuCommand, s_ImageGUIElementSize);
+            var go = CreateUIElementRoot("UI LineTextureRenderer", menuCommand, s_ImageGUIElementSize);
             go.AddComponent<UILineTextureRenderer>();
             Selection.activeGameObject = go;
         }
 
         [MenuItem("GameObject/UI/Extensions/Primitives/UI Circle", false)]
-        static public void AddUICircle(MenuCommand menuCommand)
+        public static void AddUICircle(MenuCommand menuCommand)
         {
-            GameObject go = CreateUIElementRoot("UI Circle", menuCommand, s_ImageGUIElementSize);
+            var go = CreateUIElementRoot("UI Circle", menuCommand, s_ImageGUIElementSize);
             go.AddComponent<UICircle>();
             Selection.activeGameObject = go;
         }
 
         [MenuItem("GameObject/UI/Extensions/Primitives/UI Diamond Graph", false)]
-        static public void AddDiamondGraph(MenuCommand menuCommand)
+        public static void AddDiamondGraph(MenuCommand menuCommand)
         {
-            GameObject go = CreateUIElementRoot("UI Diamond Graph", menuCommand, s_ImageGUIElementSize);
+            var go = CreateUIElementRoot("UI Diamond Graph", menuCommand, s_ImageGUIElementSize);
             go.AddComponent<DiamondGraph>();
             Selection.activeGameObject = go;
         }
 
         [MenuItem("GameObject/UI/Extensions/Primitives/UI Cut Corners", false)]
-        static public void AddCutCorners(MenuCommand menuCommand)
+        public static void AddCutCorners(MenuCommand menuCommand)
         {
-            GameObject go = CreateUIElementRoot("UI Cut Corners", menuCommand, s_ImageGUIElementSize);
+            var go = CreateUIElementRoot("UI Cut Corners", menuCommand, s_ImageGUIElementSize);
             go.AddComponent<UICornerCut>();
             Selection.activeGameObject = go;
         }
 
         [MenuItem("GameObject/UI/Extensions/Primitives/UI Polygon", false)]
-        static public void AddPolygon(MenuCommand menuCommand)
+        public static void AddPolygon(MenuCommand menuCommand)
         {
-            GameObject go = CreateUIElementRoot("UI Polygon", menuCommand, s_ImageGUIElementSize);
+            var go = CreateUIElementRoot("UI Polygon", menuCommand, s_ImageGUIElementSize);
             go.AddComponent<UIPolygon>();
             Selection.activeGameObject = go;
         }
+
         #endregion
 
         #region Re-Orderable Lists
 
         [MenuItem("GameObject/UI/Extensions/Re-orderable Lists/Re-orderable Vertical Scroll Rect", false)]
-        static public void AddReorderableScrollRectVertical(MenuCommand menuCommand)
+        public static void AddReorderableScrollRectVertical(MenuCommand menuCommand)
         {
-            GameObject reorderableScrollRoot = CreateUIElementRoot("Re-orderable Vertical ScrollRect", menuCommand, s_ThickGUIElementSize);
+            var reorderableScrollRoot = CreateUIElementRoot("Re-orderable Vertical ScrollRect", menuCommand,
+                s_ThickGUIElementSize);
 
-            GameObject childContent = CreateUIObject("List_Content", reorderableScrollRoot);
+            var childContent = CreateUIObject("List_Content", reorderableScrollRoot);
 
-            GameObject Element01 = CreateUIObject("Element_01", childContent);
-            GameObject Element02 = CreateUIObject("Element_02", childContent);
-            GameObject Element03 = CreateUIObject("Element_03", childContent);
+            var Element01 = CreateUIObject("Element_01", childContent);
+            var Element02 = CreateUIObject("Element_02", childContent);
+            var Element03 = CreateUIObject("Element_03", childContent);
 
 
             // Set RectTransform to stretch
-            RectTransform rectTransformScrollSnapRoot = reorderableScrollRoot.GetComponent<RectTransform>();
+            var rectTransformScrollSnapRoot = reorderableScrollRoot.GetComponent<RectTransform>();
             rectTransformScrollSnapRoot.anchorMin = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchoredPosition = Vector2.zero;
             rectTransformScrollSnapRoot.sizeDelta = new Vector2(150f, 150f);
 
 
-            Image image = reorderableScrollRoot.AddComponent<Image>();
+            var image = reorderableScrollRoot.AddComponent<Image>();
             image.color = new Color(1f, 1f, 1f, 0.392f);
 
-            ScrollRect sr = reorderableScrollRoot.AddComponent<ScrollRect>();
+            var sr = reorderableScrollRoot.AddComponent<ScrollRect>();
             sr.vertical = true;
             sr.horizontal = false;
 
-            LayoutElement reorderableScrollRootLE = reorderableScrollRoot.AddComponent<LayoutElement>();
+            var reorderableScrollRootLE = reorderableScrollRoot.AddComponent<LayoutElement>();
             reorderableScrollRootLE.preferredHeight = 300;
 
             reorderableScrollRoot.AddComponent<Mask>();
-            ReorderableList reorderableScrollRootRL = reorderableScrollRoot.AddComponent<ReorderableList>();
+            var reorderableScrollRootRL = reorderableScrollRoot.AddComponent<ReorderableList>();
 
             //Setup Content container
-            RectTransform rectTransformContent = childContent.GetComponent<RectTransform>();
+            var rectTransformContent = childContent.GetComponent<RectTransform>();
             rectTransformContent.anchorMin = Vector2.zero;
             rectTransformContent.anchorMax = new Vector2(1f, 1f);
             rectTransformContent.sizeDelta = Vector2.zero;
-            VerticalLayoutGroup childContentVLG = childContent.AddComponent<VerticalLayoutGroup>();
-            ContentSizeFitter childContentCSF = childContent.AddComponent<ContentSizeFitter>();
+            var childContentVLG = childContent.AddComponent<VerticalLayoutGroup>();
+            var childContentCSF = childContent.AddComponent<ContentSizeFitter>();
             childContentCSF.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             sr.content = rectTransformContent;
             reorderableScrollRootRL.ContentLayout = childContentVLG;
 
             //Setup 1st Child
-            Image Element01Image = Element01.AddComponent<Image>();
+            var Element01Image = Element01.AddComponent<Image>();
             Element01Image.color = Color.green;
 
-            RectTransform rectTransformElement01 = Element01.GetComponent<RectTransform>();
+            var rectTransformElement01 = Element01.GetComponent<RectTransform>();
             rectTransformElement01.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement01.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement01.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement01 = Element01.AddComponent<LayoutElement>();
+            var LEElement01 = Element01.AddComponent<LayoutElement>();
             LEElement01.minHeight = 50;
 
             //Setup 2nd Child
-            Image Element02Image = Element02.AddComponent<Image>();
+            var Element02Image = Element02.AddComponent<Image>();
             Element02Image.color = Color.red;
 
-            RectTransform rectTransformElement02 = Element02.GetComponent<RectTransform>();
+            var rectTransformElement02 = Element02.GetComponent<RectTransform>();
             rectTransformElement02.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement02.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement02.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement02 = Element02.AddComponent<LayoutElement>();
+            var LEElement02 = Element02.AddComponent<LayoutElement>();
             LEElement02.minHeight = 50;
 
             //Setup 2nd Child
-            Image Element03Image = Element03.AddComponent<Image>();
+            var Element03Image = Element03.AddComponent<Image>();
             Element03Image.color = Color.blue;
 
-            RectTransform rectTransformElement03 = Element03.GetComponent<RectTransform>();
+            var rectTransformElement03 = Element03.GetComponent<RectTransform>();
             rectTransformElement03.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement03.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement03.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement03 = Element03.AddComponent<LayoutElement>();
+            var LEElement03 = Element03.AddComponent<LayoutElement>();
             LEElement03.minHeight = 50;
 
 
@@ -1227,84 +1270,85 @@ namespace UnityEditor.UI
         }
 
         [MenuItem("GameObject/UI/Extensions/Re-orderable Lists/Re-orderable Horizontal Scroll Rect", false)]
-        static public void AddReorderableScrollRectHorizontal(MenuCommand menuCommand)
+        public static void AddReorderableScrollRectHorizontal(MenuCommand menuCommand)
         {
-            GameObject reorderableScrollRoot = CreateUIElementRoot("Re-orderable Horizontal ScrollRect", menuCommand, s_ThickGUIElementSize);
+            var reorderableScrollRoot = CreateUIElementRoot("Re-orderable Horizontal ScrollRect", menuCommand,
+                s_ThickGUIElementSize);
 
-            GameObject childContent = CreateUIObject("List_Content", reorderableScrollRoot);
+            var childContent = CreateUIObject("List_Content", reorderableScrollRoot);
 
-            GameObject Element01 = CreateUIObject("Element_01", childContent);
-            GameObject Element02 = CreateUIObject("Element_02", childContent);
-            GameObject Element03 = CreateUIObject("Element_03", childContent);
+            var Element01 = CreateUIObject("Element_01", childContent);
+            var Element02 = CreateUIObject("Element_02", childContent);
+            var Element03 = CreateUIObject("Element_03", childContent);
 
 
             // Set RectTransform to stretch
-            RectTransform rectTransformScrollSnapRoot = reorderableScrollRoot.GetComponent<RectTransform>();
+            var rectTransformScrollSnapRoot = reorderableScrollRoot.GetComponent<RectTransform>();
             rectTransformScrollSnapRoot.anchorMin = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchoredPosition = Vector2.zero;
             rectTransformScrollSnapRoot.sizeDelta = new Vector2(150f, 150f);
 
 
-            Image image = reorderableScrollRoot.AddComponent<Image>();
+            var image = reorderableScrollRoot.AddComponent<Image>();
             image.color = new Color(1f, 1f, 1f, 0.392f);
 
-            ScrollRect sr = reorderableScrollRoot.AddComponent<ScrollRect>();
+            var sr = reorderableScrollRoot.AddComponent<ScrollRect>();
             sr.vertical = false;
             sr.horizontal = true;
 
-            LayoutElement reorderableScrollRootLE = reorderableScrollRoot.AddComponent<LayoutElement>();
+            var reorderableScrollRootLE = reorderableScrollRoot.AddComponent<LayoutElement>();
             reorderableScrollRootLE.preferredHeight = 300;
 
             reorderableScrollRoot.AddComponent<Mask>();
-            ReorderableList reorderableScrollRootRL = reorderableScrollRoot.AddComponent<ReorderableList>();
+            var reorderableScrollRootRL = reorderableScrollRoot.AddComponent<ReorderableList>();
 
             //Setup Content container
-            RectTransform rectTransformContent = childContent.GetComponent<RectTransform>();
+            var rectTransformContent = childContent.GetComponent<RectTransform>();
             rectTransformContent.anchorMin = Vector2.zero;
             rectTransformContent.anchorMax = new Vector2(1f, 1f);
             rectTransformContent.sizeDelta = Vector2.zero;
-            HorizontalLayoutGroup childContentHLG = childContent.AddComponent<HorizontalLayoutGroup>();
-            ContentSizeFitter childContentCSF = childContent.AddComponent<ContentSizeFitter>();
+            var childContentHLG = childContent.AddComponent<HorizontalLayoutGroup>();
+            var childContentCSF = childContent.AddComponent<ContentSizeFitter>();
             childContentCSF.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             sr.content = rectTransformContent;
             reorderableScrollRootRL.ContentLayout = childContentHLG;
 
             //Setup 1st Child
-            Image Element01Image = Element01.AddComponent<Image>();
+            var Element01Image = Element01.AddComponent<Image>();
             Element01Image.color = Color.green;
 
-            RectTransform rectTransformElement01 = Element01.GetComponent<RectTransform>();
+            var rectTransformElement01 = Element01.GetComponent<RectTransform>();
             rectTransformElement01.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement01.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement01.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement01 = Element01.AddComponent<LayoutElement>();
+            var LEElement01 = Element01.AddComponent<LayoutElement>();
             LEElement01.minWidth = 50;
 
             //Setup 2nd Child
-            Image Element02Image = Element02.AddComponent<Image>();
+            var Element02Image = Element02.AddComponent<Image>();
             Element02Image.color = Color.red;
 
-            RectTransform rectTransformElement02 = Element02.GetComponent<RectTransform>();
+            var rectTransformElement02 = Element02.GetComponent<RectTransform>();
             rectTransformElement02.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement02.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement02.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement02 = Element02.AddComponent<LayoutElement>();
+            var LEElement02 = Element02.AddComponent<LayoutElement>();
             LEElement02.minWidth = 50;
 
             //Setup 2nd Child
-            Image Element03Image = Element03.AddComponent<Image>();
+            var Element03Image = Element03.AddComponent<Image>();
             Element03Image.color = Color.blue;
 
-            RectTransform rectTransformElement03 = Element03.GetComponent<RectTransform>();
+            var rectTransformElement03 = Element03.GetComponent<RectTransform>();
             rectTransformElement03.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement03.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement03.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement03 = Element03.AddComponent<LayoutElement>();
+            var LEElement03 = Element03.AddComponent<LayoutElement>();
             LEElement03.minWidth = 50;
 
 
@@ -1313,86 +1357,87 @@ namespace UnityEditor.UI
         }
 
         [MenuItem("GameObject/UI/Extensions/Re-orderable Lists/Re-orderable Grid Scroll Rect", false)]
-        static public void AddReorderableScrollRectGrid(MenuCommand menuCommand)
+        public static void AddReorderableScrollRectGrid(MenuCommand menuCommand)
         {
-            GameObject reorderableScrollRoot = CreateUIElementRoot("Re-orderable Grid ScrollRect", menuCommand, s_ThickGUIElementSize);
+            var reorderableScrollRoot = CreateUIElementRoot("Re-orderable Grid ScrollRect", menuCommand,
+                s_ThickGUIElementSize);
 
-            GameObject childContent = CreateUIObject("List_Content", reorderableScrollRoot);
+            var childContent = CreateUIObject("List_Content", reorderableScrollRoot);
 
-            GameObject Element01 = CreateUIObject("Element_01", childContent);
-            GameObject Element02 = CreateUIObject("Element_02", childContent);
-            GameObject Element03 = CreateUIObject("Element_03", childContent);
+            var Element01 = CreateUIObject("Element_01", childContent);
+            var Element02 = CreateUIObject("Element_02", childContent);
+            var Element03 = CreateUIObject("Element_03", childContent);
 
 
             // Set RectTransform to stretch
-            RectTransform rectTransformScrollSnapRoot = reorderableScrollRoot.GetComponent<RectTransform>();
+            var rectTransformScrollSnapRoot = reorderableScrollRoot.GetComponent<RectTransform>();
             rectTransformScrollSnapRoot.anchorMin = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchoredPosition = Vector2.zero;
             rectTransformScrollSnapRoot.sizeDelta = new Vector2(150f, 150f);
 
 
-            Image image = reorderableScrollRoot.AddComponent<Image>();
+            var image = reorderableScrollRoot.AddComponent<Image>();
             image.color = new Color(1f, 1f, 1f, 0.392f);
 
-            ScrollRect sr = reorderableScrollRoot.AddComponent<ScrollRect>();
+            var sr = reorderableScrollRoot.AddComponent<ScrollRect>();
             sr.vertical = true;
             sr.horizontal = false;
 
-            LayoutElement reorderableScrollRootLE = reorderableScrollRoot.AddComponent<LayoutElement>();
+            var reorderableScrollRootLE = reorderableScrollRoot.AddComponent<LayoutElement>();
             reorderableScrollRootLE.preferredHeight = 300;
 
             reorderableScrollRoot.AddComponent<Mask>();
-            ReorderableList reorderableScrollRootRL = reorderableScrollRoot.AddComponent<ReorderableList>();
+            var reorderableScrollRootRL = reorderableScrollRoot.AddComponent<ReorderableList>();
 
             //Setup Content container
-            RectTransform rectTransformContent = childContent.GetComponent<RectTransform>();
+            var rectTransformContent = childContent.GetComponent<RectTransform>();
             rectTransformContent.anchorMin = Vector2.zero;
             rectTransformContent.anchorMax = new Vector2(1f, 1f);
             rectTransformContent.sizeDelta = Vector2.zero;
-            GridLayoutGroup childContentGLG = childContent.AddComponent<GridLayoutGroup>();
+            var childContentGLG = childContent.AddComponent<GridLayoutGroup>();
             childContentGLG.cellSize = new Vector2(30, 30);
             childContentGLG.spacing = new Vector2(10, 10);
-            ContentSizeFitter childContentCSF = childContent.AddComponent<ContentSizeFitter>();
+            var childContentCSF = childContent.AddComponent<ContentSizeFitter>();
             childContentCSF.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             sr.content = rectTransformContent;
             reorderableScrollRootRL.ContentLayout = childContentGLG;
 
             //Setup 1st Child
-            Image Element01Image = Element01.AddComponent<Image>();
+            var Element01Image = Element01.AddComponent<Image>();
             Element01Image.color = Color.green;
 
-            RectTransform rectTransformElement01 = Element01.GetComponent<RectTransform>();
+            var rectTransformElement01 = Element01.GetComponent<RectTransform>();
             rectTransformElement01.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement01.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement01.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement01 = Element01.AddComponent<LayoutElement>();
+            var LEElement01 = Element01.AddComponent<LayoutElement>();
             LEElement01.minHeight = 50;
 
             //Setup 2nd Child
-            Image Element02Image = Element02.AddComponent<Image>();
+            var Element02Image = Element02.AddComponent<Image>();
             Element02Image.color = Color.red;
 
-            RectTransform rectTransformElement02 = Element02.GetComponent<RectTransform>();
+            var rectTransformElement02 = Element02.GetComponent<RectTransform>();
             rectTransformElement02.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement02.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement02.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement02 = Element02.AddComponent<LayoutElement>();
+            var LEElement02 = Element02.AddComponent<LayoutElement>();
             LEElement02.minHeight = 50;
 
             //Setup 2nd Child
-            Image Element03Image = Element03.AddComponent<Image>();
+            var Element03Image = Element03.AddComponent<Image>();
             Element03Image.color = Color.blue;
 
-            RectTransform rectTransformElement03 = Element03.GetComponent<RectTransform>();
+            var rectTransformElement03 = Element03.GetComponent<RectTransform>();
             rectTransformElement03.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement03.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement03.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement03 = Element03.AddComponent<LayoutElement>();
+            var LEElement03 = Element03.AddComponent<LayoutElement>();
             LEElement03.minHeight = 50;
 
 
@@ -1401,78 +1446,79 @@ namespace UnityEditor.UI
         }
 
         [MenuItem("GameObject/UI/Extensions/Re-orderable Lists/Re-orderable Vertical List", false)]
-        static public void AddReorderableVerticalList(MenuCommand menuCommand)
+        public static void AddReorderableVerticalList(MenuCommand menuCommand)
         {
-            GameObject reorderableScrollRoot = CreateUIElementRoot("Re-orderable Vertial List", menuCommand, s_ThickGUIElementSize);
+            var reorderableScrollRoot = CreateUIElementRoot("Re-orderable Vertial List", menuCommand,
+                s_ThickGUIElementSize);
 
-            GameObject childContent = CreateUIObject("List_Content", reorderableScrollRoot);
+            var childContent = CreateUIObject("List_Content", reorderableScrollRoot);
 
-            GameObject Element01 = CreateUIObject("Element_01", childContent);
-            GameObject Element02 = CreateUIObject("Element_02", childContent);
-            GameObject Element03 = CreateUIObject("Element_03", childContent);
+            var Element01 = CreateUIObject("Element_01", childContent);
+            var Element02 = CreateUIObject("Element_02", childContent);
+            var Element03 = CreateUIObject("Element_03", childContent);
 
 
             // Set RectTransform to stretch
-            RectTransform rectTransformScrollSnapRoot = reorderableScrollRoot.GetComponent<RectTransform>();
+            var rectTransformScrollSnapRoot = reorderableScrollRoot.GetComponent<RectTransform>();
             rectTransformScrollSnapRoot.anchorMin = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchoredPosition = Vector2.zero;
             rectTransformScrollSnapRoot.sizeDelta = new Vector2(150f, 150f);
 
-            Image image = reorderableScrollRoot.AddComponent<Image>();
+            var image = reorderableScrollRoot.AddComponent<Image>();
             image.color = new Color(1f, 1f, 1f, 0.392f);
 
-            LayoutElement reorderableScrollRootLE = reorderableScrollRoot.AddComponent<LayoutElement>();
+            var reorderableScrollRootLE = reorderableScrollRoot.AddComponent<LayoutElement>();
             reorderableScrollRootLE.preferredHeight = 300;
 
             reorderableScrollRoot.AddComponent<Mask>();
-            ReorderableList reorderableScrollRootRL = reorderableScrollRoot.AddComponent<ReorderableList>();
+            var reorderableScrollRootRL = reorderableScrollRoot.AddComponent<ReorderableList>();
 
             //Setup Content container
-            RectTransform rectTransformContent = childContent.GetComponent<RectTransform>();
+            var rectTransformContent = childContent.GetComponent<RectTransform>();
             rectTransformContent.anchorMin = Vector2.zero;
             rectTransformContent.anchorMax = new Vector2(1f, 1f);
             rectTransformContent.sizeDelta = Vector2.zero;
-            VerticalLayoutGroup childContentVLG = childContent.AddComponent<VerticalLayoutGroup>();
-            ContentSizeFitter childContentCSF = childContent.AddComponent<ContentSizeFitter>();
+            var childContentVLG = childContent.AddComponent<VerticalLayoutGroup>();
+            var childContentCSF = childContent.AddComponent<ContentSizeFitter>();
             childContentCSF.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             reorderableScrollRootRL.ContentLayout = childContentVLG;
 
             //Setup 1st Child
-            Image Element01Image = Element01.AddComponent<Image>();
+            var Element01Image = Element01.AddComponent<Image>();
             Element01Image.color = Color.green;
 
-            RectTransform rectTransformElement01 = Element01.GetComponent<RectTransform>();
+            var rectTransformElement01 = Element01.GetComponent<RectTransform>();
             rectTransformElement01.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement01.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement01.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement01 = Element01.AddComponent<LayoutElement>();
+            var LEElement01 = Element01.AddComponent<LayoutElement>();
             LEElement01.minHeight = 50;
 
             //Setup 2nd Child
-            Image Element02Image = Element02.AddComponent<Image>();
+            var Element02Image = Element02.AddComponent<Image>();
             Element02Image.color = Color.red;
 
-            RectTransform rectTransformElement02 = Element02.GetComponent<RectTransform>();
+            var rectTransformElement02 = Element02.GetComponent<RectTransform>();
             rectTransformElement02.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement02.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement02.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement02 = Element02.AddComponent<LayoutElement>();
+            var LEElement02 = Element02.AddComponent<LayoutElement>();
             LEElement02.minHeight = 50;
 
             //Setup 2nd Child
-            Image Element03Image = Element03.AddComponent<Image>();
+            var Element03Image = Element03.AddComponent<Image>();
             Element03Image.color = Color.blue;
 
-            RectTransform rectTransformElement03 = Element03.GetComponent<RectTransform>();
+            var rectTransformElement03 = Element03.GetComponent<RectTransform>();
             rectTransformElement03.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement03.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement03.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement03 = Element03.AddComponent<LayoutElement>();
+            var LEElement03 = Element03.AddComponent<LayoutElement>();
             LEElement03.minHeight = 50;
 
 
@@ -1481,79 +1527,80 @@ namespace UnityEditor.UI
         }
 
         [MenuItem("GameObject/UI/Extensions/Re-orderable Lists/Re-orderable Horizontal List", false)]
-        static public void AddReorderableHorizontalList(MenuCommand menuCommand)
+        public static void AddReorderableHorizontalList(MenuCommand menuCommand)
         {
-            GameObject reorderableScrollRoot = CreateUIElementRoot("Re-orderable Horizontal List", menuCommand, s_ThickGUIElementSize);
+            var reorderableScrollRoot = CreateUIElementRoot("Re-orderable Horizontal List", menuCommand,
+                s_ThickGUIElementSize);
 
-            GameObject childContent = CreateUIObject("List_Content", reorderableScrollRoot);
+            var childContent = CreateUIObject("List_Content", reorderableScrollRoot);
 
-            GameObject Element01 = CreateUIObject("Element_01", childContent);
-            GameObject Element02 = CreateUIObject("Element_02", childContent);
-            GameObject Element03 = CreateUIObject("Element_03", childContent);
+            var Element01 = CreateUIObject("Element_01", childContent);
+            var Element02 = CreateUIObject("Element_02", childContent);
+            var Element03 = CreateUIObject("Element_03", childContent);
 
 
             // Set RectTransform to stretch
-            RectTransform rectTransformScrollSnapRoot = reorderableScrollRoot.GetComponent<RectTransform>();
+            var rectTransformScrollSnapRoot = reorderableScrollRoot.GetComponent<RectTransform>();
             rectTransformScrollSnapRoot.anchorMin = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchoredPosition = Vector2.zero;
             rectTransformScrollSnapRoot.sizeDelta = new Vector2(150f, 150f);
 
 
-            Image image = reorderableScrollRoot.AddComponent<Image>();
+            var image = reorderableScrollRoot.AddComponent<Image>();
             image.color = new Color(1f, 1f, 1f, 0.392f);
 
-            LayoutElement reorderableScrollRootLE = reorderableScrollRoot.AddComponent<LayoutElement>();
+            var reorderableScrollRootLE = reorderableScrollRoot.AddComponent<LayoutElement>();
             reorderableScrollRootLE.preferredHeight = 300;
 
             reorderableScrollRoot.AddComponent<Mask>();
-            ReorderableList reorderableScrollRootRL = reorderableScrollRoot.AddComponent<ReorderableList>();
+            var reorderableScrollRootRL = reorderableScrollRoot.AddComponent<ReorderableList>();
 
             //Setup Content container
-            RectTransform rectTransformContent = childContent.GetComponent<RectTransform>();
+            var rectTransformContent = childContent.GetComponent<RectTransform>();
             rectTransformContent.anchorMin = Vector2.zero;
             rectTransformContent.anchorMax = new Vector2(1f, 1f);
             rectTransformContent.sizeDelta = Vector2.zero;
-            HorizontalLayoutGroup childContentHLG = childContent.AddComponent<HorizontalLayoutGroup>();
-            ContentSizeFitter childContentCSF = childContent.AddComponent<ContentSizeFitter>();
+            var childContentHLG = childContent.AddComponent<HorizontalLayoutGroup>();
+            var childContentCSF = childContent.AddComponent<ContentSizeFitter>();
             childContentCSF.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             reorderableScrollRootRL.ContentLayout = childContentHLG;
 
             //Setup 1st Child
-            Image Element01Image = Element01.AddComponent<Image>();
+            var Element01Image = Element01.AddComponent<Image>();
             Element01Image.color = Color.green;
 
-            RectTransform rectTransformElement01 = Element01.GetComponent<RectTransform>();
+            var rectTransformElement01 = Element01.GetComponent<RectTransform>();
             rectTransformElement01.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement01.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement01.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement01 = Element01.AddComponent<LayoutElement>();
+            var LEElement01 = Element01.AddComponent<LayoutElement>();
             LEElement01.minWidth = 50;
 
             //Setup 2nd Child
-            Image Element02Image = Element02.AddComponent<Image>();
+            var Element02Image = Element02.AddComponent<Image>();
             Element02Image.color = Color.red;
 
-            RectTransform rectTransformElement02 = Element02.GetComponent<RectTransform>();
+            var rectTransformElement02 = Element02.GetComponent<RectTransform>();
             rectTransformElement02.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement02.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement02.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement02 = Element02.AddComponent<LayoutElement>();
+            var LEElement02 = Element02.AddComponent<LayoutElement>();
             LEElement02.minWidth = 50;
 
             //Setup 2nd Child
-            Image Element03Image = Element03.AddComponent<Image>();
+            var Element03Image = Element03.AddComponent<Image>();
             Element03Image.color = Color.blue;
 
-            RectTransform rectTransformElement03 = Element03.GetComponent<RectTransform>();
+            var rectTransformElement03 = Element03.GetComponent<RectTransform>();
             rectTransformElement03.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement03.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement03.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement03 = Element03.AddComponent<LayoutElement>();
+            var LEElement03 = Element03.AddComponent<LayoutElement>();
             LEElement03.minWidth = 50;
 
 
@@ -1562,81 +1609,81 @@ namespace UnityEditor.UI
         }
 
         [MenuItem("GameObject/UI/Extensions/Re-orderable Lists/Re-orderable Grid", false)]
-        static public void AddReorderableGrid(MenuCommand menuCommand)
+        public static void AddReorderableGrid(MenuCommand menuCommand)
         {
-            GameObject reorderableScrollRoot = CreateUIElementRoot("Re-orderable Grid", menuCommand, s_ThickGUIElementSize);
+            var reorderableScrollRoot = CreateUIElementRoot("Re-orderable Grid", menuCommand, s_ThickGUIElementSize);
 
-            GameObject childContent = CreateUIObject("List_Content", reorderableScrollRoot);
+            var childContent = CreateUIObject("List_Content", reorderableScrollRoot);
 
-            GameObject Element01 = CreateUIObject("Element_01", childContent);
-            GameObject Element02 = CreateUIObject("Element_02", childContent);
-            GameObject Element03 = CreateUIObject("Element_03", childContent);
+            var Element01 = CreateUIObject("Element_01", childContent);
+            var Element02 = CreateUIObject("Element_02", childContent);
+            var Element03 = CreateUIObject("Element_03", childContent);
 
 
             // Set RectTransform to stretch
-            RectTransform rectTransformScrollSnapRoot = reorderableScrollRoot.GetComponent<RectTransform>();
+            var rectTransformScrollSnapRoot = reorderableScrollRoot.GetComponent<RectTransform>();
             rectTransformScrollSnapRoot.anchorMin = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransformScrollSnapRoot.anchoredPosition = Vector2.zero;
             rectTransformScrollSnapRoot.sizeDelta = new Vector2(150f, 150f);
 
 
-            Image image = reorderableScrollRoot.AddComponent<Image>();
+            var image = reorderableScrollRoot.AddComponent<Image>();
             image.color = new Color(1f, 1f, 1f, 0.392f);
 
-            LayoutElement reorderableScrollRootLE = reorderableScrollRoot.AddComponent<LayoutElement>();
+            var reorderableScrollRootLE = reorderableScrollRoot.AddComponent<LayoutElement>();
             reorderableScrollRootLE.preferredHeight = 300;
 
             reorderableScrollRoot.AddComponent<Mask>();
-            ReorderableList reorderableScrollRootRL = reorderableScrollRoot.AddComponent<ReorderableList>();
+            var reorderableScrollRootRL = reorderableScrollRoot.AddComponent<ReorderableList>();
 
             //Setup Content container
-            RectTransform rectTransformContent = childContent.GetComponent<RectTransform>();
+            var rectTransformContent = childContent.GetComponent<RectTransform>();
             rectTransformContent.anchorMin = Vector2.zero;
             rectTransformContent.anchorMax = new Vector2(1f, 1f);
             rectTransformContent.sizeDelta = Vector2.zero;
-            GridLayoutGroup childContentGLG = childContent.AddComponent<GridLayoutGroup>();
+            var childContentGLG = childContent.AddComponent<GridLayoutGroup>();
             childContentGLG.cellSize = new Vector2(30, 30);
             childContentGLG.spacing = new Vector2(10, 10);
-            ContentSizeFitter childContentCSF = childContent.AddComponent<ContentSizeFitter>();
+            var childContentCSF = childContent.AddComponent<ContentSizeFitter>();
             childContentCSF.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             reorderableScrollRootRL.ContentLayout = childContentGLG;
 
             //Setup 1st Child
-            Image Element01Image = Element01.AddComponent<Image>();
+            var Element01Image = Element01.AddComponent<Image>();
             Element01Image.color = Color.green;
 
-            RectTransform rectTransformElement01 = Element01.GetComponent<RectTransform>();
+            var rectTransformElement01 = Element01.GetComponent<RectTransform>();
             rectTransformElement01.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement01.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement01.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement01 = Element01.AddComponent<LayoutElement>();
+            var LEElement01 = Element01.AddComponent<LayoutElement>();
             LEElement01.minHeight = 50;
 
             //Setup 2nd Child
-            Image Element02Image = Element02.AddComponent<Image>();
+            var Element02Image = Element02.AddComponent<Image>();
             Element02Image.color = Color.red;
 
-            RectTransform rectTransformElement02 = Element02.GetComponent<RectTransform>();
+            var rectTransformElement02 = Element02.GetComponent<RectTransform>();
             rectTransformElement02.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement02.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement02.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement02 = Element02.AddComponent<LayoutElement>();
+            var LEElement02 = Element02.AddComponent<LayoutElement>();
             LEElement02.minHeight = 50;
 
             //Setup 2nd Child
-            Image Element03Image = Element03.AddComponent<Image>();
+            var Element03Image = Element03.AddComponent<Image>();
             Element03Image.color = Color.blue;
 
-            RectTransform rectTransformElement03 = Element03.GetComponent<RectTransform>();
+            var rectTransformElement03 = Element03.GetComponent<RectTransform>();
             rectTransformElement03.anchorMin = new Vector2(0f, 0.5f);
             rectTransformElement03.anchorMax = new Vector2(0f, 0.5f);
             rectTransformElement03.pivot = new Vector2(0.5f, 0.5f);
 
-            LayoutElement LEElement03 = Element03.AddComponent<LayoutElement>();
+            var LEElement03 = Element03.AddComponent<LayoutElement>();
             LEElement03.minHeight = 50;
 
 
@@ -1644,48 +1691,48 @@ namespace UnityEditor.UI
             Selection.activeGameObject = reorderableScrollRoot;
         }
 
-
         #endregion
 
         #endregion
 
         #region Helper Functions
+
         private static GameObject AddInputFieldAsChild(GameObject parent)
         {
-            GameObject root = CreateUIObject("InputField", parent);
+            var root = CreateUIObject("InputField", parent);
 
-            GameObject childPlaceholder = CreateUIObject("Placeholder", root);
-            GameObject childText = CreateUIObject("Text", root);
+            var childPlaceholder = CreateUIObject("Placeholder", root);
+            var childText = CreateUIObject("Text", root);
 
-            Image image = root.AddComponent<Image>();
+            var image = root.AddComponent<Image>();
             image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kInputFieldBackgroundPath);
             image.type = Image.Type.Sliced;
             image.color = s_DefaultSelectableColor;
 
-            InputField inputField = root.AddComponent<InputField>();
+            var inputField = root.AddComponent<InputField>();
             SetDefaultColorTransitionValues(inputField);
 
-            Text text = childText.AddComponent<Text>();
+            var text = childText.AddComponent<Text>();
             text.text = "";
             text.supportRichText = false;
             SetDefaultTextValues(text);
 
-            Text placeholder = childPlaceholder.AddComponent<Text>();
+            var placeholder = childPlaceholder.AddComponent<Text>();
             placeholder.text = "Enter text...";
             placeholder.fontStyle = FontStyle.Italic;
             // Make placeholder color half as opaque as normal text color.
-            Color placeholderColor = text.color;
+            var placeholderColor = text.color;
             placeholderColor.a *= 0.5f;
             placeholder.color = placeholderColor;
 
-            RectTransform textRectTransform = childText.GetComponent<RectTransform>();
+            var textRectTransform = childText.GetComponent<RectTransform>();
             textRectTransform.anchorMin = Vector2.zero;
             textRectTransform.anchorMax = Vector2.one;
             textRectTransform.sizeDelta = Vector2.zero;
             textRectTransform.offsetMin = new Vector2(10, 6);
             textRectTransform.offsetMax = new Vector2(-10, -7);
 
-            RectTransform placeholderRectTransform = childPlaceholder.GetComponent<RectTransform>();
+            var placeholderRectTransform = childPlaceholder.GetComponent<RectTransform>();
             placeholderRectTransform.anchorMin = Vector2.zero;
             placeholderRectTransform.anchorMax = Vector2.one;
             placeholderRectTransform.sizeDelta = Vector2.zero;
@@ -1701,30 +1748,30 @@ namespace UnityEditor.UI
         private static GameObject AddScrollbarAsChild(GameObject parent)
         {
             // Create GOs Hierarchy
-            GameObject scrollbarRoot = CreateUIObject("Scrollbar", parent);
+            var scrollbarRoot = CreateUIObject("Scrollbar", parent);
 
-            GameObject sliderArea = CreateUIObject("Sliding Area", scrollbarRoot);
-            GameObject handle = CreateUIObject("Handle", sliderArea);
+            var sliderArea = CreateUIObject("Sliding Area", scrollbarRoot);
+            var handle = CreateUIObject("Handle", sliderArea);
 
-            Image bgImage = scrollbarRoot.AddComponent<Image>();
+            var bgImage = scrollbarRoot.AddComponent<Image>();
             bgImage.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kBackgroundSpriteResourcePath);
             bgImage.type = Image.Type.Sliced;
             bgImage.color = s_DefaultSelectableColor;
 
-            Image handleImage = handle.AddComponent<Image>();
+            var handleImage = handle.AddComponent<Image>();
             handleImage.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kStandardSpritePath);
             handleImage.type = Image.Type.Sliced;
             handleImage.color = s_DefaultSelectableColor;
 
-            RectTransform sliderAreaRect = sliderArea.GetComponent<RectTransform>();
+            var sliderAreaRect = sliderArea.GetComponent<RectTransform>();
             sliderAreaRect.sizeDelta = new Vector2(-20, -20);
             sliderAreaRect.anchorMin = Vector2.zero;
             sliderAreaRect.anchorMax = Vector2.one;
 
-            RectTransform handleRect = handle.GetComponent<RectTransform>();
+            var handleRect = handle.GetComponent<RectTransform>();
             handleRect.sizeDelta = new Vector2(20, 20);
 
-            Scrollbar scrollbar = scrollbarRoot.AddComponent<Scrollbar>();
+            var scrollbar = scrollbarRoot.AddComponent<Scrollbar>();
             scrollbar.handleRect = handleRect;
             scrollbar.targetGraphic = handleImage;
             SetDefaultColorTransitionValues(scrollbar);
@@ -1734,9 +1781,9 @@ namespace UnityEditor.UI
 
         private static GameObject AddTextAsChild(GameObject parent)
         {
-            GameObject go = CreateUIObject("Text", parent);
+            var go = CreateUIObject("Text", parent);
 
-            Text lbl = go.AddComponent<Text>();
+            var lbl = go.AddComponent<Text>();
             lbl.text = "New Text";
             SetDefaultTextValues(lbl);
 
@@ -1745,7 +1792,7 @@ namespace UnityEditor.UI
 
         private static GameObject AddImageAsChild(GameObject parent)
         {
-            GameObject go = CreateUIObject("Image", parent);
+            var go = CreateUIObject("Image", parent);
 
             go.AddComponent<Image>();
 
@@ -1754,25 +1801,25 @@ namespace UnityEditor.UI
 
         private static GameObject AddButtonAsChild(GameObject parent)
         {
-            GameObject buttonRoot = CreateUIObject("Button", parent);
+            var buttonRoot = CreateUIObject("Button", parent);
 
-            GameObject childText = new GameObject("Text");
+            var childText = new GameObject("Text");
             GameObjectUtility.SetParentAndAlign(childText, buttonRoot);
 
-            Image image = buttonRoot.AddComponent<Image>();
+            var image = buttonRoot.AddComponent<Image>();
             image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>(kStandardSpritePath);
             image.type = Image.Type.Sliced;
             image.color = s_DefaultSelectableColor;
 
-            Button bt = buttonRoot.AddComponent<Button>();
+            var bt = buttonRoot.AddComponent<Button>();
             SetDefaultColorTransitionValues(bt);
 
-            Text text = childText.AddComponent<Text>();
+            var text = childText.AddComponent<Text>();
             text.text = "Button";
             text.alignment = TextAnchor.MiddleCenter;
             SetDefaultTextValues(text);
 
-            RectTransform textRectTransform = childText.GetComponent<RectTransform>();
+            var textRectTransform = childText.GetComponent<RectTransform>();
             textRectTransform.anchorMin = Vector2.zero;
             textRectTransform.anchorMax = Vector2.one;
             textRectTransform.sizeDelta = Vector2.zero;
@@ -1781,6 +1828,5 @@ namespace UnityEditor.UI
         }
 
         #endregion
-
     }
 }

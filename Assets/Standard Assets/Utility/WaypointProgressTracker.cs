@@ -1,10 +1,17 @@
-using System;
 using UnityEngine;
 
 namespace UnityStandardAssets.Utility
 {
     public class WaypointProgressTracker : MonoBehaviour
     {
+        // proximity to waypoint which must be reached to switch target to next waypoint : only used in PointToPoint mode.
+
+        public enum ProgressStyle
+        {
+            SmoothAlongRoute,
+            PointToPoint
+        }
+
         // This script can be used with any object that is supposed to follow a
         // route marked out by waypoints.
 
@@ -12,42 +19,35 @@ namespace UnityStandardAssets.Utility
         // and keeps track of progress and laps.
 
         [SerializeField] private WaypointCircuit circuit; // A reference to the waypoint-based route we should follow
-
-        [SerializeField] private float lookAheadForTargetOffset = 5;
-        // The offset ahead along the route that the we will aim for
-
-        [SerializeField] private float lookAheadForTargetFactor = .1f;
-        // A multiplier adding distance ahead along the route to aim for, based on current speed
-
-        [SerializeField] private float lookAheadForSpeedOffset = 10;
+        private Vector3 lastPosition; // Used to calculate current speed (since we may not have a rigidbody component)
         // The offset ahead only the route for speed adjustments (applied as the rotation of the waypoint target transform)
 
-        [SerializeField] private float lookAheadForSpeedFactor = .2f;
-        // A multiplier adding distance ahead along the route for speed adjustments
+        [SerializeField] private readonly float lookAheadForSpeedFactor = .2f;
+        // A multiplier adding distance ahead along the route to aim for, based on current speed
 
-        [SerializeField] private ProgressStyle progressStyle = ProgressStyle.SmoothAlongRoute;
+        [SerializeField] private readonly float lookAheadForSpeedOffset = 10;
+        // The offset ahead along the route that the we will aim for
+
+        [SerializeField] private readonly float lookAheadForTargetFactor = .1f;
+
+        [SerializeField] private readonly float lookAheadForTargetOffset = 5;
         // whether to update the position smoothly along the route (good for curved paths) or just when we reach each waypoint.
 
-        [SerializeField] private float pointToPointThreshold = 4;
-        // proximity to waypoint which must be reached to switch target to next waypoint : only used in PointToPoint mode.
+        [SerializeField] private readonly float pointToPointThreshold = 4;
 
-        public enum ProgressStyle
-        {
-            SmoothAlongRoute,
-            PointToPoint,
-        }
+        private float progressDistance; // The progress round the route, used in smooth mode.
+        private int progressNum; // the current waypoint number, used in point-to-point mode.
+        // A multiplier adding distance ahead along the route for speed adjustments
+
+        [SerializeField] private readonly ProgressStyle progressStyle = ProgressStyle.SmoothAlongRoute;
+        private float speed; // current speed of this object (calculated from delta since last frame)
+
+        public Transform target;
 
         // these are public, readable by other objects - i.e. for an AI to know where to head!
         public WaypointCircuit.RoutePoint targetPoint { get; private set; }
         public WaypointCircuit.RoutePoint speedPoint { get; private set; }
         public WaypointCircuit.RoutePoint progressPoint { get; private set; }
-
-        public Transform target;
-
-        private float progressDistance; // The progress round the route, used in smooth mode.
-        private int progressNum; // the current waypoint number, used in point-to-point mode.
-        private Vector3 lastPosition; // Used to calculate current speed (since we may not have a rigidbody component)
-        private float speed; // current speed of this object (calculated from delta since last frame)
 
         // setup script properties
         private void Start()
@@ -90,20 +90,20 @@ namespace UnityStandardAssets.Utility
                 if (Time.deltaTime > 0)
                 {
                     speed = Mathf.Lerp(speed, (lastPosition - transform.position).magnitude/Time.deltaTime,
-                                       Time.deltaTime);
+                        Time.deltaTime);
                 }
                 target.position =
                     circuit.GetRoutePoint(progressDistance + lookAheadForTargetOffset + lookAheadForTargetFactor*speed)
-                           .position;
+                        .position;
                 target.rotation =
                     Quaternion.LookRotation(
                         circuit.GetRoutePoint(progressDistance + lookAheadForSpeedOffset + lookAheadForSpeedFactor*speed)
-                               .direction);
+                            .direction);
 
 
                 // get our current progress along the route
                 progressPoint = circuit.GetRoutePoint(progressDistance);
-                Vector3 progressDelta = progressPoint.position - transform.position;
+                var progressDelta = progressPoint.position - transform.position;
                 if (Vector3.Dot(progressDelta, progressPoint.direction) < 0)
                 {
                     progressDistance += progressDelta.magnitude*0.5f;
@@ -115,7 +115,7 @@ namespace UnityStandardAssets.Utility
             {
                 // point to point mode. Just increase the waypoint if we're close enough:
 
-                Vector3 targetDelta = target.position - transform.position;
+                var targetDelta = target.position - transform.position;
                 if (targetDelta.magnitude < pointToPointThreshold)
                 {
                     progressNum = (progressNum + 1)%circuit.Waypoints.Length;
@@ -127,7 +127,7 @@ namespace UnityStandardAssets.Utility
 
                 // get our current progress along the route
                 progressPoint = circuit.GetRoutePoint(progressDistance);
-                Vector3 progressDelta = progressPoint.position - transform.position;
+                var progressDelta = progressPoint.position - transform.position;
                 if (Vector3.Dot(progressDelta, progressPoint.direction) < 0)
                 {
                     progressDistance += progressDelta.magnitude;

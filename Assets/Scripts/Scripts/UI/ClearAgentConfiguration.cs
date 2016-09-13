@@ -4,11 +4,10 @@ namespace Assets.Scripts.Scripts.UI
 {
     public class ClearAgentConfiguration : MonoBehaviour
     {
+        public delegate void OnSelectEvent();
+
         // Singleton 	
         private static ClearAgentConfiguration _instance;
-
-        public delegate void OnSelectEvent();
-        public event OnSelectEvent OnSelect;
 
         // Construct 	
         private ClearAgentConfiguration()
@@ -21,14 +20,15 @@ namespace Assets.Scripts.Scripts.UI
             get
             {
                 if (_instance == null)
-                    _instance = GameObject.FindObjectOfType(typeof(ClearAgentConfiguration)) as ClearAgentConfiguration;
+                    _instance = FindObjectOfType(typeof(ClearAgentConfiguration)) as ClearAgentConfiguration;
                 return _instance;
             }
-
         }
 
+        public event OnSelectEvent OnSelect;
+
         // Handle our Ray and Hit
-        void Update()
+        private void Update()
         {
         }
 
@@ -37,7 +37,5 @@ namespace Assets.Scripts.Scripts.UI
             // Notify of the event!
             OnSelect();
         }
-
     }
 }
- 

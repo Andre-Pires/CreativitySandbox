@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -8,7 +9,7 @@ using UnityEngine.UI;
 namespace Assets.Scripts.Utilities
 {
     /// <summary>
-    /// Simple toggle -- something that has an 'on' and 'off' states: checkbox, toggle button, radio button, etc.
+    ///     Simple toggle -- something that has an 'on' and 'off' states: checkbox, toggle button, radio button, etc.
     /// </summary>
     [AddComponentMenu("UI/Extensions/Extensions Toggle", 31)]
     [RequireComponent(typeof(RectTransform))]
@@ -20,23 +21,31 @@ namespace Assets.Scripts.Utilities
             Fade
         }
 
-        [Serializable]
-        public class ToggleEvent : UnityEvent<bool>
-        { }
-
         /// <summary>
-        /// Transition type.
-        /// </summary>
-        public ToggleTransition toggleTransition = ToggleTransition.Fade;
-
-        /// <summary>
-        /// Graphic the toggle should be working with.
+        ///     Graphic the toggle should be working with.
         /// </summary>
         public Graphic graphic;
 
         // group that this toggle can belong to
-        [SerializeField]
-        private ExtensionsToggleGroup m_Group;
+        [SerializeField] private ExtensionsToggleGroup m_Group;
+
+        // Whether the toggle is on
+        [FormerlySerializedAs("m_IsActive")] [Tooltip("Is the toggle currently on or off?")] [SerializeField] private
+            bool m_IsOn;
+
+        /// <summary>
+        ///     Allow for delegate-based subscriptions for faster events than 'eventReceiver', and allowing for multiple receivers.
+        /// </summary>
+        public ToggleEvent onValueChanged = new ToggleEvent();
+
+        /// <summary>
+        ///     Transition type.
+        /// </summary>
+        public ToggleTransition toggleTransition = ToggleTransition.Fade;
+
+        protected ExtensionsToggle()
+        {
+        }
 
         public ExtensionsToggleGroup group
         {
@@ -55,32 +64,13 @@ namespace Assets.Scripts.Utilities
         }
 
         /// <summary>
-        /// Allow for delegate-based subscriptions for faster events than 'eventReceiver', and allowing for multiple receivers.
+        ///     Whether the toggle is currently active.
         /// </summary>
-        public ToggleEvent onValueChanged = new ToggleEvent();
-
-        // Whether the toggle is on
-        [FormerlySerializedAs("m_IsActive")]
-        [Tooltip("Is the toggle currently on or off?")]
-        [SerializeField]
-        private bool m_IsOn;
-
-        protected ExtensionsToggle()
-        { }
-
-#if UNITY_EDITOR
-        protected override void OnValidate()
+        public bool isOn
         {
-            base.OnValidate();
-            Set(m_IsOn, false);
-            PlayEffect(toggleTransition == ToggleTransition.None);
-
-            var prefabType = UnityEditor.PrefabUtility.GetPrefabType(this);
-            if (prefabType != UnityEditor.PrefabType.Prefab && !Application.isPlaying)
-                CanvasUpdateRegistry.RegisterCanvasElementForLayoutRebuild(this);
+            get { return m_IsOn; }
+            set { Set(value); }
         }
-
-#endif // if UNITY_EDITOR
 
         public virtual void Rebuild(CanvasUpdate executing)
         {
@@ -91,10 +81,42 @@ namespace Assets.Scripts.Utilities
         }
 
         public virtual void LayoutComplete()
-        { }
+        {
+        }
 
         public virtual void GraphicUpdateComplete()
-        { }
+        {
+        }
+
+        /// <summary>
+        ///     React to clicks.
+        /// </summary>
+        public virtual void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData.button != PointerEventData.InputButton.Left)
+                return;
+
+            InternalToggle();
+        }
+
+        public virtual void OnSubmit(BaseEventData eventData)
+        {
+            InternalToggle();
+        }
+
+#if UNITY_EDITOR
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+            Set(m_IsOn, false);
+            PlayEffect(toggleTransition == ToggleTransition.None);
+
+            var prefabType = PrefabUtility.GetPrefabType(this);
+            if (prefabType != PrefabType.Prefab && !Application.isPlaying)
+                CanvasUpdateRegistry.RegisterCanvasElementForLayoutRebuild(this);
+        }
+
+#endif // if UNITY_EDITOR
 
         protected override void OnEnable()
         {
@@ -115,7 +137,7 @@ namespace Assets.Scripts.Utilities
             // Unfortunately there is no way to check if we donï¿½t have a graphic.
             if (graphic != null)
             {
-                bool oldValue = !Mathf.Approximately(graphic.canvasRenderer.GetColor().a, 0);
+                var oldValue = !Mathf.Approximately(graphic.canvasRenderer.GetColor().a, 0);
                 if (m_IsOn != oldValue)
                 {
                     m_IsOn = oldValue;
@@ -128,7 +150,7 @@ namespace Assets.Scripts.Utilities
 
         private void SetToggleGroup(ExtensionsToggleGroup newGroup, bool setMemberValue)
         {
-            ExtensionsToggleGroup oldGroup = m_Group;
+            var oldGroup = m_Group;
 
             // Sometimes IsActive returns false in OnDisable so don't check for it.
             // Rather remove the toggle too often than too little.
@@ -150,24 +172,12 @@ namespace Assets.Scripts.Utilities
                 m_Group.NotifyToggleOn(this);
         }
 
-        /// <summary>
-        /// Whether the toggle is currently active.
-        /// </summary>
-        public bool isOn
-        {
-            get { return m_IsOn; }
-            set
-            {
-                Set(value);
-            }
-        }
-
-        void Set(bool value)
+        private void Set(bool value)
         {
             Set(value, true);
         }
 
-        void Set(bool value, bool sendCallback)
+        private void Set(bool value, bool sendCallback)
         {
             if (m_IsOn == value)
                 return;
@@ -193,7 +203,7 @@ namespace Assets.Scripts.Utilities
         }
 
         /// <summary>
-        /// Play the appropriate effect.
+        ///     Play the appropriate effect.
         /// </summary>
         private void PlayEffect(bool instant)
         {
@@ -209,7 +219,7 @@ namespace Assets.Scripts.Utilities
         }
 
         /// <summary>
-        /// Assume the correct visual state.
+        ///     Assume the correct visual state.
         /// </summary>
         protected override void Start()
         {
@@ -224,20 +234,9 @@ namespace Assets.Scripts.Utilities
             isOn = !isOn;
         }
 
-        /// <summary>
-        /// React to clicks.
-        /// </summary>
-        public virtual void OnPointerClick(PointerEventData eventData)
+        [Serializable]
+        public class ToggleEvent : UnityEvent<bool>
         {
-            if (eventData.button != PointerEventData.InputButton.Left)
-                return;
-
-            InternalToggle();
-        }
-
-        public virtual void OnSubmit(BaseEventData eventData)
-        {
-            InternalToggle();
         }
     }
 }
