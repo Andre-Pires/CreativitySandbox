@@ -7,25 +7,26 @@ namespace Assets.Scripts.Classes.Agent
 {
     public class Body : MonoBehaviour
     {
+        private Transform _body;
         private const float InitialPlacementRadius = 26.0f;
 
         //blinking and color
-        private readonly Color _blinkColor = Color.white;
-        private Transform _body;
+        private Color _blinkColor = Color.white;
+        private Color _bodyColor = Color.white;
 
+        private Transform _objectToDrag;
         private List<Collider> _collidersToIgnore;
-        private Configuration.BlinkingSpeed _currentBlinkSpeed = Configuration.BlinkingSpeed.Stopped;
+        private Vector3 _distance;
 
         //rotation
         private float _currentRotation;
-        private Vector3 _distance;
 
         //double click - change color
-        private bool _firstClick;
+        /*private bool _firstClick;
         private float _initialTime;
-        private float _interval = 0.6f;
-        private Transform _objectToDrag;
-        private Color _pieceColor = Color.white;
+        private float _interval = 0.6f;*/
+
+        private Configuration.BlinkingSpeed _currentBlinkSpeed = Configuration.BlinkingSpeed.Stopped;
         private Configuration.Size _size;
 
         //dragging fields
@@ -39,6 +40,7 @@ namespace Assets.Scripts.Classes.Agent
 
             //using size's enum index to select correct multiplier
             _body.localScale = Vector3.one*Configuration.Instance.SizeValues[size];
+            _body.localPosition = new Vector3(_body.position.x, _body.GetComponent<Renderer>().bounds.extents.y, _body.position.z);
 
             //place cube in a vacant position in the set
             Utility.PlaceNewGameObject(_body, Vector3.zero, InitialPlacementRadius);
@@ -70,8 +72,8 @@ namespace Assets.Scripts.Classes.Agent
 
         public void SetupBehavior(Color pieceColor, Configuration.BlinkingSpeed speed)
         {
-            _pieceColor = pieceColor;
-            _body.GetComponent<Renderer>().material.color = _pieceColor;
+            _bodyColor = pieceColor;
+            _body.GetComponent<Renderer>().material.color = _bodyColor;
             _currentBlinkSpeed = speed;
         }
 
@@ -82,7 +84,7 @@ namespace Assets.Scripts.Classes.Agent
                 var colorToUse = _blinkColor;
                 var duration = Configuration.Instance.BlinkingSpeedsValues[_currentBlinkSpeed];
                 var lerp = Mathf.PingPong(Time.time, duration)/duration;
-                _body.GetComponent<Renderer>().material.color = Color.Lerp(_pieceColor, colorToUse, lerp);
+                _body.GetComponent<Renderer>().material.color = Color.Lerp(_bodyColor, colorToUse, lerp);
             }
         }
 
@@ -95,7 +97,7 @@ namespace Assets.Scripts.Classes.Agent
             _currentBlinkStatus = (Configuration.BlinkingStatus) newStatus;
 
             //always reset color to eliminate inconsistencies
-            _body.GetComponent<Renderer>().material.color = _pieceColor;
+            _body.GetComponent<Renderer>().material.color = _bodyColor;
         }*/
 
         /*
@@ -246,6 +248,36 @@ namespace Assets.Scripts.Classes.Agent
         {
             /*Gizmos.color = new Color(1, 0, 0, 0.5F);
             Gizmos.DrawSphere(_body.position,_body.localScale.x/2);*/
+        }
+
+        public void UpdateSize(Configuration.Size size)
+        {
+            _size = size;
+
+            //using size's enum index to select correct multiplier
+            _body.localScale = Vector3.one * Configuration.Instance.SizeValues[size];
+            _body.localPosition = new Vector3(_body.position.x, _body.GetComponent<Renderer>().bounds.extents.y, _body.position.z);
+            
+        }
+
+        public void UpdateColor(Color color)
+        {
+            _bodyColor = color;
+        }
+
+        public void UpdateBlinkSpeed(Configuration.BlinkingSpeed speed)
+        {
+            if (speed == Configuration.BlinkingSpeed.Stopped)
+            {
+                _body.GetComponent<Renderer>().material.color = _bodyColor;
+            }
+            _currentBlinkSpeed = speed;
+        }
+
+        public void UpdateBlinkColor(Color color)
+        {
+            _body.GetComponent<Renderer>().material.color = _bodyColor;
+            _blinkColor = color;
         }
     }
 }

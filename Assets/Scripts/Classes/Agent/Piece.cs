@@ -227,19 +227,28 @@ namespace Assets.Scripts.Classes.Agent
             // Draw a label in the rect:*/
         }
 
-        public void UpdateSettings(Configuration.Size size)
+        public void UpdateBodySize(Configuration.Size size)
         {
+            _body.UpdateSize(size);
             Debug.Log("New Size: " + size);
         }
 
-        public void UpdateSettings(Color color)
+        public void UpdateBodyColor(Color color)
         {
+            _body.UpdateColor(color);
             Debug.Log("New color: " + color);
         }
 
-        public void UpdateSettings(Configuration.BlinkingSpeed speed)
+        public void UpdateBlinkSpeed(Configuration.BlinkingSpeed speed)
         {
+            _body.UpdateBlinkSpeed(speed);
             Debug.Log("New blink speed: " + speed);
+        }
+
+        public void UpdateBlinkColor(Color color)
+        {
+            _body.UpdateBlinkColor(color);
+            Debug.Log("New blink color: " + color);
         }
     }
 }

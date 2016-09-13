@@ -18,7 +18,7 @@ namespace Assets.Scripts.Scripts.UI
             {
                 var item = Instantiate(Resources.Load("Prefabs/UISettings/SettingsItem")) as GameObject;
                 var tempSize = size;
-                item.GetComponent<Button>().onClick.AddListener(() => Piece.UpdateSettings(tempSize));
+                item.GetComponent<Button>().onClick.AddListener(() => Piece.UpdateBodySize(tempSize));
                 item.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Agent/" + size);
                 item.GetComponentInChildren<Text>().text = "";
 
@@ -31,7 +31,7 @@ namespace Assets.Scripts.Scripts.UI
             {
                 var item = Instantiate(Resources.Load("Prefabs/UISettings/SettingsItem")) as GameObject;
                 var tempColor = color;
-                item.GetComponent<Button>().onClick.AddListener(() => Piece.UpdateSettings(tempColor));
+                item.GetComponent<Button>().onClick.AddListener(() => Piece.UpdateBodyColor(tempColor));
                 item.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Agent/Medium");
                 item.GetComponent<Image>().color = tempColor;
                 item.GetComponentInChildren<Text>().text = "";
@@ -45,14 +45,12 @@ namespace Assets.Scripts.Scripts.UI
             {
                 var item = Instantiate(Resources.Load("Prefabs/UISettings/SettingsItem")) as GameObject;
                 var tempColor = color;
-                item.GetComponent<Button>().onClick.AddListener(() => Piece.UpdateSettings(tempColor));
+                item.GetComponent<Button>().onClick.AddListener(() => Piece.UpdateBlinkColor(tempColor));
                 item.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Buttons/BlinkColor");
                 item.GetComponent<Image>().color = tempColor;
                 item.GetComponentInChildren<Text>().text = "";
 
                 item.GetComponent<RectTransform>().SetParent(list.transform, false);
-
-                Debug.Log("cor: " + color);
             }
 
             list = GameObject.Find("BlinkSpeedOptions/BlinkSpeeds/List");
@@ -61,7 +59,7 @@ namespace Assets.Scripts.Scripts.UI
             {
                 var item = Instantiate(Resources.Load("Prefabs/UISettings/SettingsItem")) as GameObject;
                 var tempSpeed = speed;
-                item.GetComponent<Button>().onClick.AddListener(() => Piece.UpdateSettings(tempSpeed));
+                item.GetComponent<Button>().onClick.AddListener(() => Piece.UpdateBlinkSpeed(tempSpeed));
                 item.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Buttons/BlinkSpeed");
                 item.GetComponentInChildren<Text>().text = tempSpeed.ToString();
 
