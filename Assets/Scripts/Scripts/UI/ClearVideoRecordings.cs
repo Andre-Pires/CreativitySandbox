@@ -5,9 +5,16 @@ namespace Assets.Scripts.Scripts.UI
     public class ClearVideoRecordings : MonoBehaviour
     {
         public delegate void OnSelectEvent();
+        public event OnSelectEvent OnSelect;
 
         // Singleton 	
         private static ClearVideoRecordings _instance;
+
+        //due to the random order of execution in Unity's scripts, this assigment is required in the Awake function
+        public void Awake()
+        {
+            _instance = FindObjectOfType(typeof(ClearVideoRecordings)) as ClearVideoRecordings;
+        }
 
         // Construct 	
         private ClearVideoRecordings()
@@ -23,13 +30,6 @@ namespace Assets.Scripts.Scripts.UI
                     _instance = FindObjectOfType(typeof(ClearVideoRecordings)) as ClearVideoRecordings;
                 return _instance;
             }
-        }
-
-        public event OnSelectEvent OnSelect;
-
-        // Handle our Ray and Hit
-        private void Update()
-        {
         }
 
         public void OnClick()

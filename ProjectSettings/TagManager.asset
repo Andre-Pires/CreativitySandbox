@@ -9,6 +9,7 @@ TagManager:
   - Button
   - Scenario
   - ConfigFile
+  - SettingsPopup
   layers:
   - Default
   - TransparentFX

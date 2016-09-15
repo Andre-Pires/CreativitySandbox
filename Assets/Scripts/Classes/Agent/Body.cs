@@ -21,11 +21,6 @@ namespace Assets.Scripts.Classes.Agent
         //rotation
         private float _currentRotation;
 
-        //double click - change color
-        /*private bool _firstClick;
-        private float _initialTime;
-        private float _interval = 0.6f;*/
-
         private Configuration.BlinkingSpeed _currentBlinkSpeed = Configuration.BlinkingSpeed.Stopped;
         private Configuration.Size _size;
 
@@ -57,17 +52,9 @@ namespace Assets.Scripts.Classes.Agent
         {
             Blink();
 
-
             HandleRotationInput();
 
-
             HandleDragging();
-        }
-
-        public void LateUpdate()
-        {
-            //TODO - remove this
-            //CheckBlinkChange();
         }
 
         public void SetupBehavior(Color pieceColor, Configuration.BlinkingSpeed speed)
@@ -87,47 +74,6 @@ namespace Assets.Scripts.Classes.Agent
                 _body.GetComponent<Renderer>().material.color = Color.Lerp(_bodyColor, colorToUse, lerp);
             }
         }
-
-        //TODO - remove this
-        /*
-        private void ToggleBlinking()
-        {
-            int enumLength = Enum.GetNames(typeof(Configuration.BlinkingStatus)).Length;
-            int newStatus = ((int)_currentBlinkStatus + 1) %enumLength;
-            _currentBlinkStatus = (Configuration.BlinkingStatus) newStatus;
-
-            //always reset color to eliminate inconsistencies
-            _body.GetComponent<Renderer>().material.color = _bodyColor;
-        }*/
-
-        /*
-        private void CheckBlinkChange()
-        {
-            if (_firstClick)
-            {
-                if (Time.time - _initialTime > _interval)
-                {
-                    _firstClick = false;
-                }
-                else if (Input.GetMouseButtonUp(0))
-                {
-                    if(Utility.Instance.CheckIfClicked(_body))
-                    { 
-                        _firstClick = false;
-                        ToggleBlinking();
-                    }
-                }
-            }
-            else if (Input.GetMouseButtonUp(0))
-            {
-                if (Utility.Instance.CheckIfClicked(_body))
-                {
-                    _firstClick = true;
-                    _initialTime = Time.time;
-                }
-            }
-        }
-        */
 
         private void HandleRotationInput()
         {

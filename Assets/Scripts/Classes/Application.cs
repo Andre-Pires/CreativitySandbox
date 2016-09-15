@@ -11,11 +11,10 @@ namespace Assets.Scripts.Classes
         private Agent.Agent _agent;
         private Configuration _configuration;
         private GameObject _scene;
-        private ScreenRecorder _screenRecorder;
         private UIManager _UIManager;
 
         // Use this for initialization
-        private void Start()
+        public void Start()
         {
             //to allow the recording of messages
             _scene = GameObject.Find("Scene");
@@ -28,7 +27,6 @@ namespace Assets.Scripts.Classes
 
             //in order to control what is drawn this script needs to be associated with the camera object
             Camera.main.gameObject.AddComponent<ScreenRecorder>();
-            _screenRecorder = Camera.main.gameObject.GetComponent<ScreenRecorder>();
 
             //retrieve in-editor configurations of a few aspects
             _configuration = _scene.GetComponent<Configuration>();
@@ -38,7 +36,7 @@ namespace Assets.Scripts.Classes
         }
 
         // Update is called once per frame
-        private void Update()
+        public void Update()
         {
             if (_agent != null)
                 _agent.Update();
@@ -49,17 +47,17 @@ namespace Assets.Scripts.Classes
             _UIManager.Update();
         }
 
-        private void OnDrawGizmos()
+        public void OnDrawGizmos()
         {
             if (!UnityEngine.Application.isPlaying) return;
 
             _agent.OnDrawGizmos();
         }
 
-        private void OnGUI()
+        public void OnGUI()
         {
-            _UIManager.OnGUI();
             _agent.OnGUI();
+            _UIManager.OnGUI();
         }
     }
 }

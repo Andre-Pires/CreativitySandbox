@@ -39,6 +39,8 @@ namespace Assets.Scripts.Scripts.CameraControl
         private float sensitivityX = 4.0f;
         private float sensitivityY = 1.0f;
         private readonly float zoomSensitivity = 50.0f;
+        private int _maxWidth = 1920;
+        private int _maxHeight = 1080;
 
         private void Start()
         {
@@ -46,7 +48,7 @@ namespace Assets.Scripts.Scripts.CameraControl
 
             //in order to reduce the load of taking very high resolution screenshots in higher res devices
 #if UNITY_ANDROID
-            Screen.SetResolution(Mathf.Min(1920, Screen.width), Mathf.Min(1080, Screen.height), true);
+            Screen.SetResolution(Mathf.Min(_maxWidth, Screen.width), Mathf.Min(_maxHeight, Screen.height), true);
 #endif
 
             //start looking at the center of the set

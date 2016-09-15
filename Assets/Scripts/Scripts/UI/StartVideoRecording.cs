@@ -5,9 +5,16 @@ namespace Assets.Scripts.Scripts.UI
     public class StartVideoRecording : MonoBehaviour
     {
         public delegate void OnSelectEvent();
+        public event OnSelectEvent OnSelect;
 
         // Singleton 	
         private static StartVideoRecording _instance;
+
+        //due to the random order of execution in Unity's scripts, this assigment is required in the Awake function
+        public void Awake()
+        {
+            _instance = FindObjectOfType(typeof(StartVideoRecording)) as StartVideoRecording;
+        }
 
         // Construct 	
         private StartVideoRecording()
@@ -25,12 +32,6 @@ namespace Assets.Scripts.Scripts.UI
             }
         }
 
-        public event OnSelectEvent OnSelect;
-
-        // Handle our Ray and Hit
-        private void Update()
-        {
-        }
 
         public void OnClick()
         {

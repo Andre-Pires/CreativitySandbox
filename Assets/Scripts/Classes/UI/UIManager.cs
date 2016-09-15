@@ -1,5 +1,7 @@
 ﻿using System.Threading;
+using Assets.Scripts.Scripts.UI;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.Classes.UI
 {
@@ -9,7 +11,11 @@ namespace Assets.Scripts.Classes.UI
 
         private GameObject _audioRecordingStartInfo;
         private GameObject _audioRecordingStoppedInfo;
+        private GameObject _availableAgentPiecesList;
         private bool _recordingStoppedInfoTimeout;
+
+        public delegate void OnDestroyPieceEvent(string pieceName);
+        public event OnDestroyPieceEvent DestroyAgentPiece;
 
         // Construct 	
         private UIManager()
@@ -33,6 +39,7 @@ namespace Assets.Scripts.Classes.UI
         {
             _audioRecordingStartInfo = GameObject.Find("AudioRecordingWarning").gameObject;
             _audioRecordingStoppedInfo = GameObject.Find("AudioRecordingSuccessful").gameObject;
+            _availableAgentPiecesList = GameObject.Find("AvailableAgentPieces/List").gameObject;
         }
 
 
@@ -41,7 +48,6 @@ namespace Assets.Scripts.Classes.UI
         public void SetupUI()
         {
             GameObject.Find("MainMenu").gameObject.SetActive(false);
-            GameObject.Find("AgentSetup").gameObject.SetActive(false);
             GameObject.Find("ForestDaySetup").gameObject.SetActive(false);
             GameObject.Find("CityDaySetup").gameObject.SetActive(false);
             GameObject.Find("Pause").gameObject.SetActive(false);
@@ -69,6 +75,22 @@ namespace Assets.Scripts.Classes.UI
             }).Start();
         }
 
+        public void AddNewAgentPieceUI(string name)
+        {
+            GameObject newPiece = Object.Instantiate(Resources.Load("Prefabs/UISettings/AgentPieceItem")) as GameObject;
+            newPiece.GetComponentInChildren<Text>().text = name + "_Button";
+            newPiece.name = name + "_Button";
+            newPiece.GetComponent<ManagePieceInstances>().OnSelect += DestroyAgentPieceUI;
+            newPiece.GetComponent<ManagePieceInstances>().PieceName = name;
+            newPiece.transform.SetParent(_availableAgentPiecesList.transform, false);
+        }
+
+        public void DestroyAgentPieceUI(string name)
+        {
+            DestroyAgentPiece(name);
+            Object.Destroy(GameObject.Find(name + "_Button"));
+        }
+
         public void Update()
         {
             if (_recordingStoppedInfoTimeout)
@@ -81,5 +103,7 @@ namespace Assets.Scripts.Classes.UI
         public void OnGUI()
         {
         }
+
+        
     }
 }

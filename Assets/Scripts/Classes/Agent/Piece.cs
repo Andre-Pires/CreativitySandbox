@@ -5,6 +5,8 @@ using Assets.Scripts.Classes.IO;
 using Assets.Scripts.Classes.UI;
 using Assets.Scripts.Scripts.UI;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
@@ -12,31 +14,34 @@ namespace Assets.Scripts.Classes.Agent
 {
     public class Piece
     {
-        private readonly Body _body;
-        private bool _clickForStartStop;
-        private AudioSource _clipPlayer;
-        private Dictionary<int, AudioClip> _clips;
+        public string Name { get; set; }
+        private readonly GameObject _root;
         private readonly GameObject _cubeObject;
-        private int _currentClipIndex;
+        private readonly Mind _mind;
+        private readonly Body _body;
 
         //double click - play recordings
-        private bool _firstClick;
-        private bool _firstClickPopup;
         private float _initialTime;
-        private float _initialTimePopup;
+        private bool _firstClick;
         private readonly float _interval = 0.6f;
-        private bool _isRecording;
         private readonly int _maxNumberOfStoredClips = 1;
+        private int _currentClipIndex;
+        private bool _isRecording;
 
+        private Dictionary<int, AudioClip> _clips;
         private MicrophoneInput _micInput;
-        private readonly Mind _mind;
-        private bool _popupActive;
-        private readonly GameObject _root;
-
-        //double click - to show settings popup
-        private readonly GameObject _settingsPopup;
-        // Check for mouse input for speech recording
+        private bool _clickForStartStop;
+        private AudioSource _clipPlayer;
         private Transform _speechButton;
+        
+        //double click - to show settings popup
+        private bool _popupActive;
+        private readonly GameObject _settingsPopup;
+        private bool _firstClickPopup;
+        private float _initialTimePopup;
+
+        private RaycastHit _hit;
+        private Ray _ray;
 
         public Piece(string name, Configuration.Personality personality, Configuration.Size size)
         {
@@ -57,7 +62,6 @@ namespace Assets.Scripts.Classes.Agent
             SetupPopupPrefab(_settingsPopup);
         }
 
-        public string Name { get; set; }
 
         private void SetupPiecePrefab(GameObject cubePrefab)
         {
@@ -89,12 +93,25 @@ namespace Assets.Scripts.Classes.Agent
                 settingsPopup.transform.SetParent(GameObject.Find("Canvas").transform, false);
                 settingsPopup.GetComponent<UpdateSettings>().Piece = this;
                 settingsPopup.name = Name + "_Popup";
+
+                //since there's no way to raycast UI properly, a clickable backdrop was 
+                // added to close the popup - a fixed resolution is sufficient for our application
+                GameObject closeBackdrop = Utility.GetChild(settingsPopup, "Background");
+                closeBackdrop.GetComponent<Button>().onClick.AddListener(ClosePopup);
+                closeBackdrop.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.height);
+
                 settingsPopup.SetActive(false);
             }
             else
             {
                 throw new NullReferenceException("The settings popup prefab wasn't properly loaded");
             }
+        }
+
+        private void ClosePopup()
+        {
+            _popupActive = false;
+            _settingsPopup.SetActive(false);
         }
 
         public void Update()
@@ -111,13 +128,6 @@ namespace Assets.Scripts.Classes.Agent
         {
             if (_popupActive)
             {
-                /*if (Input.GetMouseButtonDown(0) && !Utility.Instance.CheckIfClicked(_settingsPopup.transform))
-                {
-                    _popupActive = false;
-                    _settingsPopup.SetActive(false);
-                    return;
-                }*/
-
                 var popupSize = _settingsPopup.GetComponent<RectTransform>().rect.height;
                 var screenPos = Camera.main.WorldToScreenPoint(_cubeObject.transform.position);
                 screenPos.y += popupSize;
@@ -181,7 +191,6 @@ namespace Assets.Scripts.Classes.Agent
                 return;
             }
 
-
             // Single click to stop and start recording
             if (_clickForStartStop || Input.GetMouseButtonDown(0) && Utility.Instance.CheckIfClicked(_speechButton))
             {
@@ -218,13 +227,12 @@ namespace Assets.Scripts.Classes.Agent
 
         public void OnGUI()
         {
-            /*if (!_showPopup) return;
+        }
 
-            // Get the screen position of the NPC's origin:
-            Vector3 screenPos = Camera.main.WorldToScreenPoint(_cubeObject.transform.position);
-            // Define a 100x100 pixel rect going up and to the right:
-            GameObject.Find("UI Button").transform.position = screenPos;
-            // Draw a label in the rect:*/
+        public void DestroyPiece()
+        {
+            Object.Destroy(_cubeObject);
+            Object.Destroy(_settingsPopup);
         }
 
         public void UpdateBodySize(Configuration.Size size)
