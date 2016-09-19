@@ -11,66 +11,65 @@ namespace Assets.Scripts.Classes.Agent
     {
         private readonly List<InstanceAgentPiece> _newPartListeners;
         private readonly Dictionary<string, Piece> _pieces;
+        private readonly Dictionary<string, PieceUIManager> _piecesUIManagers;
+        private int _currentPieceIndex = 0;
 
         public Agent()
         {
-            _newPartListeners = new List<InstanceAgentPiece>();
-
-            foreach (var agentPieceListener in Object.FindObjectsOfType<InstanceAgentPiece>())
-            {
-                _newPartListeners.Add(agentPieceListener);
-                // Start the event listener
-                agentPieceListener.OnSelect += AddNewComponent;
-            }
-
             //provide option to clear agent configuration
             CreateAgentPiece.Instance.OnSelect += AddBlankComponent;
-            UIManager.Instance.DestroyAgentPiece += EraseAgentPiece;
+            ClearAgentConfiguration.Instance.OnSelect += EraseCurrentAgent;
 
             _pieces = new Dictionary<string, Piece>();
+            _piecesUIManagers = new Dictionary<string, PieceUIManager>();
+
         }
 
         public void Update()
         {
             _pieces.ToList().ForEach(p => p.Value.Update());
-        }
-
-        public void AddNewComponent(Configuration.Personality personality, Configuration.Size size)
-        {
-            var pieceName = "Piece_" + _pieces.Count;
-            _pieces.Add(pieceName, new Piece(pieceName, personality, size));
+            _piecesUIManagers.ToList().ForEach(p => p.Value.Update());
         }
 
         //create an initial component with random settings
         public void AddBlankComponent()
         {
-            var numberOfPersonalities = Configuration.Instance.AvailablePersonalities.Count;
             var numberOfSizes = Configuration.Instance.SizeValues.Count;
-            var pieceName = "Piece_" + _pieces.Count;
+            var pieceName = "Cubo " + _currentPieceIndex;
+            _currentPieceIndex++;
 
-            _pieces.Add(pieceName, new Piece(pieceName,
-                Configuration.Instance.AvailablePersonalities[Random.Range(0, numberOfPersonalities)],
-                Configuration.Instance.AvailableSizes[Random.Range(0, numberOfSizes)]));
+            Piece newPiece = new Piece(pieceName, Configuration.Personality.CustomPersonality,
+                Configuration.Instance.AvailableSizes[Random.Range(0, numberOfSizes)]);
+            _pieces.Add(pieceName, newPiece);
 
-            UIManager.Instance.AddNewAgentPieceUI(pieceName);
-            // TODO - adicionar à lista da barra em baixo do ecrã e tentar tirar uma imagem daquilo
-            // talvez fazer 1º a lógica de clickar e carregar o objecto só quando não está lá e apagar da barra
-            // image fica para depois em último caso pedir especificações do body e usar um icon semelhante
+            PieceUIManager newPieceManager = new PieceUIManager(newPiece, this);
+            _piecesUIManagers.Add(pieceName, newPieceManager);
         }
 
         public void EraseAgentPiece(string pieceName)
         {
-            //UIManager.Instance.DestroyAgentPieceUI(pieceName);
-            Piece temPiece =_pieces[pieceName];
+            Piece tempPiece =_pieces[pieceName];
             _pieces.Remove(pieceName);
-            temPiece.DestroyPiece();
+            tempPiece.DestroyPiece();
+
+            if (_pieces.Count == 0)
+            {
+                _currentPieceIndex = 0;
+            }
+
+            PieceUIManager tempUI = _piecesUIManagers[pieceName];
+            _piecesUIManagers.Remove(pieceName);
+            tempUI.DestroyPieceUI();
         }
 
         public void EraseCurrentAgent()
         {
-            _pieces.ToList().ForEach(p => UIManager.Instance.DestroyAgentPieceUI(p.Value.Name));
+            _piecesUIManagers.ToList().ForEach(p => p.Value.DestroyPiece());
+            _piecesUIManagers.Clear();
             _pieces.ToList().ForEach(p => p.Value.DestroyPiece());
             _pieces.Clear();
+
+            _currentPieceIndex = 0;
         }
 
         public void OnDrawGizmos()

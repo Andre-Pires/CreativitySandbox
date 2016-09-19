@@ -11,7 +11,7 @@ namespace Assets.Scripts.Classes
         private Agent.Agent _agent;
         private Configuration _configuration;
         private GameObject _scene;
-        private UIManager _UIManager;
+        private AppUIManager _UIManager;
 
         // Use this for initialization
         public void Start()
@@ -32,7 +32,7 @@ namespace Assets.Scripts.Classes
             _configuration = _scene.GetComponent<Configuration>();
 
             //NOTE: should run last to allow the remaining components to setup first
-            _UIManager = UIManager.Instance;
+            _UIManager = AppUIManager.Instance;
         }
 
         // Update is called once per frame

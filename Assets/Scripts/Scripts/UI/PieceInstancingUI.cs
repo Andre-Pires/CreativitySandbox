@@ -2,21 +2,20 @@
 
 namespace Assets.Scripts.Scripts.UI
 {
-    public class ManagePieceInstances : MonoBehaviour {
+    public class PieceInstancingUI : MonoBehaviour {
 
-        public delegate void OnSelectEvent(string pieceName);
+        public delegate void OnSelectEvent();
         public event OnSelectEvent OnSelect;
-        public string PieceName;
 
         // Construct 	
-        private ManagePieceInstances()
+        private PieceInstancingUI()
         {
         }
 
         public void OnClick()
         {
             // Notify of the event!
-            OnSelect(PieceName);
+            OnSelect();
         }
     }
 }

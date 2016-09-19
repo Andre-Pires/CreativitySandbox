@@ -11,9 +11,57 @@ namespace Assets.Scripts.Classes.Agent
         private const float InitialPlacementRadius = 26.0f;
 
         //blinking and color
-        private Color _blinkColor = Color.white;
-        private Color _bodyColor = Color.white;
+        private Color _color;
+        public Color Color
+        {
+            get { return _color; }
+            set
+            {
+                _body.GetComponent<Renderer>().material.color = _color;
+                _color = value;
+            }
+        }
 
+        private Color _blinkColor;
+        public Color BlinkColor
+        {
+            get { return _blinkColor; }
+            set
+            {
+                _body.GetComponent<Renderer>().material.color = Color;
+                _blinkColor = value;
+            }
+        }
+
+        private Configuration.Size _size;
+        public Configuration.Size Size
+        {
+            get { return _size; }
+            set
+            {
+                _size = value;
+                //using size's enum index to select correct multiplier
+                _body.localScale = Vector3.one * Configuration.Instance.SizeValues[value];
+                _body.localPosition = new Vector3(_body.position.x, _body.GetComponent<Renderer>().bounds.extents.y, _body.position.z);
+            }
+        }
+
+        private Configuration.BlinkingSpeed _blinkSpeed;
+        public Configuration.BlinkingSpeed BlinkSpeed
+        {
+            get { return _blinkSpeed; }
+            set
+            {
+                if (value == Configuration.BlinkingSpeed.Stopped)
+                {
+                    _body.GetComponent<Renderer>().material.color = Color;
+                }
+                _blinkSpeed = value;
+            }
+        }
+
+        //dragging fields
+        public bool Dragging;
         private Transform _objectToDrag;
         private List<Collider> _collidersToIgnore;
         private Vector3 _distance;
@@ -21,21 +69,33 @@ namespace Assets.Scripts.Classes.Agent
         //rotation
         private float _currentRotation;
 
-        private Configuration.BlinkingSpeed _currentBlinkSpeed = Configuration.BlinkingSpeed.Stopped;
-        private Configuration.Size _size;
-
-        //dragging fields
-        public bool Dragging;
-
-
-        public void Init(Configuration.Size size, Transform body)
+        public void InitializeParameters(Configuration.Size size, Transform body, Configuration.Personality personality)
         {
-            _size = size;
             _body = body;
+
+            if (personality == Configuration.Personality.CustomPersonality)
+            {
+                int blinkSpeedsCount = Configuration.Instance.PersonalityBlinkingSpeeds.Count-1;
+                int colorsCount = Configuration.Instance.AvailableColors.Count-1;
+
+                BlinkSpeed = Configuration.Instance.AvailableBlinkSpeeds[Random.Range(0, blinkSpeedsCount)];
+                Color = Configuration.Instance.AvailableColors[Random.Range(0, colorsCount)];
+                BlinkColor = Configuration.Instance.AvailableColors[Random.Range(0, colorsCount)];
+            }
+            else
+            {
+                //NOTE: for now no association between the personalities and blink colors was made
+                BlinkColor = Color.white;
+                BlinkSpeed = Configuration.Instance.PersonalityBlinkingSpeeds[personality];
+                Color = Configuration.Instance.PersonalityColors[personality];
+            }
+
+            _body.GetComponent<Renderer>().material.color = Color;
 
             //using size's enum index to select correct multiplier
             _body.localScale = Vector3.one*Configuration.Instance.SizeValues[size];
             _body.localPosition = new Vector3(_body.position.x, _body.GetComponent<Renderer>().bounds.extents.y, _body.position.z);
+            Size = size;
 
             //place cube in a vacant position in the set
             Utility.PlaceNewGameObject(_body, Vector3.zero, InitialPlacementRadius);
@@ -57,21 +117,22 @@ namespace Assets.Scripts.Classes.Agent
             HandleDragging();
         }
 
-        public void SetupBehavior(Color pieceColor, Configuration.BlinkingSpeed speed)
+        public void SetupBehavior(Color pieceColor, Configuration.BlinkingSpeed speed, Color blinkColor)
         {
-            _bodyColor = pieceColor;
-            _body.GetComponent<Renderer>().material.color = _bodyColor;
-            _currentBlinkSpeed = speed;
+            Color = pieceColor;
+            _body.GetComponent<Renderer>().material.color = Color;
+            BlinkSpeed = speed;
+            BlinkColor = blinkColor;
         }
 
         private void Blink()
         {
-            if (_currentBlinkSpeed != Configuration.BlinkingSpeed.Stopped)
+            if (BlinkSpeed != Configuration.BlinkingSpeed.Stopped)
             {
-                var colorToUse = _blinkColor;
-                var duration = Configuration.Instance.BlinkingSpeedsValues[_currentBlinkSpeed];
+                var colorToUse = BlinkColor;
+                var duration = Configuration.Instance.BlinkingSpeedsValues[BlinkSpeed];
                 var lerp = Mathf.PingPong(Time.time, duration)/duration;
-                _body.GetComponent<Renderer>().material.color = Color.Lerp(_bodyColor, colorToUse, lerp);
+                _body.GetComponent<Renderer>().material.color = Color.Lerp(Color, colorToUse, lerp);
             }
         }
 
@@ -80,7 +141,7 @@ namespace Assets.Scripts.Classes.Agent
             float rotationSpeed; //This will determine rotation speed
             float lerpSpeed; //This will determine lerp speed
 
-#if UNITY_ANDROID
+            #if UNITY_ANDROID
             if (Input.touchCount == 2)
             {
                 var layer = 8;
@@ -113,9 +174,9 @@ namespace Assets.Scripts.Classes.Agent
                 _body.rotation = Quaternion.Slerp(_body.transform.rotation, Quaternion.Euler(0, _currentRotation, 0),
                     lerpSpeed*Time.deltaTime);
             }
-#endif
+            #endif
 
-#if UNITY_STANDALONE || UNITY_EDITOR
+            #if UNITY_STANDALONE || UNITY_EDITOR
             if (Input.GetMouseButton(0))
             {
                 if (Utility.Instance.CheckIfClicked(_body.transform))
@@ -127,7 +188,7 @@ namespace Assets.Scripts.Classes.Agent
                         lerpSpeed*Time.deltaTime);
                 }
             }
-#endif
+            #endif
         }
 
         private void HandleDragging()
@@ -193,37 +254,7 @@ namespace Assets.Scripts.Classes.Agent
         public void OnDrawGizmos()
         {
             /*Gizmos.color = new Color(1, 0, 0, 0.5F);
-            Gizmos.DrawSphere(_body.position,_body.localScale.x/2);*/
-        }
-
-        public void UpdateSize(Configuration.Size size)
-        {
-            _size = size;
-
-            //using size's enum index to select correct multiplier
-            _body.localScale = Vector3.one * Configuration.Instance.SizeValues[size];
-            _body.localPosition = new Vector3(_body.position.x, _body.GetComponent<Renderer>().bounds.extents.y, _body.position.z);
-            
-        }
-
-        public void UpdateColor(Color color)
-        {
-            _bodyColor = color;
-        }
-
-        public void UpdateBlinkSpeed(Configuration.BlinkingSpeed speed)
-        {
-            if (speed == Configuration.BlinkingSpeed.Stopped)
-            {
-                _body.GetComponent<Renderer>().material.color = _bodyColor;
-            }
-            _currentBlinkSpeed = speed;
-        }
-
-        public void UpdateBlinkColor(Color color)
-        {
-            _body.GetComponent<Renderer>().material.color = _bodyColor;
-            _blinkColor = color;
+            Gizmos.DrawSphere(Body.position,Body.localScale.x/2);*/
         }
     }
 }

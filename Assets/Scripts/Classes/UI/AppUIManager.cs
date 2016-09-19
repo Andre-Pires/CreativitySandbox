@@ -1,36 +1,36 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
+using Assets.Scripts.Classes.Agent;
 using Assets.Scripts.Scripts.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Assets.Scripts.Classes.UI
 {
-    public class UIManager
+    public class AppUIManager
     {
-        private static UIManager _instance;
+        private static AppUIManager _instance;
 
         private GameObject _audioRecordingStartInfo;
         private GameObject _audioRecordingStoppedInfo;
-        private GameObject _availableAgentPiecesList;
+        public GameObject AvailableAgentPiecesList;
+
         private bool _recordingStoppedInfoTimeout;
 
-        public delegate void OnDestroyPieceEvent(string pieceName);
-        public event OnDestroyPieceEvent DestroyAgentPiece;
-
         // Construct 	
-        private UIManager()
+        private AppUIManager()
         {
             BindUIObjects();
             SetupUI();
         }
 
         //  Instance 	
-        public static UIManager Instance
+        public static AppUIManager Instance
         {
             get
             {
                 if (_instance == null)
-                    _instance = new UIManager();
+                    _instance = new AppUIManager();
                 return _instance;
             }
         }
@@ -39,7 +39,7 @@ namespace Assets.Scripts.Classes.UI
         {
             _audioRecordingStartInfo = GameObject.Find("AudioRecordingWarning").gameObject;
             _audioRecordingStoppedInfo = GameObject.Find("AudioRecordingSuccessful").gameObject;
-            _availableAgentPiecesList = GameObject.Find("AvailableAgentPieces/List").gameObject;
+            AvailableAgentPiecesList = GameObject.Find("AvailableAgentPieces/Image/List").gameObject;
         }
 
 
@@ -75,28 +75,29 @@ namespace Assets.Scripts.Classes.UI
             }).Start();
         }
 
-        public void AddNewAgentPieceUI(string name)
-        {
-            GameObject newPiece = Object.Instantiate(Resources.Load("Prefabs/UISettings/AgentPieceItem")) as GameObject;
-            newPiece.GetComponentInChildren<Text>().text = name + "_Button";
-            newPiece.name = name + "_Button";
-            newPiece.GetComponent<ManagePieceInstances>().OnSelect += DestroyAgentPieceUI;
-            newPiece.GetComponent<ManagePieceInstances>().PieceName = name;
-            newPiece.transform.SetParent(_availableAgentPiecesList.transform, false);
-        }
-
-        public void DestroyAgentPieceUI(string name)
-        {
-            DestroyAgentPiece(name);
-            Object.Destroy(GameObject.Find(name + "_Button"));
-        }
-
         public void Update()
         {
             if (_recordingStoppedInfoTimeout)
             {
                 _audioRecordingStoppedInfo.SetActive(false);
                 _recordingStoppedInfoTimeout = false;
+            }
+
+            if (AvailableAgentPiecesList.activeSelf && AvailableAgentPiecesList.transform.childCount > 0)
+            {
+                Text text = AvailableAgentPiecesList.GetComponent<Text>();
+                if (text.IsActive())
+                {
+                    text.enabled = false;
+                }
+            }
+            else if (AvailableAgentPiecesList.activeSelf && AvailableAgentPiecesList.transform.childCount == 0)
+            {
+                Text text = AvailableAgentPiecesList.GetComponent<Text>();
+                if (!text.IsActive())
+                {
+                    text.enabled = true;
+                }
             }
         }
 

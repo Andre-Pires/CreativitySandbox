@@ -41,7 +41,7 @@ namespace Assets.Scripts.Accordion.Tweening
         {
             if (m_CoroutineContainer == null)
             {
-                Debug.LogWarning("Coroutine container not configured... did you forget to call Init?");
+                Debug.LogWarning("Coroutine container not configured... did you forget to call InitializeParameters?");
                 return;
             }
 

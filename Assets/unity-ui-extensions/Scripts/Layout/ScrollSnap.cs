@@ -79,7 +79,7 @@ namespace Assets.Scripts.Layout
         [Tooltip("Button to go to the next page. (optional)")] public Button nextButton;
 
         // anchor points to lerp to to see child on certain indexes
-        protected Vector3[] pageAnchorPositions;
+        public Vector3[] pageAnchorPositions;
 
         protected int pageOnDragStart;
 
@@ -104,9 +104,20 @@ namespace Assets.Scripts.Layout
 
         public event PageSnapChange onPageChange;
 
+        private bool _alreadyInitialized;
+
         // Use this for initialization
         private void Awake()
         {
+            if (_alreadyInitialized)
+            {
+                return;
+            }
+            else
+            {
+                _alreadyInitialized = true;
+            }
+
             lerp = false;
 
             scrollRect = gameObject.GetComponent<ScrollRect>();

@@ -23,7 +23,8 @@ namespace Assets.Scripts.Classes.Helpers
             Friendly,
             Realist,
             Imaginative,
-            Foreigner
+            Foreigner,
+            CustomPersonality
         }
 
         public enum Size
@@ -46,6 +47,12 @@ namespace Assets.Scripts.Classes.Helpers
         public Dictionary<Personality, BlinkingSpeed> PersonalityBlinkingSpeeds;
         public Dictionary<Personality, Color> PersonalityColors;
         public Dictionary<Size, float> SizeValues;
+
+        //due to the random order of execution in Unity's scripts, this assigment is required in the Awake function
+        public void Awake()
+        {
+            _instance = FindObjectOfType(typeof(Configuration)) as Configuration;
+        }
 
         // Construct 	
         private Configuration()

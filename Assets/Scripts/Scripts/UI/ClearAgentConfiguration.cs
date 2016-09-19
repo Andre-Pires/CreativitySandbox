@@ -5,6 +5,7 @@ namespace Assets.Scripts.Scripts.UI
     public class ClearAgentConfiguration : MonoBehaviour
     {
         public delegate void OnSelectEvent();
+        public event OnSelectEvent OnSelect;
 
         // Singleton 	
         private static ClearAgentConfiguration _instance;
@@ -24,8 +25,6 @@ namespace Assets.Scripts.Scripts.UI
                 return _instance;
             }
         }
-
-        public event OnSelectEvent OnSelect;
 
         // Handle our Ray and Hit
         private void Update()

@@ -96,7 +96,7 @@ namespace BuildBuddy
                             exported = EditorGUILayout.Toggle("Exported: ", exported);
                             grantUriPermissions = EditorGUILayout.Toggle("Grant URI Permissions: ", grantUriPermissions);
                             icon = EditorGUILayout.TextField("Icon: ", icon);
-                            initOrder = EditorGUILayout.IntField("Init Order: ", initOrder);
+                            initOrder = EditorGUILayout.IntField("InitializeParameters Order: ", initOrder);
                             label = EditorGUILayout.TextField("Label: ", label);
                             multiProcess = EditorGUILayout.Toggle("Multiprocess: ", multiProcess);
                             permission = EditorGUILayout.TextField("Permission: ", permission);

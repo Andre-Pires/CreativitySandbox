@@ -306,7 +306,6 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 224: {fileID: 22450676}
-  - 114: {fileID: 11479892}
   - 222: {fileID: 22273990}
   - 114: {fileID: 11499724}
   m_Layer: 0
@@ -315,7 +314,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &184322
 GameObject:
   m_ObjectHideFlags: 1
@@ -1119,6 +1118,7 @@ MonoBehaviour:
   linkScrolbarSteps: 0
   linkScrolrectScrollSensitivity: 0
   nextButton: {fileID: 11437644}
+  pageAnchorPositions: []
   prevButton: {fileID: 11438194}
   useFastSwipe: 1
 --- !u!114 &11449286
@@ -1305,6 +1305,7 @@ MonoBehaviour:
   linkScrolbarSteps: 0
   linkScrolrectScrollSensitivity: 0
   nextButton: {fileID: 11480794}
+  pageAnchorPositions: []
   prevButton: {fileID: 11432574}
   useFastSwipe: 1
 --- !u!114 &11471004
@@ -1331,17 +1332,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 0
---- !u!114 &11479892
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 184228}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c914d2ec85b5bf3459c505a2666eda51, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &11480794
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1441,6 +1431,7 @@ MonoBehaviour:
   linkScrolbarSteps: 0
   linkScrolrectScrollSensitivity: 0
   nextButton: {fileID: 11448916}
+  pageAnchorPositions: []
   prevButton: {fileID: 11437126}
   useFastSwipe: 1
 --- !u!114 &11489484
@@ -1461,6 +1452,7 @@ MonoBehaviour:
   linkScrolbarSteps: 0
   linkScrolrectScrollSensitivity: 0
   nextButton: {fileID: 11441122}
+  pageAnchorPositions: []
   prevButton: {fileID: 11466490}
   useFastSwipe: 1
 --- !u!114 &11498806

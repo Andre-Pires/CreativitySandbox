@@ -139,7 +139,7 @@ namespace Assets.Scripts.Classes.IO
             _audio.volume = SourceVolume/100;
             Loudness = GetAveragedVolume()*Sensitivity*(SourceVolume/10);
 
-            //TODO - might be interesting in the future, for now behavior is in Piece Class
+            //TODO - might be interesting in the future, for now behavior is in SoundRecorder Class
             /*
         //Hold To Speak!!
         if (micControl == micActivation.HoldToSpeak)
