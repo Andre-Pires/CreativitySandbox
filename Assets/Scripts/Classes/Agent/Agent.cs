@@ -46,6 +46,22 @@ namespace Assets.Scripts.Classes.Agent
             _piecesUIManagers.Add(pieceName, newPieceManager);
         }
 
+        //create an initial component with random settings
+        public void AddCloneComponent(Piece piece)
+        {
+            var numberOfSizes = Configuration.Instance.SizeValues.Count;
+            var pieceName = "Cubo " + _currentPieceIndex;
+            _currentPieceIndex++;
+
+            //
+            Piece newPiece = new Piece(pieceName, piece);
+            _pieces.Add(pieceName, newPiece);
+            //
+
+            PieceUIManager newPieceManager = new PieceUIManager(newPiece, this);
+            _piecesUIManagers.Add(pieceName, newPieceManager);
+        }
+
         public void EraseAgentPiece(string pieceName)
         {
             Piece tempPiece =_pieces[pieceName];

@@ -66,10 +66,10 @@ namespace Assets.Scripts.Classes.UI
                 settingsPopup.transform.SetParent(GameObject.Find("Canvas").transform, false);
                 settingsPopup.name = _piece.Name + "_Popup";
 
-                _pieceSizeList = GameObject.Find("SizeOptions/Sizes");
-                _pieceColorList = GameObject.Find("ColorOptions/Colors");
-                _pieceBlinkTypeList = GameObject.Find("BlinkTypeOptions/BlinkTypes");
-                _pieceBlinkSpeedList = GameObject.Find("BlinkSpeedOptions/BlinkSpeeds");
+                _pieceSizeList = GameObject.Find(settingsPopup.name + "/SizeOptions/Sizes");
+                _pieceColorList = GameObject.Find(settingsPopup.name + "/ColorOptions/Colors");
+                _pieceBlinkTypeList = GameObject.Find(settingsPopup.name + "/BlinkTypeOptions/BlinkTypes");
+                _pieceBlinkSpeedList = GameObject.Find(settingsPopup.name + "/BlinkSpeedOptions/BlinkSpeeds");
 
 
                 {
@@ -192,7 +192,8 @@ namespace Assets.Scripts.Classes.UI
         {
             _instancingButton.name = _piece.Name + "_Button";
             _instancingButton.GetComponentInChildren<Text>().text = _piece.Name;
-            _instancingButton.GetComponent<PieceInstancingUI>().OnSelect += DestroyPiece;
+            Utility.GetChild(_instancingButton, "DeleteAgent").GetComponent<Button>().onClick.AddListener(DestroyPiece);
+            _instancingButton.GetComponent<Button>().onClick.AddListener(() => _agent.AddCloneComponent(_piece));
             _instancingButton.transform.SetParent(_availableAgentPiecesList.transform, false);
             UpdatePieceIcon();
         }

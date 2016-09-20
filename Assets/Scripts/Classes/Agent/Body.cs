@@ -108,6 +108,31 @@ namespace Assets.Scripts.Classes.Agent
             _collidersToIgnore.Add(Utility.GetChild(body.gameObject, "Button").GetComponent<Collider>());
         }
 
+        //Body cloner
+        public void InitializeParameters(Transform bodyTransform, Body body)
+        {
+            _body = bodyTransform;
+
+            BlinkSpeed = body.BlinkSpeed;
+            Color = body.Color;
+            BlinkColor = body.BlinkColor;
+           
+            //using size's enum index to select correct multiplier
+            _body.localScale = Vector3.one * Configuration.Instance.SizeValues[body.Size];
+            _body.localPosition = new Vector3(_body.position.x, _body.GetComponent<Renderer>().bounds.extents.y, _body.position.z);
+            Size = body.Size;
+
+            //place cube in a vacant position in the set
+            Utility.PlaceNewGameObject(_body, Vector3.zero, InitialPlacementRadius);
+
+            //initializing dragging variables
+            _objectToDrag = _body;
+            //create a list with the colliders of the children and object
+            _collidersToIgnore = new List<Collider>();
+            _collidersToIgnore.Add(_body.gameObject.GetComponent<Collider>());
+            _collidersToIgnore.Add(Utility.GetChild(_body.gameObject, "Button").GetComponent<Collider>());
+        }
+
         public void Update()
         {
             Blink();
@@ -120,7 +145,6 @@ namespace Assets.Scripts.Classes.Agent
         public void SetupBehavior(Color pieceColor, Configuration.BlinkingSpeed speed, Color blinkColor)
         {
             Color = pieceColor;
-            _body.GetComponent<Renderer>().material.color = Color;
             BlinkSpeed = speed;
             BlinkColor = blinkColor;
         }
@@ -240,11 +264,13 @@ namespace Assets.Scripts.Classes.Agent
                 {
                     numberOfCollidersHit--;
                 }
+                    Debug.Log("collided with " + collider.name);
             }
 
             //always ignore the floor where the piece stands on by putting 1
             if (numberOfCollidersHit > 0)
             {
+
                 Debug.Log("collided with something");
                 return true;
             }
