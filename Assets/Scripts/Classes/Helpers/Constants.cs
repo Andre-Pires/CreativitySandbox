@@ -29,11 +29,16 @@ namespace Assets.Scripts.Classes.Helpers
             ? UnityEngine.Application.persistentDataPath + "/ProjectData/Sounds/"
             : "../" + AppDomain.CurrentDomain.BaseDirectory + "/ProjectData/Sounds/";
 
-        // Singleton 	
-        private static Constants _instance;
         //set related constants
         public Dictionary<Scenario, string> ScenarioPath;
         public Dictionary<Scenario, Material> ScenarioSkybox;
+
+        public static string ScenarioCameraMode = "Fixada no cenário";
+        public static string CharacterCameraMode = "Segue o personagem";
+        public static string CharacterName = "Cubo";
+
+        // Singleton 	
+        private static Constants _instance;
 
         // Construct 	
         private Constants()
