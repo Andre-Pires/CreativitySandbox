@@ -42,7 +42,7 @@ namespace Assets.Scripts.Scripts.UI
                 button.onClick.AddListener(() => OnSelect(Personality, buttonSize));
             }
 
-            PageTitle.GetComponent<Text>().text = Constants.Instance.GetPersonalityString(Personality);
+            PageTitle.GetComponent<Text>().text = Constants.Instance.PersonalitiesStrings[Personality];
         }
     }
 }

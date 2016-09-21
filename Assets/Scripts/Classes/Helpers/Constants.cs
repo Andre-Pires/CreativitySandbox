@@ -17,7 +17,8 @@ namespace Assets.Scripts.Classes.Helpers
 
     public class Constants
     {
-        public static Dictionary<Configuration.Personality, string> PersonalitiesStrings;
+        public Dictionary<Configuration.Personality, string> PersonalitiesStrings;
+        public Dictionary<Configuration.BlinkingSpeed, string> SpeedStrings;
 
         //file paths
         public static string ImageFilePath = UnityEngine.Application.platform == RuntimePlatform.Android
@@ -46,6 +47,16 @@ namespace Assets.Scripts.Classes.Helpers
                 {Configuration.Personality.Realist, "Realista"},
                 {Configuration.Personality.Imaginative, "Imaginativo"},
                 {Configuration.Personality.Foreigner, "Estrangeiro"}
+            };
+
+            SpeedStrings = new Dictionary<Configuration.BlinkingSpeed, string>
+            {
+                {Configuration.BlinkingSpeed.Stopped, "Parado"},
+                {Configuration.BlinkingSpeed.VerySlow, "Muito lento"},
+                {Configuration.BlinkingSpeed.Slow, "Lento"},
+                {Configuration.BlinkingSpeed.Normal, "Normal"},
+                {Configuration.BlinkingSpeed.Fast, "Rápido"},
+                {Configuration.BlinkingSpeed.VeryFast, "Muito rápido"}
             };
 
             ScenarioPath = new Dictionary<Scenario, string>
@@ -86,9 +97,5 @@ namespace Assets.Scripts.Classes.Helpers
             }
         }
 
-        public string GetPersonalityString(Configuration.Personality personality)
-        {
-            return PersonalitiesStrings[personality];
-        }
     }
 }

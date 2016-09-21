@@ -113,7 +113,7 @@ namespace Assets.Scripts.Classes.UI
                             UpdatePieceIcon();
 
                         });
-                        item.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Agent/Medium");
+                        item.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Buttons/AgentColor");
                         item.GetComponent<Image>().color = tempColor;
                         item.GetComponentInChildren<Text>().text = "";
                         item.GetComponent<RectTransform>().SetParent(listObject.transform, false);
@@ -159,7 +159,7 @@ namespace Assets.Scripts.Classes.UI
 
                         item.GetComponent<Button>().onClick.AddListener(() => _piece.Body.BlinkSpeed = tempSpeed);
                         item.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Buttons/BlinkSpeed");
-                        item.GetComponentInChildren<Text>().text = tempSpeed.ToString();
+                        item.GetComponentInChildren<Text>().text = Constants.Instance.SpeedStrings[tempSpeed];
 
                         item.GetComponent<RectTransform>().SetParent(listObject.transform, false);
 
@@ -193,7 +193,7 @@ namespace Assets.Scripts.Classes.UI
             _instancingButton.name = _piece.Name + "_Button";
             _instancingButton.GetComponentInChildren<Text>().text = _piece.Name;
             Utility.GetChild(_instancingButton, "DeleteAgent").GetComponent<Button>().onClick.AddListener(DestroyPiece);
-            _instancingButton.GetComponent<Button>().onClick.AddListener(() => _agent.AddCloneComponent(_piece));
+            _instancingButton.GetComponent<Button>().onClick.AddListener(() => _cubeObject.SetActive(_cubeObject.activeSelf != true));
             _instancingButton.transform.SetParent(_availableAgentPiecesList.transform, false);
             UpdatePieceIcon();
         }

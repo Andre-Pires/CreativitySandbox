@@ -8,6 +8,7 @@ namespace Assets.Scripts.Classes.Agent
     public class Body : MonoBehaviour
     {
         private Transform _body;
+        private bool _alreadyInitialized;
         private const float InitialPlacementRadius = 26.0f;
 
         //blinking and color
@@ -17,8 +18,8 @@ namespace Assets.Scripts.Classes.Agent
             get { return _color; }
             set
             {
-                _body.GetComponent<Renderer>().material.color = _color;
                 _color = value;
+                _body.GetComponent<Renderer>().material.color = _color;
             }
         }
 
@@ -106,6 +107,30 @@ namespace Assets.Scripts.Classes.Agent
             _collidersToIgnore = new List<Collider>();
             _collidersToIgnore.Add(body.gameObject.GetComponent<Collider>());
             _collidersToIgnore.Add(Utility.GetChild(body.gameObject, "Button").GetComponent<Collider>());
+
+            _alreadyInitialized = true;
+        }
+
+        void OnEnable()
+        {
+            if (_alreadyInitialized)
+            {
+                bool hitSomething = true;
+                Collider[] hitColliders = Physics.OverlapSphere(_body.localPosition,
+                   transform.GetComponent<Renderer>().bounds.extents.magnitude);
+
+                if (hitColliders.Length <= 1) //You haven't hit someone with a collider here, excluding ours
+                {
+                    //Debug.Log("clear");
+                    hitSomething = false;
+                }
+
+                if (hitSomething)
+                {
+                    //place cube in a vacant position in the set
+                    Utility.PlaceNewGameObject(_body, Vector3.zero, InitialPlacementRadius);
+                }
+            }
         }
 
         //Body cloner
@@ -264,10 +289,8 @@ namespace Assets.Scripts.Classes.Agent
                 {
                     numberOfCollidersHit--;
                 }
-                    Debug.Log("collided with " + collider.name);
             }
 
-            //always ignore the floor where the piece stands on by putting 1
             if (numberOfCollidersHit > 0)
             {
 
