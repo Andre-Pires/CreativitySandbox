@@ -12,7 +12,10 @@ namespace Assets.Scripts.Classes.Helpers
         ForestDusk,
         CityDay,
         CityNight,
-        CityDusk
+        CityDusk,
+        BlankDay,
+        BlankNight,
+        BlankDusk
     }
 
     public class Constants
@@ -26,8 +29,8 @@ namespace Assets.Scripts.Classes.Helpers
             : "../" + AppDomain.CurrentDomain.BaseDirectory + "/StopMotion/";
 
         public static string SoundFilePath = UnityEngine.Application.platform == RuntimePlatform.Android
-            ? UnityEngine.Application.persistentDataPath + "/ProjectData/Sounds/"
-            : "../" + AppDomain.CurrentDomain.BaseDirectory + "/ProjectData/Sounds/";
+            ? UnityEngine.Application.persistentDataPath + "/ProjectData/Sounds/RecordedMessages/"
+            : "../" + AppDomain.CurrentDomain.BaseDirectory + "/ProjectData/Sounds/RecordedMessages/";
 
         //set related constants
         public Dictionary<Scenario, string> ScenarioPath;
@@ -71,7 +74,10 @@ namespace Assets.Scripts.Classes.Helpers
                 {Scenario.ForestDusk, "Prefabs/Forest/ForestSet(Dusk)"},
                 {Scenario.CityDay, "Prefabs/City/CitySet(Clear)"},
                 {Scenario.CityNight, "Prefabs/City/CitySet(Night)"},
-                {Scenario.CityDusk, "Prefabs/City/CitySet(Dusk)"}
+                {Scenario.CityDusk, "Prefabs/City/CitySet(Dusk)"},
+                {Scenario.BlankDay, "Prefabs/Blank/BlankSet(Clear)"},
+                {Scenario.BlankNight, "Prefabs/Blank/BlankSet(Night)"},
+                {Scenario.BlankDusk, "Prefabs/Blank/BlankSet(Dusk)"}
             };
 
             var skyboxDay = Object.Instantiate(Resources.Load("Skyboxes/sky5x3")) as Material;
@@ -82,10 +88,13 @@ namespace Assets.Scripts.Classes.Helpers
             {
                 {Scenario.ForestDay, skyboxDay},
                 {Scenario.CityDay, skyboxDay},
+                {Scenario.BlankDay, skyboxDay},
                 {Scenario.ForestNight, skyboxNight},
                 {Scenario.CityNight, skyboxNight},
+                {Scenario.BlankNight, skyboxNight},
                 {Scenario.ForestDusk, skyboxDusk},
-                {Scenario.CityDusk, skyboxDusk}
+                {Scenario.CityDusk, skyboxDusk},
+                {Scenario.BlankDusk, skyboxDusk}
             };
         }
 

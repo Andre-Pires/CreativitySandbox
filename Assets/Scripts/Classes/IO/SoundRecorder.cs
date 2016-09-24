@@ -91,6 +91,7 @@ namespace Assets.Scripts.Classes.IO
 
         private void StopRecording()
         {
+            _clipPlayer.PlayOneShot(Resources.Load<AudioClip>("Sounds/RecordingStartStop/beepbeep"));
             _micInput.StopMicrophone(_recordingName + _currentClipIndex);
             _clips[_currentClipIndex] = _micInput.GetLastRecording();
             Debug.Log("Stopped recording clip " + _currentClipIndex);
@@ -102,6 +103,7 @@ namespace Assets.Scripts.Classes.IO
 
         private void StartRecording()
         {
+            _clipPlayer.PlayOneShot(Resources.Load<AudioClip>("Sounds/RecordingStartStop/beepbeep"));
             _micInput.StartMicrophone();
             _isRecording = true;
             AppUIManager.Instance.DisplayRecordingStarted();

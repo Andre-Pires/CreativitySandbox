@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Scripts.UI;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.Classes.IO
 {
@@ -15,10 +16,12 @@ namespace Assets.Scripts.Classes.IO
 
         public float OverlayOpacity = 0.2f;
         private const string FileName = "image";
-        private const string FileExtension = ".jpg";
+        private const string FileExtension = ".png";
         private const string TextureExtension = ".t2d";
         private string _filePath = Constants.ImageFilePath;
 
+        private GameObject _screenFlashPanel;
+        private bool _flashActive;
         private int _numberOfShots = 0;
         private bool _recording = false;
         private bool _readySingleShot = false;
@@ -35,7 +38,15 @@ namespace Assets.Scripts.Classes.IO
             StartVideoRecording.Instance.OnSelect += StartRecordingMovie;
             PauseVideoRecording.Instance.OnSelect += PauseRecordingMovie;
             ClearVideoRecordings.Instance.OnSelect += ClearMovieRecordings;
-            SaveVideoRecordings.Instance.OnSelect += EncodeRecordedImages;
+            //SaveVideoRecordings.Instance.OnSelect += EncodeRecordedImages;
+
+            _screenFlashPanel = GameObject.Find("ScreenFlash");
+            if (_screenFlashPanel == null)
+            {
+                throw new NullReferenceException("The panel used for flash is deactivated in the editor");
+            }
+
+            _screenFlashPanel.SetActive(false);
 
             //clear empty directories
             ClearEmptyDirectories();
@@ -119,18 +130,19 @@ namespace Assets.Scripts.Classes.IO
         
         private void CaptureScreenshot()
         {
+            FlashScreen();
 
             //takes the screenshot, but doesn't save a file. It's stored as a Texture2D instead
             _latestScreenshot = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
             _latestScreenshot.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
             _latestScreenshot.Apply();
             
-            //TODO - rollback if needed - saves a PNG file to the path specified above
-            /*string fileName = _filePath + _fileName + _numberOfShots + _fileExtension;
-            byte[] bytes = _latestScreenshot.EncodeToPNG();*/
+            string fileName = _filePath + FileName + _numberOfShots + FileExtension;
+            byte[] bytes = _latestScreenshot.EncodeToPNG();
 
-            string fileName = _filePath + FileName + _numberOfShots + TextureExtension;
-            byte[] bytes = _latestScreenshot.GetRawTextureData();
+            //TODO - rollback if needed - saves to a texture file
+            /*string fileName = _filePath + FileName + _numberOfShots + TextureExtension;
+            byte[] bytes = _latestScreenshot.GetRawTextureData();*/
 
             new System.Threading.Thread(() =>
             {
@@ -139,11 +151,35 @@ namespace Assets.Scripts.Classes.IO
             }).Start();
         }
 
+        public void FlashScreen()
+        {
+            _flashActive = true;
+            _screenFlashPanel.SetActive(true);
+        }
 
-        // constantly doing this, should only do on screen resize
+        public void HandleScreenFlash()
+        {
+            if (_flashActive)
+            {
+                Image image = _screenFlashPanel.GetComponent<Image>();
+                image.color = new Color(image.color.r, image.color.g, image.color.b, image.color.a - 2.5f * Time.deltaTime);
+
+                if (image.color.a <= 0)
+                {
+                    image.color = new Color(image.color.r, image.color.g, image.color.b, 1.0f);
+                    _flashActive = false;
+                    _screenFlashPanel.SetActive(false);
+                }
+            }
+        }
+
+
+        //TODO - constantly doing this, should only do on screen resize
         public void Update()
         {
             _rect = new Rect(0, 0, Screen.width, Screen.height);
+
+            HandleScreenFlash();
         }
 
         public void OnApplicationQuit()
@@ -153,8 +189,9 @@ namespace Assets.Scripts.Classes.IO
             StartVideoRecording.Instance.OnSelect -= StartRecordingMovie;
             PauseVideoRecording.Instance.OnSelect -= PauseRecordingMovie;
             ClearVideoRecordings.Instance.OnSelect -= ClearMovieRecordings;
-            SaveVideoRecordings.Instance.OnSelect -= EncodeRecordedImages;
+            //SaveVideoRecordings.Instance.OnSelect -= EncodeRecordedImages;
         }
+
 
         public void EncodeRecordedImages()
         {
@@ -163,7 +200,7 @@ namespace Assets.Scripts.Classes.IO
             int currentShot = 0;
             foreach (FileInfo file in directory.GetFiles())
             {
-                //ignore alreadt encoded screenshots
+                //ignore already encoded screenshots
                 if (Path.GetExtension(file.DirectoryName + file.Name) == FileExtension)
                 {
                     continue;

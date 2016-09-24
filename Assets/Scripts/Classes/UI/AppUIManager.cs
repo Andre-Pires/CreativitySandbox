@@ -42,14 +42,14 @@ namespace Assets.Scripts.Classes.UI
             AvailableAgentPiecesList = GameObject.Find("AvailableAgentPieces/Image/List").gameObject;
         }
 
-
         // ReSharper disable once InconsistentNaming
         //necessary since if gameObjects start inactive their associated scripts aren't accessible
         public void SetupUI()
         {
             GameObject.Find("MainMenu").gameObject.SetActive(false);
-            GameObject.Find("ForestDaySetup").gameObject.SetActive(false);
-            GameObject.Find("CityDaySetup").gameObject.SetActive(false);
+            GameObject.Find("ForestSetup").gameObject.SetActive(false);
+            GameObject.Find("CitySetup").gameObject.SetActive(false);
+            GameObject.Find("BlankSetup").gameObject.SetActive(false);
             GameObject.Find("Pause").gameObject.SetActive(false);
             GameObject.Find("RecordingControls").gameObject.SetActive(false);
             GameObject.Find("SceneSelector").gameObject.SetActive(false);

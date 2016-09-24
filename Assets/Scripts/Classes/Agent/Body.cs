@@ -9,7 +9,7 @@ namespace Assets.Scripts.Classes.Agent
     {
         private Transform _body;
         private bool _alreadyInitialized;
-        private const float InitialPlacementRadius = 26.0f;
+        private const float ScenarioPlacementRadius = 26.0f;
 
         //blinking and color
         private Color _color;
@@ -97,9 +97,11 @@ namespace Assets.Scripts.Classes.Agent
             _body.localScale = Vector3.one*Configuration.Instance.SizeValues[size];
             _body.localPosition = new Vector3(_body.position.x, _body.GetComponent<Renderer>().bounds.extents.y, _body.position.z);
             Size = size;
+            Debug.Log("pos " + _body.localPosition);
+
 
             //place cube in a vacant position in the set
-            Utility.PlaceNewGameObject(_body, Vector3.zero, InitialPlacementRadius);
+            Utility.PlaceNewGameObject(_body, Vector3.zero, ScenarioPlacementRadius);
 
             //initializing dragging variables
             _objectToDrag = body;
@@ -115,20 +117,23 @@ namespace Assets.Scripts.Classes.Agent
         {
             if (_alreadyInitialized)
             {
-                bool hitSomething = true;
                 Collider[] hitColliders = Physics.OverlapSphere(_body.localPosition,
                    transform.GetComponent<Renderer>().bounds.extents.magnitude);
+                int collidersHit = hitColliders.Length;
 
-                if (hitColliders.Length <= 1) //You haven't hit someone with a collider here, excluding ours
+                foreach (var collider in hitColliders)
                 {
-                    //Debug.Log("clear");
-                    hitSomething = false;
+                    if(_collidersToIgnore.Contains(collider))
+                    {
+                        collidersHit--;
+                    }
                 }
 
-                if (hitSomething)
+                if (collidersHit > 0)
                 {
+                    //Debug.Log("clear");
                     //place cube in a vacant position in the set
-                    Utility.PlaceNewGameObject(_body, Vector3.zero, InitialPlacementRadius);
+                    Utility.PlaceNewGameObject(_body, Vector3.zero, ScenarioPlacementRadius);
                 }
             }
         }
@@ -148,7 +153,7 @@ namespace Assets.Scripts.Classes.Agent
             Size = body.Size;
 
             //place cube in a vacant position in the set
-            Utility.PlaceNewGameObject(_body, Vector3.zero, InitialPlacementRadius);
+            Utility.PlaceNewGameObject(_body, Vector3.zero, ScenarioPlacementRadius);
 
             //initializing dragging variables
             _objectToDrag = _body;
@@ -268,7 +273,14 @@ namespace Assets.Scripts.Classes.Agent
                     var futurePos = new Vector3(posMove.x - _distance.x, transform.position.y, posMove.z - _distance.z);
 
                     if (!IsColliding(futurePos))
-                        _objectToDrag.position = futurePos;
+                    {
+                        // to avoid drags out of the scenario
+                        if ((futurePos.x < ScenarioPlacementRadius && futurePos.x > -ScenarioPlacementRadius) &&
+                            (futurePos.z < ScenarioPlacementRadius && futurePos.z > -ScenarioPlacementRadius))
+                        {
+                            _objectToDrag.position = futurePos;
+                        }
+                    }
                 }
             }
 

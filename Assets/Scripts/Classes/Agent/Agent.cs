@@ -9,7 +9,6 @@ namespace Assets.Scripts.Classes.Agent
 {
     public class Agent
     {
-        private readonly List<InstanceAgentPiece> _newPartListeners;
         private readonly Dictionary<string, Piece> _pieces;
         private readonly Dictionary<string, PieceUIManager> _piecesUIManagers;
         private int _currentPieceIndex = 0;
