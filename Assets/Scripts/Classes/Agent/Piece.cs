@@ -63,7 +63,7 @@ namespace Assets.Scripts.Classes.Agent
             {
                 cubePrefab.name = Name;
                 cubePrefab.tag = "Cube";
-                cubePrefab.transform.parent = _root.transform;
+                cubePrefab.transform.SetParent(_root.transform, false);
                 
             }
             else

@@ -85,6 +85,7 @@ namespace Assets.Scripts.Layout
 
         private int pages;
 
+
         protected Vector3 positionOnDragStart;
 
         [Tooltip("Button to go to the previous page. (optional)")] public Button prevButton;

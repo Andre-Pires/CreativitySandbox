@@ -7,15 +7,9 @@ namespace Assets.Scripts.Classes.Helpers
 {
     public enum Scenario
     {
-        ForestDay,
-        ForestNight,
-        ForestDusk,
-        CityDay,
-        CityNight,
-        CityDusk,
-        BlankDay,
-        BlankNight,
-        BlankDusk
+        SoftBlankSet,
+        SpikyBlankSet,
+        SkylineBlankSet
     }
 
     public class Constants
@@ -34,7 +28,6 @@ namespace Assets.Scripts.Classes.Helpers
 
         //set related constants
         public Dictionary<Scenario, string> ScenarioPath;
-        public Dictionary<Scenario, Material> ScenarioSkybox;
 
         public static string ScenarioCameraMode = "Fixada no cenário";
         public static string CharacterCameraMode = "Segue o personagem";
@@ -69,32 +62,9 @@ namespace Assets.Scripts.Classes.Helpers
 
             ScenarioPath = new Dictionary<Scenario, string>
             {
-                {Scenario.ForestDay, "Prefabs/Forest/ForestSet(Clear)"},
-                {Scenario.ForestNight, "Prefabs/Forest/ForestSet(Night)"},
-                {Scenario.ForestDusk, "Prefabs/Forest/ForestSet(Dusk)"},
-                {Scenario.CityDay, "Prefabs/City/CitySet(Clear)"},
-                {Scenario.CityNight, "Prefabs/City/CitySet(Night)"},
-                {Scenario.CityDusk, "Prefabs/City/CitySet(Dusk)"},
-                {Scenario.BlankDay, "Prefabs/Blank/BlankSet(Clear)"},
-                {Scenario.BlankNight, "Prefabs/Blank/BlankSet(Night)"},
-                {Scenario.BlankDusk, "Prefabs/Blank/BlankSet(Dusk)"}
-            };
-
-            var skyboxDay = Object.Instantiate(Resources.Load("Skyboxes/sky5x3")) as Material;
-            var skyboxNight = Object.Instantiate(Resources.Load("Skyboxes/sky5x5")) as Material;
-            var skyboxDusk = Object.Instantiate(Resources.Load("Skyboxes/sky5x4")) as Material;
-
-            ScenarioSkybox = new Dictionary<Scenario, Material>
-            {
-                {Scenario.ForestDay, skyboxDay},
-                {Scenario.CityDay, skyboxDay},
-                {Scenario.BlankDay, skyboxDay},
-                {Scenario.ForestNight, skyboxNight},
-                {Scenario.CityNight, skyboxNight},
-                {Scenario.BlankNight, skyboxNight},
-                {Scenario.ForestDusk, skyboxDusk},
-                {Scenario.CityDusk, skyboxDusk},
-                {Scenario.BlankDusk, skyboxDusk}
+                {Scenario.SoftBlankSet, "Prefabs/SoftBlank/SoftBlankSet"},
+                {Scenario.SpikyBlankSet, "Prefabs/SpikyBlank/SpikyBlankSet"},
+                {Scenario.SkylineBlankSet, "Prefabs/SkylineBlank/SkylineBlankSet"},
             };
         }
 

@@ -14,6 +14,9 @@ namespace Assets.Scripts.Classes.UI
         private GameObject _audioRecordingStartInfo;
         private GameObject _audioRecordingStoppedInfo;
         public GameObject AvailableAgentPiecesList;
+        public GameObject ColorMenuCloseButton;
+        public GameObject SkyboxColorPicker;
+        public GameObject SetColorPicker;
 
         private bool _recordingStoppedInfoTimeout;
 
@@ -40,22 +43,29 @@ namespace Assets.Scripts.Classes.UI
             _audioRecordingStartInfo = GameObject.Find("AudioRecordingWarning").gameObject;
             _audioRecordingStoppedInfo = GameObject.Find("AudioRecordingSuccessful").gameObject;
             AvailableAgentPiecesList = GameObject.Find("AvailableAgentPieces/Image/List").gameObject;
+            SetColorPicker = GameObject.Find("SetColors").gameObject;
+            SkyboxColorPicker = GameObject.Find("SkyboxColors").gameObject;
+            ColorMenuCloseButton = GameObject.Find("Scenario Color controls/CloseButton").gameObject;
         }
+
 
         // ReSharper disable once InconsistentNaming
         //necessary since if gameObjects start inactive their associated scripts aren't accessible
         public void SetupUI()
         {
             GameObject.Find("MainMenu").gameObject.SetActive(false);
-            GameObject.Find("ForestSetup").gameObject.SetActive(false);
-            GameObject.Find("CitySetup").gameObject.SetActive(false);
-            GameObject.Find("BlankSetup").gameObject.SetActive(false);
-            GameObject.Find("Pause").gameObject.SetActive(false);
+            //GameObject.Find("ForestSetup").gameObject.SetActive(false);
+            //GameObject.Find("CitySetup").gameObject.SetActive(false);
+            //GameObject.Find("SoftBlankSetup").gameObject.SetActive(false);
             GameObject.Find("RecordingControls").gameObject.SetActive(false);
             GameObject.Find("SceneSelector").gameObject.SetActive(false);
 
+
             _audioRecordingStartInfo.SetActive(false);
             _audioRecordingStoppedInfo.SetActive(false);
+            SetColorPicker.SetActive(false);
+            SkyboxColorPicker.SetActive(false);
+            ColorMenuCloseButton.SetActive(false);
         }
 
         public void DisplayRecordingStarted()

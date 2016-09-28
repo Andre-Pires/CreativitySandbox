@@ -34,7 +34,7 @@ namespace Assets.Scripts.Classes.Agent
         public void AddBlankComponent()
         {
             var numberOfSizes = Configuration.Instance.SizeValues.Count;
-            var pieceName = Constants.CharacterName + _currentPieceIndex;
+            var pieceName = Constants.CharacterName + " " + _currentPieceIndex;
             _currentPieceIndex++;
 
             Piece newPiece = new Piece(pieceName, Configuration.Personality.CustomPersonality,
@@ -49,7 +49,7 @@ namespace Assets.Scripts.Classes.Agent
         public void AddCloneComponent(Piece piece)
         {
             var numberOfSizes = Configuration.Instance.SizeValues.Count;
-            var pieceName = Constants.CharacterName + _currentPieceIndex;
+            var pieceName = Constants.CharacterName + " " + _currentPieceIndex;
             _currentPieceIndex++;
 
             //

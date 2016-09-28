@@ -94,8 +94,6 @@ namespace Assets.Scripts.Classes.Agent
             _body.GetComponent<Renderer>().material.color = Color;
 
             //using size's enum index to select correct multiplier
-            _body.localScale = Vector3.one*Configuration.Instance.SizeValues[size];
-            _body.localPosition = new Vector3(_body.position.x, _body.GetComponent<Renderer>().bounds.extents.y, _body.position.z);
             Size = size;
             Debug.Log("pos " + _body.localPosition);
 
@@ -148,8 +146,6 @@ namespace Assets.Scripts.Classes.Agent
             BlinkColor = body.BlinkColor;
            
             //using size's enum index to select correct multiplier
-            _body.localScale = Vector3.one * Configuration.Instance.SizeValues[body.Size];
-            _body.localPosition = new Vector3(_body.position.x, _body.GetComponent<Renderer>().bounds.extents.y, _body.position.z);
             Size = body.Size;
 
             //place cube in a vacant position in the set

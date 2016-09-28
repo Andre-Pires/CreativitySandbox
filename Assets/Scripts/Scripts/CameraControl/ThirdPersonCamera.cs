@@ -1,10 +1,16 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Assets.Scripts.Classes.Agent;
+using Assets.Scripts.Classes.Helpers;
+using Assets.Scripts.Classes.UI;
 using UnityEngine;
+using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
 
 namespace Assets.Scripts.Scripts.CameraControl
 {
+    public enum ActiveCameraMode { BirdEye, FollowCharacter, ColorPicker}
+
     public class ThirdPersonCamera : MonoBehaviour
     {
         private const float MIN_Y_ANGLE = 10.0f;
@@ -13,7 +19,9 @@ namespace Assets.Scripts.Scripts.CameraControl
         private const float MAX_ZOOM = 75.0f;
         private const float BIRD_EYE_VIEW_DIST = 50.0f;
 
-        private bool _birdEyeViewActive = true;
+        private ActiveCameraMode _currentCameraMode = ActiveCameraMode.BirdEye;
+        private ActiveCameraMode _lastCameraMode;
+        private Transform _lastCameraTransformation;
 
         private Camera _camera;
 
@@ -32,6 +40,7 @@ namespace Assets.Scripts.Scripts.CameraControl
         private readonly float _touchZoomSensitivity = 25.0f;
         public Transform BirdViewLookAt;
         public Transform CloseUpLookAt;
+        public Transform ColorLookAt;
 
         private float currentDistance = 50.0f;
         private float currentX;
@@ -56,7 +65,11 @@ namespace Assets.Scripts.Scripts.CameraControl
             _lookAtInUse = BirdViewLookAt;
 
             //register listener from camera mode switch
-            UI.ChangeCameraMode.Instance.OnSelect += ChangeCameraMode;
+            UI.ChangeCameraMode.Instance.OnSelect += ToggleCameraMode;
+
+            GameObject.Find("OpenScenarioColors").GetComponent<Button>().onClick.AddListener(ToggleColorPickerCameraMode);
+            AppUIManager.Instance.ColorMenuCloseButton.GetComponent<Button>().onClick.AddListener(ToggleColorPickerCameraMode);
+            ColorLookAt = GameObject.Find("ColorLookAt").GetComponent<Transform>();
         }
 
         private void Update()
@@ -66,15 +79,18 @@ namespace Assets.Scripts.Scripts.CameraControl
                 BirdViewLookAt = GameObject.FindGameObjectWithTag("Scenario").transform;
             }
 
-#if UNITY_ANDROID
+            if (_currentCameraMode != ActiveCameraMode.ColorPicker)
+            {
+            #if UNITY_ANDROID
             HandleTouchInput();
-#endif
+            #endif
 
-#if (UNITY_STANDALONE || UNITY_EDITOR)
+            #if (UNITY_STANDALONE || UNITY_EDITOR)
             HandleMouseInput();
-#endif
+            #endif
+            }
 
-            if (!_birdEyeViewActive)
+            if (_currentCameraMode == ActiveCameraMode.FollowCharacter)
             {
                 CheckLookAtChange();
             }
@@ -105,7 +121,7 @@ namespace Assets.Scripts.Scripts.CameraControl
             }
 
             //only when allowing changing lookat and zooming
-            if (!_birdEyeViewActive)
+            if (_currentCameraMode == ActiveCameraMode.FollowCharacter)
             {
                 //zoom camera
                 if (Input.touchCount == 2 &&
@@ -146,7 +162,7 @@ namespace Assets.Scripts.Scripts.CameraControl
             }
 
             //only when allowing changing lookat and zooming
-            if (!_birdEyeViewActive)
+            if (_currentCameraMode == ActiveCameraMode.FollowCharacter)
             {
                 currentDistance += Input.GetAxis("Mouse ScrollWheel")*zoomSensitivity;
                 currentDistance = Mathf.Clamp(currentDistance, MIN_ZOOM, MAX_ZOOM);
@@ -172,14 +188,17 @@ namespace Assets.Scripts.Scripts.CameraControl
 
         private void LateUpdate()
         {
-            if (_birdEyeViewActive)
+            switch (_currentCameraMode)
             {
-                _lookAtInUse = BirdViewLookAt;
-            }
-            else
-            {
-                // ReSharper disable once ConvertConditionalTernaryToNullCoalescing
-                _lookAtInUse = CloseUpLookAt == null ? BirdViewLookAt : CloseUpLookAt;
+                case ActiveCameraMode.ColorPicker:
+                    _lookAtInUse = ColorLookAt;
+                    break;
+                case ActiveCameraMode.BirdEye:
+                    _lookAtInUse = BirdViewLookAt;
+                    break;
+                default:
+                    _lookAtInUse = CloseUpLookAt == null ? BirdViewLookAt : CloseUpLookAt;
+                    break;
             }
 
             if (_lookAtInUse == null)
@@ -189,7 +208,7 @@ namespace Assets.Scripts.Scripts.CameraControl
             }
 
             //if the lookat isn't static check if it's moving and don't move if it is
-            if (!_birdEyeViewActive && _lookAtInUse.tag == "Cube")
+            if (_currentCameraMode == ActiveCameraMode.FollowCharacter && _lookAtInUse.tag == "Cube")
             {
                 if (_lookAtInUse.gameObject.GetComponent<Body>().Dragging)
                 {
@@ -203,8 +222,19 @@ namespace Assets.Scripts.Scripts.CameraControl
             var lookAtSpeed = 6.0f; //This will determine lookAt speed
 
             var dir = new Vector3(0, 0, -currentDistance);
-            var rotation = Quaternion.Slerp(_camera.transform.rotation, Quaternion.Euler(currentY, currentX, 0),
+            var rotation = Quaternion.identity;
+
+            if (_currentCameraMode == ActiveCameraMode.ColorPicker)
+            {
+                rotation = Quaternion.Slerp(_camera.transform.rotation, Quaternion.identity, 
+                rotationSpeed * Time.deltaTime);
+            }
+            else
+            {
+                rotation = Quaternion.Slerp(_camera.transform.rotation, Quaternion.Euler(currentY, currentX, 0),
                 rotationSpeed*Time.deltaTime);
+            }
+
             _camera.transform.position = Vector3.Lerp(_camera.transform.position, _lookAtInUse.position + rotation*dir,
                 translationSpeed*Time.deltaTime);
 
@@ -213,13 +243,45 @@ namespace Assets.Scripts.Scripts.CameraControl
                 Quaternion.LookRotation(direction, Vector3.up), lookAtSpeed*Time.deltaTime);
         }
 
-        public void ChangeCameraMode()
+        public void ToggleCameraMode()
         {
-            _birdEyeViewActive = !_birdEyeViewActive;
+            switch (_currentCameraMode)
+            {
+                case ActiveCameraMode.BirdEye:
+                    _currentCameraMode = ActiveCameraMode.FollowCharacter;
+                    break;
+                case ActiveCameraMode.FollowCharacter:
+                    _currentCameraMode = ActiveCameraMode.BirdEye;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
-            if (_birdEyeViewActive)
+            if (_currentCameraMode == ActiveCameraMode.BirdEye)
             {
                 currentDistance = BIRD_EYE_VIEW_DIST;
+            }
+        }
+
+        public void ToggleColorPickerCameraMode()
+        {
+            switch (_currentCameraMode)
+            {
+                case ActiveCameraMode.FollowCharacter:
+                case ActiveCameraMode.BirdEye:
+                    _lastCameraMode = _currentCameraMode;
+                    _lastCameraTransformation = Camera.main.transform;
+                    _currentCameraMode = ActiveCameraMode.ColorPicker;
+                    Debug.Log("Color camera");
+                    break;
+                case ActiveCameraMode.ColorPicker:
+                    _currentCameraMode = _lastCameraMode;
+                    Camera.main.transform.position = _lastCameraTransformation.position;
+                    Camera.main.transform.rotation = _lastCameraTransformation.rotation;
+                    Debug.Log("Standard camera");
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }

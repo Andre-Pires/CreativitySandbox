@@ -68,7 +68,7 @@ namespace Assets.Scripts.Classes.Helpers
 
         public static void PlaceNewGameObject(Transform transform, Vector3 startPosition, float placementRadius)
         {
-            var prefabBounds = GetChildRendererBounds(transform.gameObject);
+            var prefabBounds = transform.gameObject.GetComponent<Renderer>().bounds;
             var clearPosition = false;
             var position = Vector3.one;
             //to avoid infinite loops

@@ -17,7 +17,6 @@ namespace Assets.Scripts.Classes.IO
         public float OverlayOpacity = 0.2f;
         private const string FileName = "image";
         private const string FileExtension = ".png";
-        private const string TextureExtension = ".t2d";
         private string _filePath = Constants.ImageFilePath;
 
         private GameObject _screenFlashPanel;
@@ -35,10 +34,7 @@ namespace Assets.Scripts.Classes.IO
         public void Start()
         {
             TakeSnapshot.Instance.OnSelect += TakeSingleSnapshot;
-            StartVideoRecording.Instance.OnSelect += StartRecordingMovie;
-            PauseVideoRecording.Instance.OnSelect += PauseRecordingMovie;
             ClearVideoRecordings.Instance.OnSelect += ClearMovieRecordings;
-            //SaveVideoRecordings.Instance.OnSelect += EncodeRecordedImages;
 
             _screenFlashPanel = GameObject.Find("ScreenFlash");
             if (_screenFlashPanel == null)
@@ -140,10 +136,6 @@ namespace Assets.Scripts.Classes.IO
             string fileName = _filePath + FileName + _numberOfShots + FileExtension;
             byte[] bytes = _latestScreenshot.EncodeToPNG();
 
-            //TODO - rollback if needed - saves to a texture file
-            /*string fileName = _filePath + FileName + _numberOfShots + TextureExtension;
-            byte[] bytes = _latestScreenshot.GetRawTextureData();*/
-
             new System.Threading.Thread(() =>
             {
                 File.WriteAllBytes(fileName, bytes);
@@ -174,9 +166,9 @@ namespace Assets.Scripts.Classes.IO
         }
 
 
-        //TODO - constantly doing this, should only do on screen resize
         public void Update()
         {
+            //TODO - constantly doing this, should only do on screen resize
             _rect = new Rect(0, 0, Screen.width, Screen.height);
 
             HandleScreenFlash();
@@ -186,42 +178,7 @@ namespace Assets.Scripts.Classes.IO
         {
             //removing listeners when destroyed
             TakeSnapshot.Instance.OnSelect -= TakeSingleSnapshot;
-            StartVideoRecording.Instance.OnSelect -= StartRecordingMovie;
-            PauseVideoRecording.Instance.OnSelect -= PauseRecordingMovie;
             ClearVideoRecordings.Instance.OnSelect -= ClearMovieRecordings;
-            //SaveVideoRecordings.Instance.OnSelect -= EncodeRecordedImages;
-        }
-
-
-        public void EncodeRecordedImages()
-        {
-            DirectoryInfo directory = new DirectoryInfo(_filePath);
-            Texture2D t = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
-            int currentShot = 0;
-            foreach (FileInfo file in directory.GetFiles())
-            {
-                //ignore already encoded screenshots
-                if (Path.GetExtension(file.DirectoryName + file.Name) == FileExtension)
-                {
-                    continue;
-                }
-
-                t.LoadRawTextureData(File.ReadAllBytes(_filePath + file.Name));
-                byte[] bytes = t.EncodeToJPG();
-
-                //extracting the index of the current file
-                string resultString = Regex.Match(file.Name, @"\d+").Value;
-                var shot = Int32.Parse(resultString);
-                new System.Threading.Thread(() =>
-                {
-                    File.WriteAllBytes(_filePath + FileName + shot + FileExtension, bytes);
-                    System.Threading.Thread.Sleep(100);
-                }).Start();
-                file.Delete();
-
-                currentShot++;
-            }
-            Debug.Log(string.Format("Took " + currentShot+ " screenshot(s) to: {0}", _filePath));
         }
 
         // ReSharper disable once InconsistentNaming

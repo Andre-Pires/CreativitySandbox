@@ -172,7 +172,7 @@ namespace Assets.Scripts.Classes.UI
                 // Give the component some time for initialization, otherwise the ScrollSnap script misbehaves
                 new Thread(() =>
                 {
-                    Thread.Sleep(100);
+                    Thread.Sleep(200);
                     _isReadyForIndexUpdate = true;
                 }).Start();
 

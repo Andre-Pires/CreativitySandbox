@@ -31,6 +31,7 @@ namespace Assets.Scripts.Layout
         //private int elementsDistance;
         private int minElementsNum;
         private string result;
+        public bool DeactivateOtherButtons;
 
         [Tooltip("Button to go to the previous page. (optional)")] public GameObject ScrollDownButton;
 
@@ -145,11 +146,19 @@ namespace Assets.Scripts.Layout
 
             for (var i = 0; i < elementLength; i++)
             {
-                _arrayOfElements[i].GetComponent<CanvasGroup>().interactable = false;
+                if (DeactivateOtherButtons)
+                {
+                    _arrayOfElements[i].GetComponent<CanvasGroup>().interactable = false;
+                }
+
                 if (minDistance == distance[i])
                 {
                     minElementsNum = i;
-                    _arrayOfElements[i].GetComponent<CanvasGroup>().interactable = true;
+
+                    if (DeactivateOtherButtons)
+                    {
+                        _arrayOfElements[i].GetComponent<CanvasGroup>().interactable = true;
+                    }
                     result = _arrayOfElements[i].GetComponentInChildren<Text>().text;
                 }
             }

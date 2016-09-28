@@ -22,9 +22,7 @@ namespace Assets.Scripts.Scripts.UI
         {
             //place the picked set in our scene
             var set = Instantiate(Resources.Load(Constants.Instance.ScenarioPath[scenario])) as GameObject;
-            set.transform.parent = GameObject.Find("Scene").transform;
-
-            Camera.main.gameObject.GetComponent<Skybox>().material = Constants.Instance.ScenarioSkybox[scenario];
+            set.transform.SetParent(GameObject.Find("Scene").transform, false);
 
             Destroy(GameObject.FindGameObjectWithTag("Scenario"));
         }
