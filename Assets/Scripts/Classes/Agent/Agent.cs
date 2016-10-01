@@ -4,6 +4,7 @@ using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.UI;
 using Assets.Scripts.Scripts.UI;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.Classes.Agent
 {
@@ -21,7 +22,6 @@ namespace Assets.Scripts.Classes.Agent
 
             _pieces = new Dictionary<string, Piece>();
             _piecesUIManagers = new Dictionary<string, PieceUIManager>();
-
         }
 
         public void Update()
@@ -85,6 +85,11 @@ namespace Assets.Scripts.Classes.Agent
             _pieces.Clear();
 
             _currentPieceIndex = 0;
+        }
+
+        public void ToggleAgentVisibility()
+        {
+            _piecesUIManagers.ToList().ForEach(p => p.Value.TogglePieceVisibility());
         }
 
         public void OnDrawGizmos()

@@ -11,6 +11,7 @@
 /// - replaced pagination with delegate function
 
 using System;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -105,20 +106,12 @@ namespace Assets.Scripts.Layout
 
         public event PageSnapChange onPageChange;
 
-        private bool _alreadyInitialized;
+        public bool AlreadyInitialized;
 
         // Use this for initialization
         private void Awake()
         {
-            if (_alreadyInitialized)
-            {
-                return;
-            }
-            else
-            {
-                _alreadyInitialized = true;
-            }
-
+            
             lerp = false;
 
             scrollRect = gameObject.GetComponent<ScrollRect>();
@@ -225,7 +218,7 @@ namespace Assets.Scripts.Layout
                         activeCount++;
                     }
                 }
-
+                
                 // if anything changed since last check reinitialize anchors list
                 itemsCount = 0;
                 Array.Resize(ref pageAnchorPositions, activeCount);
@@ -345,6 +338,16 @@ namespace Assets.Scripts.Layout
             UpdateListItemsSize();
             UpdateListItemPositions();
 
+            //NOTE: verificar se as paginas já podem ser actualizadas
+            if (pages != 0)
+            {
+                new Thread(() =>
+                {
+                    Thread.Sleep(200);
+                    AlreadyInitialized = true;
+                }).Start();
+            }
+
             if (lerp)
             {
                 UpdateScrollbar(false);
@@ -462,6 +465,7 @@ namespace Assets.Scripts.Layout
 
                 PageChanged(page);
             }
+
         }
 
         //changes the bullets on the bottom of the page - pagination

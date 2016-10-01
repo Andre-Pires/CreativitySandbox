@@ -9,7 +9,8 @@ namespace Assets.Scripts.Classes.Helpers
     {
         SoftBlankSet,
         SpikyBlankSet,
-        SkylineBlankSet
+        SkylineBlankSet,
+        StraightBlankSet
     }
 
     public class Constants
@@ -65,6 +66,7 @@ namespace Assets.Scripts.Classes.Helpers
                 {Scenario.SoftBlankSet, "Prefabs/SoftBlank/SoftBlankSet"},
                 {Scenario.SpikyBlankSet, "Prefabs/SpikyBlank/SpikyBlankSet"},
                 {Scenario.SkylineBlankSet, "Prefabs/SkylineBlank/SkylineBlankSet"},
+                {Scenario.StraightBlankSet, "Prefabs/StraightBlank/StraightBlankSet"}
             };
         }
 

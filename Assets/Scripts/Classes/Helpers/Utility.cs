@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Assets.Scripts.Classes.Helpers
 {
@@ -21,6 +22,12 @@ namespace Assets.Scripts.Classes.Helpers
 
         public bool CheckIfClicked(Transform transform, int layerMask = -1, Vector3 position = new Vector3())
         {
+            //In case the user is handling the UI ignore the input
+            if (EventSystem.current.IsPointerOverGameObject())
+            {
+                return false;
+            }
+
             if (position == new Vector3())
             {
                 _ray = Camera.main.ScreenPointToRay(Input.mousePosition);

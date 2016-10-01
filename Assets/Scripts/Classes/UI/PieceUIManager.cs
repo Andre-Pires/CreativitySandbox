@@ -29,7 +29,7 @@ namespace Assets.Scripts.Classes.UI
         private Dictionary<string, int> _pieceBlinkTypeIndex;
         private GameObject _pieceBlinkSpeedList;
         private Dictionary<string, int> _pieceBlinkSpeedIndex;
-        private bool _isReadyForIndexUpdate;
+        private bool _alreadyInitialized;
 
         //double click - to show settings popup
         private bool _popupActive = true;
@@ -113,7 +113,7 @@ namespace Assets.Scripts.Classes.UI
                             UpdatePieceIcon();
 
                         });
-                        item.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Buttons/AgentColor");
+                        item.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Agent/Small");
                         item.GetComponent<Image>().color = tempColor;
                         item.GetComponentInChildren<Text>().text = "";
                         item.GetComponent<RectTransform>().SetParent(listObject.transform, false);
@@ -169,12 +169,6 @@ namespace Assets.Scripts.Classes.UI
                     }
                 }
 
-                // Give the component some time for initialization, otherwise the ScrollSnap script misbehaves
-                new Thread(() =>
-                {
-                    Thread.Sleep(200);
-                    _isReadyForIndexUpdate = true;
-                }).Start();
 
                 // Since there's no way to raycast UI properly, a clickable backdrop was 
                 // added to close the popup - a fixed resolution is sufficient for our application
@@ -193,9 +187,14 @@ namespace Assets.Scripts.Classes.UI
             _instancingButton.name = _piece.Name + "_Button";
             _instancingButton.GetComponentInChildren<Text>().text = _piece.Name;
             Utility.GetChild(_instancingButton, "DeleteAgent").GetComponent<Button>().onClick.AddListener(DestroyPiece);
-            _instancingButton.GetComponent<Button>().onClick.AddListener(() => _cubeObject.SetActive(_cubeObject.activeSelf != true));
+            _instancingButton.GetComponent<Button>().onClick.AddListener(TogglePieceVisibility);
             _instancingButton.transform.SetParent(_availableAgentPiecesList.transform, false);
             UpdatePieceIcon();
+        }
+
+        public void TogglePieceVisibility()
+        {
+            _cubeObject.SetActive(_cubeObject.activeSelf != true);
         }
 
         public void DestroyPiece()
@@ -223,10 +222,20 @@ namespace Assets.Scripts.Classes.UI
                 screenPos.y += popupSize;
                 _settingsPopup.transform.position = screenPos;
 
-                if (_isReadyForIndexUpdate)
+                if (!_alreadyInitialized)
                 {
-                    UpdateSettingsIndex();
-                    _isReadyForIndexUpdate = false;
+                    bool componentsInitialized = _pieceSizeList.GetComponent<ScrollSnap>().AlreadyInitialized;
+                    componentsInitialized = componentsInitialized && _pieceColorList.GetComponent<ScrollSnap>().AlreadyInitialized;
+                    componentsInitialized = componentsInitialized &&
+                                            _pieceBlinkTypeList.GetComponent<ScrollSnap>().AlreadyInitialized;
+                    componentsInitialized = componentsInitialized &&
+                                            _pieceBlinkSpeedList.GetComponent<ScrollSnap>().AlreadyInitialized;
+
+                    if (componentsInitialized)
+                    {
+                        UpdateSettingsIndex();
+                        _alreadyInitialized = true;
+                    }
                 }
                 return;
             }

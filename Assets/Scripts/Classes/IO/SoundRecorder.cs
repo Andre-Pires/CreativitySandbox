@@ -23,7 +23,7 @@ namespace Assets.Scripts.Classes.IO
         private Transform _speechButton;
 
         private string _recordingName;
-        
+
         public SoundRecorder(string name, GameObject cubePrefab, GameObject root)
         {
             _recordingName = name;
@@ -68,7 +68,6 @@ namespace Assets.Scripts.Classes.IO
             {
                 _firstClick = true;
                 _initialTime = Time.time;
-
                 return;
             }
 

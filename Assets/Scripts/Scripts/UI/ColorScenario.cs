@@ -19,7 +19,7 @@ namespace Assets.Scripts.Scripts.UI
         private Dictionary<string, int> _setColorPickerIndex;
         private Dictionary<string, int> _skyboxColorPickerIndex;
         private List<GameObject> _setColorButtons;
-        private bool _isReadyForIndexUpdate;
+        private bool _alreadyInitialized;
 
         // Use this for initialization
         private void Start()
@@ -36,6 +36,7 @@ namespace Assets.Scripts.Scripts.UI
             Utility.GetChild(gameObject, "OpenScenarioColors").GetComponent<Button>().onClick.AddListener(UpdateToInUseColor);
         }
 
+        
         // Update is called once per frame
         public void Update()
         {
@@ -45,10 +46,18 @@ namespace Assets.Scripts.Scripts.UI
                 UpdateColorPickers();
             }
 
-            if (_isReadyForIndexUpdate)
+            if (!_alreadyInitialized)
             {
-                UpdateToInUseColor();
-                _isReadyForIndexUpdate = false;
+                
+                bool bothScrollSnapsWereInitialized =
+                    Utility.GetChild(_setColorPicker, "SetColorPicker").GetComponent<ScrollSnap>().AlreadyInitialized &&
+                    Utility.GetChild(_skyboxColorPicker, "SkyboxColorPicker").GetComponent<ScrollSnap>().AlreadyInitialized;
+
+                if (bothScrollSnapsWereInitialized)
+                {
+                    UpdateToInUseColor();
+                    _alreadyInitialized = true;
+                }
             }
         }
 
@@ -157,7 +166,9 @@ namespace Assets.Scripts.Scripts.UI
                 }
             }
 
-            
+            //A non-clickable backdrop was added to block raycasting
+            GameObject closeBackdrop = Utility.GetChild(gameObject, "Background");
+            closeBackdrop.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.height);
         }
     }
 }

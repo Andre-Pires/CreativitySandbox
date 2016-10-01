@@ -95,8 +95,6 @@ namespace Assets.Scripts.Classes.Agent
 
             //using size's enum index to select correct multiplier
             Size = size;
-            Debug.Log("pos " + _body.localPosition);
-
 
             //place cube in a vacant position in the set
             Utility.PlaceNewGameObject(_body, Vector3.zero, ScenarioPlacementRadius);
