@@ -194,7 +194,7 @@ namespace Assets.Scripts.Classes.UI
 
         public void TogglePieceVisibility()
         {
-            _cubeObject.SetActive(_cubeObject.activeSelf != true);
+            _piece.ToggleVisibility();
         }
 
         public void DestroyPiece()

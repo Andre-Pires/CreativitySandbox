@@ -84,7 +84,7 @@ namespace Assets.Scripts.Classes.IO
                     }
             if (Microphone.devices.Length < 2 && _micSelected == false)
             {
-//If there is only 1 decive make it default
+                //If there is only 1 device make it default
                 SelectedDevice = Microphone.devices[0];
                 GetMicCaps();
                 _micSelected = true;
@@ -106,8 +106,6 @@ namespace Assets.Scripts.Classes.IO
             {
             } // Wait until the recording has started
 
-            //For debugging purposes - Play the audio source!
-            //_audio.Play();
             _ramFlushStartTime = Time.time;
         }
 
@@ -165,7 +163,7 @@ namespace Assets.Scripts.Classes.IO
                 else if (!Microphone.IsRecording(selectedDevice))
                     StartMicrophone();
             }
-            
+
         }
         //Constant Speak!!
         if (micControl == micActivation.ConstantSpeak)

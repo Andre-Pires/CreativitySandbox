@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.IO;
 using Assets.Scripts.Classes.UI;
@@ -77,6 +78,17 @@ namespace Assets.Scripts.Classes.Agent
         {
             Body.Update();
             _soundRecorder.Update();
+        }
+
+        public void ToggleVisibility()
+        {
+            //check if piece is recording and stop recording before hiding it
+            if (_soundRecorder.IsRecording)
+            {
+                _soundRecorder.StopRecording();
+            }
+
+            _cubeObject.SetActive(_cubeObject.activeSelf != true);
         }
 
         public void OnDrawGizmos()

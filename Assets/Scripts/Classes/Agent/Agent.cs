@@ -48,7 +48,6 @@ namespace Assets.Scripts.Classes.Agent
         //create an initial component with random settings
         public void AddCloneComponent(Piece piece)
         {
-            var numberOfSizes = Configuration.Instance.SizeValues.Count;
             var pieceName = Constants.CharacterName + " " + _currentPieceIndex;
             _currentPieceIndex++;
 
