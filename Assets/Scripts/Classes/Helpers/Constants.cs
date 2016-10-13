@@ -32,7 +32,8 @@ namespace Assets.Scripts.Classes.Helpers
 
         public static string ScenarioCameraMode = "Fixada no cenário";
         public static string CharacterCameraMode = "Segue o personagem";
-        public static string CharacterName = "Cubo";
+        //in case a name needs to be added
+        public static string CharacterName = "";
 
         // Singleton 	
         private static Constants _instance;

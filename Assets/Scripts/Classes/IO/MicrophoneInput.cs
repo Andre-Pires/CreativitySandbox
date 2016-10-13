@@ -37,6 +37,7 @@ namespace Assets.Scripts.Classes.IO
         public float Sensitivity = 100;
 
         [Range(0, 100)] public float SourceVolume = 100; //Between 0 and 100
+        public int ClipMaxLength = 60;
 
         //
         public string SelectedDevice { get; private set; }
@@ -101,7 +102,7 @@ namespace Assets.Scripts.Classes.IO
 
         public void StartMicrophone()
         {
-            _audio.clip = Microphone.Start(SelectedDevice, true, 30, _maxFreq); //Starts recording
+            _audio.clip = Microphone.Start(SelectedDevice, true, ClipMaxLength, _maxFreq); //Starts recording
             while (!(Microphone.GetPosition(SelectedDevice) > 0))
             {
             } // Wait until the recording has started

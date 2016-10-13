@@ -13,8 +13,9 @@ namespace Assets.Scripts.Classes.IO
         private float _initialTime;
         private bool _firstClick;
         private const float ClickInterval = 0.6f;
-        private const int MaxNumberOfStoredClips = 1;
+        private const int MaxNumberOfStoredClips = 3;
         private int _currentClipIndex;
+        private float _recordingStartTime;
         public bool IsRecording;
 
         private Dictionary<int, AudioClip> _clips;
@@ -26,9 +27,9 @@ namespace Assets.Scripts.Classes.IO
         private readonly string _recordingName;
 
         //managing playing only a segment
-        private bool _timeToStop;
-        public readonly float MinClipDuration = 0.5f;
-        public readonly float MaxClipDuration = 2.0f;
+        private bool _timeToStopPlaying;
+        public readonly float MinPlaybackDuration = 2.0f;
+        public readonly float MaxPlaybackDuration = 4.0f;
 
         public SoundRecorder(string name, GameObject cubePrefab, GameObject root)
         {
@@ -65,6 +66,8 @@ namespace Assets.Scripts.Classes.IO
                 }
                 else if (Input.GetMouseButtonDown(0) && Utility.Instance.CheckIfClicked(_speechButton))
                 {
+                    //stop playing the current clip
+                    _clipPlayer.Stop();
                     _firstClick = false;
 
                     //check if device's microphone and the piece itself aren't already recording
@@ -87,23 +90,29 @@ namespace Assets.Scripts.Classes.IO
                 return;
             }
 
-            // Single click to stop and start recording
-            if (_clickForPlay || Input.GetMouseButtonDown(0) && Utility.Instance.CheckIfClicked(_speechButton))
+            // Single click to stop and start playing
+            if (!IsRecording && (_clickForPlay || Input.GetMouseButtonDown(0) && Utility.Instance.CheckIfClicked(_speechButton)))
             {
                 //PlayRecording();
                 PlayRecordingSegment();
                 _clickForPlay = false;
             }
+
+            //allow a second so that the recording doesn't overwrite the previous clip
+            if (IsRecording && (Time.time - _recordingStartTime) >= (_micInput.ClipMaxLength - 1.0f))
+            {
+                StopRecording();
+                Debug.Log("Recording maximum time reached at " + (Time.time - _recordingStartTime));
+            }
         }
 
         private void HandleSoundOutputStatus()
         {
-
-            if (_timeToStop)
+            if (_timeToStopPlaying && _clipPlayer.isPlaying)
             {
-                Debug.Log("Cut time now.");
+                Debug.Log("Clip playback stopped.");
                 _clipPlayer.Stop();
-                _timeToStop = false;
+                _timeToStopPlaying = false;
             }
         }
 
@@ -123,6 +132,7 @@ namespace Assets.Scripts.Classes.IO
         {
             _clipPlayer.PlayOneShot(Resources.Load<AudioClip>("Sounds/RecordingStartStop/beepbeep"));
             _micInput.StartMicrophone();
+            _recordingStartTime = Time.time;
             IsRecording = true;
             AppUIManager.Instance.DisplayRecordingStarted();
             Debug.Log("Started recording");
@@ -137,6 +147,7 @@ namespace Assets.Scripts.Classes.IO
                 _clipPlayer.clip = _clips[recordingIndex];
                 _clipPlayer.Play();
                 Debug.Log("Playing recording number " + recordingIndex);
+                Debug.Log("clip has " + _clipPlayer.clip.length + "seconds");
             }
         }
 
@@ -147,11 +158,18 @@ namespace Assets.Scripts.Classes.IO
                 //random range max is exclusive
                 var recordingIndex = Random.Range(0, _clips.Count);
                 _clipPlayer.clip = _clips[recordingIndex];
-                float playTimeSeconds = Random.Range(MinClipDuration, MaxClipDuration);
+                float playTimeSeconds = Random.Range(MinPlaybackDuration, MaxPlaybackDuration);
                 while (_clipPlayer.clip.length < playTimeSeconds)
                 {
                     playTimeSeconds -= 0.5f;
+
+                    if (playTimeSeconds <= 0.0f)
+                    {
+                        playTimeSeconds = _clipPlayer.clip.length;
+                        break;
+                    }
                 }
+
                 float playStartTime = Random.Range(0.0f, _clipPlayer.clip.length - playTimeSeconds);
 
                 Debug.Log("clip has " + _clipPlayer.clip.length + " we start at " + playStartTime + ", the interval is " + playTimeSeconds);
@@ -165,7 +183,7 @@ namespace Assets.Scripts.Classes.IO
                 new Thread(() =>
                 {
                     Thread.Sleep((int) (playTimeSeconds * 1000));
-                    _timeToStop = true;
+                    _timeToStopPlaying = true;
                 }).Start();
 
                 Debug.Log("Playing recording number " + recordingIndex);
