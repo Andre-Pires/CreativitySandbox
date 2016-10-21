@@ -15,8 +15,8 @@ namespace Assets.Scripts.Classes.Agent
     public class Piece
     {
         public string Name { get; set; }
-        private readonly GameObject _root;
-        private readonly GameObject _cubeObject;
+        private GameObject _root;
+        private GameObject _cubeObject;
         public readonly Body Body;
         private SoundRecorder _soundRecorder;
         public Configuration.Personality Personality { get; private set; }
@@ -26,64 +26,65 @@ namespace Assets.Scripts.Classes.Agent
         {
             Personality = piece.Personality;
             Name = name;
-
-            Debug.Log("New agent part added: part " + name + ". " + piece.Body.Size + " size and " + Personality + " personality");
-
-            _root = GameObject.Find("Scene");
-            _cubeObject = Object.Instantiate(Resources.Load("Prefabs/Agent/Cube")) as GameObject;
-            SetupPiecePrefab(_cubeObject);
-
-            _soundRecorder = new SoundRecorder(Name, _cubeObject, _root);
+            PieceComponentInitializer();
 
             _cubeObject.AddComponent<Body>();
             Body = _cubeObject.GetComponent<Body>();
             Body.InitializeParameters(_cubeObject.transform, piece.Body);
+
+            Debug.Log("New agent part added: part " + name + ". " + piece.Body.Size + " size and " + Personality + " personality");
         }
 
         public Piece(string name, Configuration.Personality personality, Configuration.Size size)
         {
-            Debug.Log("New agent part added: part " + name + ". " + size + " size and " + personality + " personality");
-
+            Personality = personality;
             Name = name;
-
-            _root = GameObject.Find("Scene");
-            _cubeObject = Object.Instantiate(Resources.Load("Prefabs/Agent/Cube")) as GameObject;
-            SetupPiecePrefab(_cubeObject);
-
-            _soundRecorder = new SoundRecorder(Name, _cubeObject, _root);
+            PieceComponentInitializer();
 
             _cubeObject.AddComponent<Body>();
             Body = _cubeObject.GetComponent<Body>();
             Body.InitializeParameters(size, _cubeObject.transform, personality);
+
+            Debug.Log("New agent part added: part " + name + ". " + size + " size and " + personality + " personality");
         }
 
-
-        private void SetupPiecePrefab(GameObject cubePrefab)
+        private void PieceComponentInitializer()
         {
-            if (cubePrefab != null)
+            _root = GameObject.Find("Scene");
+            _cubeObject = Object.Instantiate(Resources.Load("Prefabs/Agent/Cube")) as GameObject;
+
+            if (_cubeObject != null)
             {
-                cubePrefab.name = Name;
-                cubePrefab.tag = "Cube";
-                cubePrefab.transform.SetParent(_root.transform, false);
-                
+                _cubeObject.name = Name;
+                _cubeObject.tag = "Cube";
+                _cubeObject.transform.SetParent(_root.transform, false);
             }
             else
             {
                 throw new NullReferenceException("The cube's prefab wasn't properly loaded");
             }
-        }
 
+            if (Configuration.Instance.SoundRecordingActive)
+            {
+                _soundRecorder = new SoundRecorder(Name, _cubeObject, _root);
+                Utility.GetChild(_cubeObject, "3DButton").SetActive(true);
+            }
+        }
 
         public void Update()
         {
             Body.Update();
-            _soundRecorder.Update();
+
+            if (Configuration.Instance.SoundRecordingActive)
+            {
+                _soundRecorder.Update();
+            }
         }
 
         public void ToggleVisibility()
         {
             //check if piece is recording and stop recording before hiding it
-            if (_soundRecorder.IsRecording)
+            if (Configuration.Instance.SoundRecordingActive && _soundRecorder.IsRecording)
             {
                 _soundRecorder.StopRecording();
             }

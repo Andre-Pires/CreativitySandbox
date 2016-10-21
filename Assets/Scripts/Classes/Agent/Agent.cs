@@ -18,7 +18,6 @@ namespace Assets.Scripts.Classes.Agent
         {
             //provide option to clear agent configuration
             CreateAgentPiece.Instance.OnSelect += AddBlankComponent;
-            ClearAgentConfiguration.Instance.OnSelect += EraseCurrentAgent;
 
             _pieces = new Dictionary<string, Piece>();
             _piecesUIManagers = new Dictionary<string, PieceUIManager>();
@@ -51,10 +50,8 @@ namespace Assets.Scripts.Classes.Agent
             var pieceName = Constants.CharacterName + " " + _currentPieceIndex;
             _currentPieceIndex++;
 
-            //
             Piece newPiece = new Piece(pieceName, piece);
             _pieces.Add(pieceName, newPiece);
-            //
 
             PieceUIManager newPieceManager = new PieceUIManager(newPiece, this);
             _piecesUIManagers.Add(pieceName, newPieceManager);

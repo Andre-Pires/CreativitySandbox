@@ -48,24 +48,21 @@ namespace Assets.Scripts.Scripts.CameraControl
         private float sensitivityX = 4.0f;
         private float sensitivityY = 1.0f;
         private readonly float zoomSensitivity = 50.0f;
-        private int _maxWidth = 1920;
-        private int _maxHeight = 1080;
-
+        
         private void Start()
         {
             _camera = Camera.main;
 
-            //in order to reduce the load of taking very high resolution screenshots in higher res devices
-#if UNITY_ANDROID
-            Screen.SetResolution(Mathf.Min(_maxWidth, Screen.width), Mathf.Min(_maxHeight, Screen.height), true);
-#endif
-
+            
             //start looking at the center of the set
             BirdViewLookAt = GameObject.FindGameObjectWithTag("Scenario").transform;
             _lookAtInUse = BirdViewLookAt;
 
-            //register listener from camera mode switch
-            UI.ChangeCameraMode.Instance.OnSelect += ToggleCameraMode;
+            if (Configuration.Instance.CameraMovementActive)
+            {
+                //register listener from camera mode switch
+                UI.ChangeCameraMode.Instance.OnSelect += ToggleCameraMode;
+            }
 
             GameObject.Find("OpenScenarioColors").GetComponent<Button>().onClick.AddListener(ToggleColorPickerCameraMode);
             AppUIManager.Instance.ColorMenuCloseButton.GetComponent<Button>().onClick.AddListener(ToggleColorPickerCameraMode);
@@ -74,6 +71,11 @@ namespace Assets.Scripts.Scripts.CameraControl
 
         private void Update()
         {
+            if (!Configuration.Instance.CameraMovementActive)
+            {
+                return;
+            }
+
             if (BirdViewLookAt == null)
             {
                 BirdViewLookAt = GameObject.FindGameObjectWithTag("Scenario").transform;

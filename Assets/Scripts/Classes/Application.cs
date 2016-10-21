@@ -1,8 +1,11 @@
-﻿using Assets.Scripts.Classes.Helpers;
+﻿#define SOUND_VERSION_ACTIVE
+
+using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.IO;
 using Assets.Scripts.Classes.UI;
 using Assets.Scripts.Scripts.CameraControl;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Assets.Scripts.Classes
 {
@@ -18,7 +21,11 @@ namespace Assets.Scripts.Classes
         {
             //to allow the recording of messages
             _scene = GameObject.Find("Scene");
-            _scene.AddComponent<MicrophoneInput>();
+
+            if (Configuration.Instance.SoundRecordingActive)
+            {
+                _scene.AddComponent<MicrophoneInput>();
+            }
 
             _agent = new Agent.Agent();
 

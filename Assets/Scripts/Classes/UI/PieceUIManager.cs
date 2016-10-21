@@ -19,6 +19,8 @@ namespace Assets.Scripts.Classes.UI
         private readonly GameObject _settingsPopup;
         private readonly GameObject _instancingButton;
         private readonly GameObject _availableAgentPiecesList;
+        private GameObject _deleteAgentButton;
+        private GameObject _hideAgentButton;
 
         //settings popup references
         private GameObject _pieceSizeList;
@@ -184,16 +186,31 @@ namespace Assets.Scripts.Classes.UI
 
         private void SetupInstancingUI()
         {
+            _deleteAgentButton = Utility.GetChild(_instancingButton, "DeleteAgent");
+            _hideAgentButton = Utility.GetChild(_instancingButton, "HideAgent");
+
             _instancingButton.name = _piece.Name + "_Button";
             _instancingButton.GetComponentInChildren<Text>().text = _piece.Name;
-            Utility.GetChild(_instancingButton, "DeleteAgent").GetComponent<Button>().onClick.AddListener(DestroyPiece);
+            _deleteAgentButton.GetComponent<Button>().onClick.AddListener(DestroyPiece);
             _instancingButton.GetComponent<Button>().onClick.AddListener(TogglePieceVisibility);
+            _hideAgentButton.GetComponent<Button>().onClick.AddListener(TogglePieceVisibility);
+
             _instancingButton.transform.SetParent(_availableAgentPiecesList.transform, false);
             UpdatePieceIcon();
         }
 
         public void TogglePieceVisibility()
         {
+            //image that show visibility status of a piece
+            if (_hideAgentButton.GetComponent<Image>().sprite.name == "ShowAgent")
+            {
+                _hideAgentButton.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/ColorfulButtons/HideAgent");
+            }
+            else
+            {
+                _hideAgentButton.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/ColorfulButtons/ShowAgent");
+            }
+
             _piece.ToggleVisibility();
         }
 

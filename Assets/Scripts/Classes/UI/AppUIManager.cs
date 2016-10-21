@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using Assets.Scripts.Classes.Agent;
+using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Scripts.UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +18,8 @@ namespace Assets.Scripts.Classes.UI
         public GameObject ColorMenuCloseButton;
         public GameObject SkyboxColorPicker;
         public GameObject SetColorPicker;
+        public GameObject MovieActScreen;
+        public GameObject ActScreenInput;
 
         private bool _recordingStoppedInfoTimeout;
 
@@ -46,6 +49,8 @@ namespace Assets.Scripts.Classes.UI
             SetColorPicker = GameObject.Find("SetColors").gameObject;
             SkyboxColorPicker = GameObject.Find("SkyboxColors").gameObject;
             ColorMenuCloseButton = GameObject.Find("Scenario Color controls/CloseButton").gameObject;
+            MovieActScreen = GameObject.Find("CreateNewActScreen");
+            ActScreenInput = GameObject.Find("CreateNewActScreen/UserInput");
         }
 
 
@@ -54,18 +59,20 @@ namespace Assets.Scripts.Classes.UI
         public void SetupUI()
         {
             GameObject.Find("MainMenu").gameObject.SetActive(false);
-            //GameObject.Find("ForestSetup").gameObject.SetActive(false);
-            //GameObject.Find("CitySetup").gameObject.SetActive(false);
-            //GameObject.Find("SoftBlankSetup").gameObject.SetActive(false);
-            GameObject.Find("RecordingControls").gameObject.SetActive(false);
             GameObject.Find("SceneSelector").gameObject.SetActive(false);
-
+            GameObject.Find("Settings Menu/Options").gameObject.SetActive(false);
 
             _audioRecordingStartInfo.SetActive(false);
             _audioRecordingStoppedInfo.SetActive(false);
             SetColorPicker.SetActive(false);
             SkyboxColorPicker.SetActive(false);
             ColorMenuCloseButton.SetActive(false);
+            MovieActScreen.SetActive(false);
+
+            if (!Configuration.Instance.CameraMovementActive)
+            {
+                GameObject.Find("CameraModeToggle").SetActive(false);
+            }
         }
 
         public void DisplayRecordingStarted()

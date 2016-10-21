@@ -38,6 +38,9 @@ namespace Assets.Scripts.Classes.Helpers
         private static Configuration _instance;
 
         //NOTE: These parameters can be tweaked from unity's editor
+        public bool SoundRecordingActive;
+        public bool CameraMovementActive;
+
         public List<BlinkingSpeed> AvailableBlinkSpeeds;
         public List<Color> AvailableColors;
         public List<Personality> AvailablePersonalities;
@@ -121,9 +124,9 @@ namespace Assets.Scripts.Classes.Helpers
 
             SizeValues = new Dictionary<Size, float>
             {
-                {Size.Small, 3.0f},
-                {Size.Medium, 4.5f},
-                {Size.Large, 6.0f}
+                {Size.Small, 4.5f},
+                {Size.Medium, 6.0f},
+                {Size.Large, 7.5f}
             };
         }
 

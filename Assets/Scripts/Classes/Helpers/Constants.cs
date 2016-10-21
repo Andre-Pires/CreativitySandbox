@@ -17,11 +17,11 @@ namespace Assets.Scripts.Classes.Helpers
     {
         public Dictionary<Configuration.Personality, string> PersonalitiesStrings;
         public Dictionary<Configuration.BlinkingSpeed, string> SpeedStrings;
-
+        public const string VideoFolderName = "O meu filme";
         //file paths
         public static string ImageFilePath = UnityEngine.Application.platform == RuntimePlatform.Android
-            ? "sdcard/StopMotion/"
-            : "../" + AppDomain.CurrentDomain.BaseDirectory + "/StopMotion/";
+            ? "sdcard/"+ VideoFolderName + "/"
+            : "../" + AppDomain.CurrentDomain.BaseDirectory + "/" + VideoFolderName + "/";
 
         public static string SoundFilePath = UnityEngine.Application.platform == RuntimePlatform.Android
             ? UnityEngine.Application.persistentDataPath + "/ProjectData/Sounds/RecordedMessages/"

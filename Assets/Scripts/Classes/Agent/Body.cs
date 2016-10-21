@@ -104,34 +104,13 @@ namespace Assets.Scripts.Classes.Agent
             //create a list with the colliders of the children and object
             _collidersToIgnore = new List<Collider>();
             _collidersToIgnore.Add(body.gameObject.GetComponent<Collider>());
-            _collidersToIgnore.Add(Utility.GetChild(body.gameObject, "Button").GetComponent<Collider>());
+
+            if (Configuration.Instance.SoundRecordingActive)
+            {
+                _collidersToIgnore.Add(Utility.GetChild(body.gameObject, "Button").GetComponent<Collider>());
+            }
 
             _alreadyInitialized = true;
-        }
-
-        void OnEnable()
-        {
-            if (_alreadyInitialized)
-            {
-                Collider[] hitColliders = Physics.OverlapSphere(_body.localPosition,
-                   transform.GetComponent<Renderer>().bounds.extents.magnitude);
-                int collidersHit = hitColliders.Length;
-
-                foreach (var collider in hitColliders)
-                {
-                    if(_collidersToIgnore.Contains(collider))
-                    {
-                        collidersHit--;
-                    }
-                }
-
-                if (collidersHit > 0)
-                {
-                    //Debug.Log("clear");
-                    //place cube in a vacant position in the set
-                    Utility.PlaceNewGameObject(_body, Vector3.zero, ScenarioPlacementRadius);
-                }
-            }
         }
 
         //Body cloner
@@ -154,7 +133,37 @@ namespace Assets.Scripts.Classes.Agent
             //create a list with the colliders of the children and object
             _collidersToIgnore = new List<Collider>();
             _collidersToIgnore.Add(_body.gameObject.GetComponent<Collider>());
+
+            if (Configuration.Instance.SoundRecordingActive)
+            {
+                _collidersToIgnore.Add(Utility.GetChild(body.gameObject, "Button").GetComponent<Collider>());
+            }
             _collidersToIgnore.Add(Utility.GetChild(_body.gameObject, "Button").GetComponent<Collider>());
+        }
+
+        void OnEnable()
+        {
+            if (_alreadyInitialized)
+            {
+                Collider[] hitColliders = Physics.OverlapSphere(_body.localPosition,
+                   transform.GetComponent<Renderer>().bounds.extents.magnitude);
+                int collidersHit = hitColliders.Length;
+
+                foreach (var collider in hitColliders)
+                {
+                    if (_collidersToIgnore.Contains(collider))
+                    {
+                        collidersHit--;
+                    }
+                }
+
+                if (collidersHit > 0)
+                {
+                    //Debug.Log("clear");
+                    //place cube in a vacant position in the set
+                    Utility.PlaceNewGameObject(_body, Vector3.zero, ScenarioPlacementRadius);
+                }
+            }
         }
 
         public void Update()
@@ -189,7 +198,7 @@ namespace Assets.Scripts.Classes.Agent
             float rotationSpeed; //This will determine rotation speed
             float lerpSpeed; //This will determine lerp speed
 
-            #if UNITY_ANDROID
+#if UNITY_ANDROID
             if (Input.touchCount == 2)
             {
                 var layer = 8;
@@ -222,9 +231,9 @@ namespace Assets.Scripts.Classes.Agent
                 _body.rotation = Quaternion.Slerp(_body.transform.rotation, Quaternion.Euler(0, _currentRotation, 0),
                     lerpSpeed*Time.deltaTime);
             }
-            #endif
+#endif
 
-            #if UNITY_STANDALONE || UNITY_EDITOR
+#if UNITY_STANDALONE || UNITY_EDITOR
             if (Input.GetMouseButton(0))
             {
                 if (Utility.Instance.CheckIfClicked(_body.transform))
@@ -236,7 +245,7 @@ namespace Assets.Scripts.Classes.Agent
                         lerpSpeed*Time.deltaTime);
                 }
             }
-            #endif
+#endif
         }
 
         private void HandleDragging()

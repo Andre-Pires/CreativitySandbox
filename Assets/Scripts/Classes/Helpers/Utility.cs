@@ -23,10 +23,19 @@ namespace Assets.Scripts.Classes.Helpers
         public bool CheckIfClicked(Transform transform, int layerMask = -1, Vector3 position = new Vector3())
         {
             //In case the user is handling the UI ignore the input
+            #if UNITY_ANDROID
+            if (Input.touchCount >= 1 && EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
+            {
+                return false;
+            }
+            #endif
+
+            #if UNITY_STANDALONE || UNITY_EDITOR
             if (EventSystem.current.IsPointerOverGameObject())
             {
                 return false;
             }
+            #endif
 
             if (position == new Vector3())
             {

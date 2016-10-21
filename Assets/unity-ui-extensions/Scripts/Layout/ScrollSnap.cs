@@ -11,6 +11,7 @@
 /// - replaced pagination with delegate function
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -108,12 +109,17 @@ namespace Assets.Scripts.Layout
 
         public bool AlreadyInitialized;
 
+        private List<GameObject> _pageItemGameobjects;
+
+        public bool SelectButtonAutomatically = true;
+
         // Use this for initialization
         private void Awake()
         {
             
             lerp = false;
 
+            _pageItemGameobjects = new List<GameObject>();
             scrollRect = gameObject.GetComponent<ScrollRect>();
             scrollRectTransform = gameObject.GetComponent<RectTransform>();
             listContainerTransform = scrollRect.content;
@@ -211,7 +217,7 @@ namespace Assets.Scripts.Layout
                 // checking how many children of list are active
                 var activeCount = 0;
 
-                foreach (var tr in listContainerTransform)
+                foreach (object tr in listContainerTransform)
                 {
                     if (((Transform) tr).gameObject.activeInHierarchy)
                     {
@@ -244,6 +250,8 @@ namespace Assets.Scripts.Layout
                                 listContainerTransform.localPosition.y,
                                 listContainerTransform.localPosition.z
                                 );
+
+                            _pageItemGameobjects.Add(listContainerTransform.GetChild(i).gameObject);
                         }
                     }
                     else
@@ -264,6 +272,9 @@ namespace Assets.Scripts.Layout
                                 listContainerMinPosition + itemSize*i,
                                 listContainerTransform.localPosition.z
                                 );
+
+                            _pageItemGameobjects.Add(listContainerTransform.GetChild(i).gameObject);
+
                         }
                     }
 
@@ -388,6 +399,7 @@ namespace Assets.Scripts.Layout
                 lerpTarget = pageAnchorPositions[CurrentPage() + 1];
 
                 PageChanged(CurrentPage() + 1);
+                PressButtonIfAvailable(CurrentPage() + 1);
             }
         }
 
@@ -402,8 +414,24 @@ namespace Assets.Scripts.Layout
                 lerpTarget = pageAnchorPositions[CurrentPage() - 1];
 
                 PageChanged(CurrentPage() - 1);
+
+                PressButtonIfAvailable(CurrentPage() - 1);
             }
         }
+
+        public void PressButtonIfAvailable(int buttonIndex)
+        {
+            //NOTE: only works if the user selects a flag 
+            if(!SelectButtonAutomatically) return;
+
+            Button button = _pageItemGameobjects[buttonIndex].GetComponent<Button>();
+
+            if (button != null)
+            {
+                button.onClick.Invoke();
+            }
+        }
+
 
         //Because the CurrentScreen function is not so reliable, these are the functions used for swipes
         private void NextScreenCommand()
@@ -416,6 +444,7 @@ namespace Assets.Scripts.Layout
                 lerpTarget = pageAnchorPositions[targetPage];
 
                 PageChanged(targetPage);
+                PressButtonIfAvailable(targetPage);
             }
         }
 
@@ -430,6 +459,7 @@ namespace Assets.Scripts.Layout
                 lerpTarget = pageAnchorPositions[targetPage];
 
                 PageChanged(targetPage);
+                PressButtonIfAvailable(targetPage);
             }
         }
 
