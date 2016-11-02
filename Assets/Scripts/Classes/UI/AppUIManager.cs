@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using Assets.Scripts.Classes.Agent;
+﻿using System.Threading;
 using Assets.Scripts.Classes.Helpers;
-using Assets.Scripts.Scripts.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,6 +17,7 @@ namespace Assets.Scripts.Classes.UI
         public GameObject SetColorPicker;
         public GameObject MovieActScreen;
         public GameObject ActScreenInput;
+        public GameObject ActScreenSave;
 
         private bool _recordingStoppedInfoTimeout;
 
@@ -50,7 +48,8 @@ namespace Assets.Scripts.Classes.UI
             SkyboxColorPicker = GameObject.Find("SkyboxColors").gameObject;
             ColorMenuCloseButton = GameObject.Find("Scenario Color controls/CloseButton").gameObject;
             MovieActScreen = GameObject.Find("CreateNewActScreen");
-            ActScreenInput = GameObject.Find("CreateNewActScreen/UserInput");
+            ActScreenInput = GameObject.Find("CreateNewActScreen/WriteMessage");
+            ActScreenSave = GameObject.Find("CreateNewActScreen/SaveScreen");
         }
 
 
@@ -68,6 +67,7 @@ namespace Assets.Scripts.Classes.UI
             SkyboxColorPicker.SetActive(false);
             ColorMenuCloseButton.SetActive(false);
             MovieActScreen.SetActive(false);
+            ActScreenSave.SetActive(false);
 
             if (!Configuration.Instance.CameraMovementActive)
             {

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using Assets.Scripts.Classes.Agent;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Layout;
-using Assets.Scripts.Scripts.UI;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -48,10 +46,17 @@ namespace Assets.Scripts.Classes.UI
 
             _pieceSizeIndex = new Dictionary<string, int>();
             _pieceColorIndex = new Dictionary<string, int>();
-            _pieceBlinkTypeIndex = new Dictionary<string, int>();
-            _pieceBlinkSpeedIndex = new Dictionary<string, int>();
 
-            _settingsPopup = Object.Instantiate(Resources.Load("Prefabs/UISettings/SettingsPopup")) as GameObject;
+            if (Configuration.Instance.BlinkingBehaviorActive)
+            {
+                _pieceBlinkTypeIndex = new Dictionary<string, int>();
+                _pieceBlinkSpeedIndex = new Dictionary<string, int>();
+                _settingsPopup = Object.Instantiate(Resources.Load("Prefabs/UISettings/SettingsPopup")) as GameObject;
+            }
+            else
+            {
+                _settingsPopup = Object.Instantiate(Resources.Load("Prefabs/UISettings/SettingsPopup(w_o blink)")) as GameObject;
+            }
             SetupPopupPrefab(_settingsPopup);
 
             // Note: due to the way unity works some UI objects reference must be kept since application start given that 
@@ -59,6 +64,10 @@ namespace Assets.Scripts.Classes.UI
             _availableAgentPiecesList = AppUIManager.Instance.AvailableAgentPiecesList;
             _instancingButton = Object.Instantiate(Resources.Load("Prefabs/UISettings/AgentPieceItem")) as GameObject;
             SetupInstancingUI();
+
+            //getting notified if properties are changed to update indexes
+            _piece.Body.NotifyUI += UpdateSettingsIndex;
+            _piece.Body.NotifyUI += UpdatePieceIcon;
         }
 
         private void SetupPopupPrefab(GameObject settingsPopup)
@@ -68,13 +77,8 @@ namespace Assets.Scripts.Classes.UI
                 settingsPopup.transform.SetParent(GameObject.Find("Canvas").transform, false);
                 settingsPopup.name = _piece.Name + "_Popup";
 
-                _pieceSizeList = GameObject.Find(settingsPopup.name + "/SizeOptions/Sizes");
-                _pieceColorList = GameObject.Find(settingsPopup.name + "/ColorOptions/Colors");
-                _pieceBlinkTypeList = GameObject.Find(settingsPopup.name + "/BlinkTypeOptions/BlinkTypes");
-                _pieceBlinkSpeedList = GameObject.Find(settingsPopup.name + "/BlinkSpeedOptions/BlinkSpeeds");
-
-
                 {
+                    _pieceSizeList = GameObject.Find(settingsPopup.name + "/SizeOptions/Sizes");
                     GameObject listObject = Utility.GetChild(_pieceSizeList, "List");
                     int pageIndex = 0;
 
@@ -100,6 +104,7 @@ namespace Assets.Scripts.Classes.UI
                 }
 
                 {
+                    _pieceColorList = GameObject.Find(settingsPopup.name + "/ColorOptions/Colors");
                     GameObject listObject = Utility.GetChild(_pieceColorList, "List");
                     int pageIndex = 0;
 
@@ -126,8 +131,10 @@ namespace Assets.Scripts.Classes.UI
                     }
                 }
 
+                if (Configuration.Instance.BlinkingBehaviorActive)
                 {
-                    GameObject listObject = Utility.GetChild(_pieceBlinkTypeList, "List"); ;
+                    _pieceBlinkTypeList = GameObject.Find(settingsPopup.name + "/BlinkTypeOptions/BlinkTypes");
+                    GameObject listObject = Utility.GetChild(_pieceBlinkTypeList, "List");
                     int pageIndex = 0;
 
                     foreach (var color in Configuration.Instance.AvailableColors)
@@ -149,8 +156,10 @@ namespace Assets.Scripts.Classes.UI
                     }
                 }
 
+                if (Configuration.Instance.BlinkingBehaviorActive)
                 {
-                    GameObject listObject = Utility.GetChild(_pieceBlinkSpeedList, "List"); ;
+                    _pieceBlinkSpeedList = GameObject.Find(settingsPopup.name + "/BlinkSpeedOptions/BlinkSpeeds");
+                    GameObject listObject = Utility.GetChild(_pieceBlinkSpeedList, "List");
                     int pageIndex = 0;
 
                     foreach (var speed in Configuration.Instance.AvailableBlinkSpeeds)
@@ -170,6 +179,7 @@ namespace Assets.Scripts.Classes.UI
                         pageIndex++;
                     }
                 }
+                
 
 
                 // Since there's no way to raycast UI properly, a clickable backdrop was 
@@ -243,10 +253,14 @@ namespace Assets.Scripts.Classes.UI
                 {
                     bool componentsInitialized = _pieceSizeList.GetComponent<ScrollSnap>().AlreadyInitialized;
                     componentsInitialized = componentsInitialized && _pieceColorList.GetComponent<ScrollSnap>().AlreadyInitialized;
-                    componentsInitialized = componentsInitialized &&
-                                            _pieceBlinkTypeList.GetComponent<ScrollSnap>().AlreadyInitialized;
-                    componentsInitialized = componentsInitialized &&
+
+                    if (Configuration.Instance.BlinkingBehaviorActive)
+                    {
+                        componentsInitialized = componentsInitialized &&
+                                                _pieceBlinkTypeList.GetComponent<ScrollSnap>().AlreadyInitialized;
+                        componentsInitialized = componentsInitialized &&
                                             _pieceBlinkSpeedList.GetComponent<ScrollSnap>().AlreadyInitialized;
+                    }
 
                     if (componentsInitialized)
                     {
@@ -307,8 +321,12 @@ namespace Assets.Scripts.Classes.UI
         { 
             _pieceSizeList.GetComponent<ScrollSnap>().ChangePage(_pieceSizeIndex[_piece.Body.Size.ToString()]);
             _pieceColorList.GetComponent<ScrollSnap>().ChangePage(_pieceColorIndex[_piece.Body.Color.ToString()]);
-            _pieceBlinkTypeList.GetComponent<ScrollSnap>().ChangePage(_pieceBlinkTypeIndex[_piece.Body.BlinkColor.ToString()]);
-            _pieceBlinkSpeedList.GetComponent<ScrollSnap>().ChangePage(_pieceBlinkSpeedIndex[_piece.Body.BlinkSpeed.ToString()]);
+
+            if (Configuration.Instance.BlinkingBehaviorActive)
+            {
+                _pieceBlinkTypeList.GetComponent<ScrollSnap>().ChangePage(_pieceBlinkTypeIndex[_piece.Body.BlinkColor.ToString()]);
+                _pieceBlinkSpeedList.GetComponent<ScrollSnap>().ChangePage(_pieceBlinkSpeedIndex[_piece.Body.BlinkSpeed.ToString()]);
+            }
         }
     }
 }

@@ -212,7 +212,7 @@ namespace Assets.Scripts.Scripts.CameraControl
             //if the lookat isn't static check if it's moving and don't move if it is
             if (_currentCameraMode == ActiveCameraMode.FollowCharacter && _lookAtInUse.tag == "Cube")
             {
-                if (_lookAtInUse.gameObject.GetComponent<Body>().Dragging)
+                if (_lookAtInUse.gameObject.GetComponent<Body>().DraggingStatus)
                 {
                     return;
                 }

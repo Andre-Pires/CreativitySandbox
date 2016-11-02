@@ -1121,6 +1121,8 @@ MonoBehaviour:
   pageAnchorPositions: []
   prevButton: {fileID: 11438194}
   useFastSwipe: 1
+  AlreadyInitialized: 0
+  SelectButtonAutomatically: 1
 --- !u!114 &11449286
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1308,6 +1310,8 @@ MonoBehaviour:
   pageAnchorPositions: []
   prevButton: {fileID: 11432574}
   useFastSwipe: 1
+  AlreadyInitialized: 0
+  SelectButtonAutomatically: 1
 --- !u!114 &11471004
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1434,6 +1438,8 @@ MonoBehaviour:
   pageAnchorPositions: []
   prevButton: {fileID: 11437126}
   useFastSwipe: 1
+  AlreadyInitialized: 0
+  SelectButtonAutomatically: 1
 --- !u!114 &11489484
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1455,6 +1461,8 @@ MonoBehaviour:
   pageAnchorPositions: []
   prevButton: {fileID: 11466490}
   useFastSwipe: 1
+  AlreadyInitialized: 0
+  SelectButtonAutomatically: 1
 --- !u!114 &11498806
 MonoBehaviour:
   m_ObjectHideFlags: 1

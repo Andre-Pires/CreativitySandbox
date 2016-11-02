@@ -45,6 +45,7 @@ namespace Assets.Scripts.Classes.IO
             //for accurate sound clip playback
             cubePrefab.AddComponent<AudioSource>();
             _clipPlayer = cubePrefab.GetComponent<AudioSource>();
+            _clipPlayer.playOnAwake = false;
         }
 
 

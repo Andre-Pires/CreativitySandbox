@@ -414,14 +414,13 @@ namespace Assets.Scripts.Layout
                 lerpTarget = pageAnchorPositions[CurrentPage() - 1];
 
                 PageChanged(CurrentPage() - 1);
-
                 PressButtonIfAvailable(CurrentPage() - 1);
             }
         }
 
         public void PressButtonIfAvailable(int buttonIndex)
         {
-            //NOTE: only works if the user selects a flag 
+            //NOTE: only works if the programmer selects a flag 
             if(!SelectButtonAutomatically) return;
 
             Button button = _pageItemGameobjects[buttonIndex].GetComponent<Button>();
@@ -444,6 +443,7 @@ namespace Assets.Scripts.Layout
                 lerpTarget = pageAnchorPositions[targetPage];
 
                 PageChanged(targetPage);
+
                 PressButtonIfAvailable(targetPage);
             }
         }
@@ -573,12 +573,34 @@ namespace Assets.Scripts.Layout
                 {
                     lerp = true;
                     lerpTarget = pageAnchorPositions[CurrentPage()];
+
+                    //Added by me, I don't see a negative effect
+                    // but will leave duplicated in case it needs to be rolled back
+                    if (change > 0)
+                    {
+                        NextScreenCommand();
+                    }
+                    else
+                    {
+                        PrevScreenCommand();
+                    }
                 }
             }
             else
             {
                 lerp = true;
                 lerpTarget = pageAnchorPositions[CurrentPage()];
+
+                //Added by me, I don't see a negative effect
+                // but will leave duplicated in case it needs to be rolled back
+                if (change > 0)
+                {
+                    NextScreenCommand();
+                }
+                else
+                {
+                    PrevScreenCommand();
+                }
             }
         }
 

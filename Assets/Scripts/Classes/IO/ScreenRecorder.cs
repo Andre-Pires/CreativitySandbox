@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Globalization;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Threading;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.UI;
@@ -31,7 +28,10 @@ namespace Assets.Scripts.Classes.IO
         private Texture2D _latestScreenshot;
         private int _maxWidth = 1920;
         private int _maxHeight = 1080;
-        private bool _actScreenMovieDone = false;
+
+        //custom title screen
+        private bool _actScreenMovieDone;
+        private bool _confirmationScreenActive;
 
         //padd the remainder of photo number with zeros
         private int paddingLength = 4;
@@ -60,7 +60,6 @@ namespace Assets.Scripts.Classes.IO
             }
             _screenFlashPanel.SetActive(false);
 
-            //TODO: get rid of these
             TakeSnapshot.Instance.OnSelect += TakeSingleSnapshot;
             ClearVideoRecordings.Instance.OnSelect += ClearMovieRecordings;
             //clear empty directories
@@ -77,7 +76,22 @@ namespace Assets.Scripts.Classes.IO
         {
             
             AppUIManager.Instance.MovieActScreen.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
-            Utility.GetChild(AppUIManager.Instance.ActScreenInput, "Button").GetComponent<Button>().onClick.AddListener(CaptureMovieActScreen);
+            Button captureScreen = Utility.GetChild(AppUIManager.Instance.ActScreenInput, "Button").GetComponent<Button>();
+            
+            captureScreen.onClick.AddListener(
+                () =>
+                {
+                    CaptureMovieActScreen();
+                    _confirmationScreenActive = true;
+                });
+
+            Button keepScreenButton = Utility.GetChild(AppUIManager.Instance.ActScreenSave, "YesButton").GetComponent<Button>();
+
+            keepScreenButton.onClick.AddListener(() => KeepMovieActScreen(true));
+
+            Button eraseScreenButton = Utility.GetChild(AppUIManager.Instance.ActScreenSave, "NoButton").GetComponent<Button>();
+
+            eraseScreenButton.onClick.AddListener(() => KeepMovieActScreen(false));
         }
 
         private void ClearEmptyDirectories()
@@ -97,6 +111,18 @@ namespace Assets.Scripts.Classes.IO
             }
         }
 
+        public void KeepMovieActScreen(bool keepScreen)
+        {
+            if (!keepScreen)
+            {
+                string stringShotNumber = _numberOfShots.ToString("D" + paddingLength);
+                File.Delete(_filePath + FileName + stringShotNumber + FileExtension);
+                _numberOfShots--;
+            }
+
+            _actScreenMovieDone = true;
+        }
+
         public void CaptureMovieActScreen()
         {
             InputField inputField =
@@ -111,12 +137,6 @@ namespace Assets.Scripts.Classes.IO
             string stringShotNumber = _numberOfShots.ToString("D" + paddingLength);
             UnityEngine.Application.CaptureScreenshot(_filePath + FileName + stringShotNumber + FileExtension);
 
-            //allow a moment to overview the created screen
-            new Thread(() =>
-            {
-                Thread.Sleep(1500);
-                _actScreenMovieDone = true;
-            }).Start();
         }
 
         public void TakeSingleSnapshot()
@@ -170,9 +190,17 @@ namespace Assets.Scripts.Classes.IO
                 _readySingleShot = false;
             }
 
+            if (_confirmationScreenActive)
+            {
+                AppUIManager.Instance.ActScreenInput.SetActive(false);
+                AppUIManager.Instance.ActScreenSave.SetActive(true);
+                _confirmationScreenActive = false;
+            }
+
             if (_actScreenMovieDone)
             {
                 AppUIManager.Instance.ActScreenInput.SetActive(true);
+                AppUIManager.Instance.ActScreenSave.SetActive(false);
                 AppUIManager.Instance.MovieActScreen.SetActive(false);
                 _actScreenMovieDone = false;
             }
@@ -192,10 +220,10 @@ namespace Assets.Scripts.Classes.IO
             string fileName = _filePath + FileName + stringShotNumber + FileExtension;
             byte[] bytes = _latestScreenshot.EncodeToPNG();
 
-            new System.Threading.Thread(() =>
+            new Thread(() =>
             {
                 File.WriteAllBytes(fileName, bytes);
-                System.Threading.Thread.Sleep(500);
+                Thread.Sleep(500);
             }).Start();
         }
 
@@ -241,7 +269,8 @@ namespace Assets.Scripts.Classes.IO
         // ReSharper disable once InconsistentNaming
         public void OnGUI()
         {
-            if (_numberOfShots > 0)
+            //only show if there is a previous shot and is pointing at scenario
+            if (_numberOfShots > 0 && !AppUIManager.Instance.MovieActScreen.activeSelf)
             {
                 GUI.color = new Color(1.0f, 1.0f, 1.0f, OverlayOpacity);
                 GUI.DrawTexture(_rect, _latestScreenshot, ScaleMode.StretchToFill, true);

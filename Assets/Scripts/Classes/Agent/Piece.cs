@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.IO;
-using Assets.Scripts.Classes.UI;
-using Assets.Scripts.Scripts.UI;
 using UnityEngine;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
-using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Classes.Agent
 {
@@ -18,34 +13,75 @@ namespace Assets.Scripts.Classes.Agent
         private GameObject _root;
         private GameObject _cubeObject;
         public readonly Body Body;
+        public readonly Mind Mind;
         private SoundRecorder _soundRecorder;
         public Configuration.Personality Personality { get; private set; }
 
         //Piece cloner
-        public Piece(string name, Piece piece)
+        public Piece(string name, Piece piece, Dictionary<string, Piece> allPieces)
         {
             Personality = piece.Personality;
             Name = name;
             PieceComponentInitializer();
 
+            List<Piece> otherPieces = new List<Piece>();
+            foreach (KeyValuePair<string, Piece> keyValuePair in allPieces)
+            {
+                if (keyValuePair.Key == Name)
+                {
+                    continue;
+                }
+
+                otherPieces.Add(keyValuePair.Value);
+            }
+
             _cubeObject.AddComponent<Body>();
             Body = _cubeObject.GetComponent<Body>();
-            Body.InitializeParameters(_cubeObject.transform, piece.Body);
+            Body.InitializeParameters(piece.Body);
+
+            _cubeObject.AddComponent<Mind>();
+            Mind = _cubeObject.GetComponent<Mind>();
+            Mind.InitializeParameters(piece.Body, otherPieces);
 
             Debug.Log("New agent part added: part " + name + ". " + piece.Body.Size + " size and " + Personality + " personality");
         }
 
-        public Piece(string name, Configuration.Personality personality, Configuration.Size size)
+        public Piece(string name, Configuration.Personality personality, Configuration.Size size, Dictionary<string, Piece> allPieces)
         {
             Personality = personality;
             Name = name;
             PieceComponentInitializer();
 
+            List<Piece> otherPieces = new List<Piece>();
+            foreach (KeyValuePair<string, Piece> keyValuePair in allPieces)
+            {
+                if (keyValuePair.Key == Name)
+                {
+                    continue;
+                }
+
+                otherPieces.Add(keyValuePair.Value);
+            }
+
             _cubeObject.AddComponent<Body>();
             Body = _cubeObject.GetComponent<Body>();
-            Body.InitializeParameters(size, _cubeObject.transform, personality);
+            Body.InitializeParameters(size, personality);
+
+            _cubeObject.AddComponent<Mind>();
+            Mind = _cubeObject.GetComponent<Mind>();
+            Mind.InitializeParameters(Body, otherPieces);
 
             Debug.Log("New agent part added: part " + name + ". " + size + " size and " + personality + " personality");
+        }
+
+        public void RemoveStoredAgentPiece(Piece piece)
+        {
+            Mind.RemoveStoreAgentPiece(piece);
+        }
+
+        public void StoreAgentPiece(Piece piece)
+        {
+            Mind.StoreAgentPiece(piece);
         }
 
         private void PieceComponentInitializer()
@@ -73,8 +109,6 @@ namespace Assets.Scripts.Classes.Agent
 
         public void Update()
         {
-            Body.Update();
-
             if (Configuration.Instance.SoundRecordingActive)
             {
                 _soundRecorder.Update();
@@ -94,10 +128,6 @@ namespace Assets.Scripts.Classes.Agent
 
         public void OnDrawGizmos()
         {
-            /*
-            Gizmos.color = new Color(1, 0, 0, 0.5F);
-            Gizmos.DrawCube(cubeObject.transform.position + Vector3.up * 10, new Vector3(1, 1, 1));
-            */
         }
 
         public void OnGUI()

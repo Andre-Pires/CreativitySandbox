@@ -5,7 +5,6 @@ using Assets.Scripts.Classes.IO;
 using Assets.Scripts.Classes.UI;
 using Assets.Scripts.Scripts.CameraControl;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace Assets.Scripts.Classes
 {

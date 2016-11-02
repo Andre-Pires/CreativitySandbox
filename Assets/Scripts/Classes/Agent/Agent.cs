@@ -4,7 +4,6 @@ using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.UI;
 using Assets.Scripts.Scripts.UI;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Assets.Scripts.Classes.Agent
 {
@@ -12,7 +11,7 @@ namespace Assets.Scripts.Classes.Agent
     {
         private readonly Dictionary<string, Piece> _pieces;
         private readonly Dictionary<string, PieceUIManager> _piecesUIManagers;
-        private int _currentPieceIndex = 0;
+        private int _currentPieceIndex;
 
         public Agent()
         {
@@ -37,29 +36,38 @@ namespace Assets.Scripts.Classes.Agent
             _currentPieceIndex++;
 
             Piece newPiece = new Piece(pieceName, Configuration.Personality.CustomPersonality,
-                Configuration.Instance.AvailableSizes[Random.Range(0, numberOfSizes)]);
+                Configuration.Instance.AvailableSizes[Random.Range(0, numberOfSizes)], _pieces);
             _pieces.Add(pieceName, newPiece);
 
             PieceUIManager newPieceManager = new PieceUIManager(newPiece, this);
             _piecesUIManagers.Add(pieceName, newPieceManager);
+
+            //adding the piece to the other agents minds 
+            _pieces.ToList().FindAll(p => p.Value.Name != pieceName).ForEach(p => p.Value.StoreAgentPiece(newPiece));
         }
 
-        //create an initial component with random settings
         public void AddCloneComponent(Piece piece)
         {
             var pieceName = Constants.CharacterName + " " + _currentPieceIndex;
             _currentPieceIndex++;
 
-            Piece newPiece = new Piece(pieceName, piece);
+            Piece newPiece = new Piece(pieceName, piece, _pieces);
             _pieces.Add(pieceName, newPiece);
 
             PieceUIManager newPieceManager = new PieceUIManager(newPiece, this);
             _piecesUIManagers.Add(pieceName, newPieceManager);
+
+            //adding the piece to the other agents minds 
+            _pieces.ToList().FindAll(p => p.Value.Name != pieceName).ForEach(p =>  p.Value.StoreAgentPiece(newPiece));
         }
 
         public void EraseAgentPiece(string pieceName)
         {
             Piece tempPiece =_pieces[pieceName];
+
+            //clearing the piece from other agents minds 
+            _pieces.ToList().FindAll(p => p.Value.Name != pieceName).ForEach(p => p.Value.RemoveStoredAgentPiece(tempPiece));
+
             _pieces.Remove(pieceName);
             tempPiece.DestroyPiece();
 

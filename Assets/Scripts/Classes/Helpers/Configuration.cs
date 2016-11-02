@@ -34,17 +34,33 @@ namespace Assets.Scripts.Classes.Helpers
             Large
         }
 
+        public enum Transitions
+        {
+            Linear,
+            EaseIn,
+            Instant
+        }
+
+        public enum Behaviors
+        {
+            Blink,
+            Resize,
+            Rotate
+        }
+
         // Singleton 	
         private static Configuration _instance;
 
         //NOTE: These parameters can be tweaked from unity's editor
         public bool SoundRecordingActive;
         public bool CameraMovementActive;
+        public bool BlinkingBehaviorActive;
 
         public List<BlinkingSpeed> AvailableBlinkSpeeds;
         public List<Color> AvailableColors;
         public List<Personality> AvailablePersonalities;
         public List<Size> AvailableSizes;
+        public List<Transitions> AvailableTransitions;
 
         public Dictionary<BlinkingSpeed, float> BlinkingSpeedsValues;
         public Dictionary<Personality, BlinkingSpeed> PersonalityBlinkingSpeeds;
@@ -127,6 +143,13 @@ namespace Assets.Scripts.Classes.Helpers
                 {Size.Small, 4.5f},
                 {Size.Medium, 6.0f},
                 {Size.Large, 7.5f}
+            };
+
+            AvailableTransitions = new List<Transitions>
+            {
+                Transitions.EaseIn,
+                Transitions.Instant,
+                Transitions.Linear
             };
         }
 
