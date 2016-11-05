@@ -87,31 +87,37 @@ namespace Assets.Scripts.Classes.Helpers
         public List<Personality> AvailablePersonalities;
         public List<Size> AvailableSizes;
         public List<Transitions> AvailableTransitions;
+        [HideInInspector]
+        public List<Color> AvailableColors;
+
 
         // hack that allow editing color associations in editor
         [Serializable]
-        public struct ColorPair
+        private struct ColorPair
         {
             public Colors Name;
             public Color Color;
         }
-        public ColorPair[] ColorPairs;
+        [SerializeField]
+        private ColorPair[] _colorPairs;
 
         public Dictionary<BlinkingSpeed, float> BlinkingSpeedsValues;
         public Dictionary<Personality, BlinkingSpeed> PersonalityBlinkingSpeeds;
         public Dictionary<Personality, Color> PersonalityColors;
         public Dictionary<Colors, Color> ColorNames;
         public Dictionary<Size, float> SizeValues;
-
         //due to the random order of execution in Unity's scripts, this assigment is required in the Awake function
         public void Awake()
         {
             _instance = FindObjectOfType(typeof(Configuration)) as Configuration;
 
             ColorNames = new Dictionary<Colors, Color>();
-            foreach (ColorPair pair in ColorPairs)
+            AvailableColors = new List<Color>();
+
+            foreach (ColorPair pair in _colorPairs)
             {
                 ColorNames.Add(pair.Name, pair.Color);
+                AvailableColors.Add(pair.Color);
             }
         }
 
