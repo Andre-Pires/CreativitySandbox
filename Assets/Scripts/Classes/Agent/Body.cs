@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Assets.Scripts.Classes.Agent.Behaviors;
+using Assets.Scripts.Classes.Agent.SimpleBehaviors;
 using Assets.Scripts.Classes.Helpers;
 using UnityEngine;
 
@@ -92,7 +92,7 @@ namespace Assets.Scripts.Classes.Agent
         //rotation
         public float CurrentRotation;
 
-        //autonomous behavior
+        //autonomous Behavior
         public bool DisplayingBehavior;
 
         public void InitializeParameters(Configuration.Size size, Configuration.Personality personality)

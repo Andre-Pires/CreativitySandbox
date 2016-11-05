@@ -1,22 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Assets.Scripts.Classes.Agent.Behaviors;
+using Assets.Scripts.Classes.Agent.SimpleBehaviors;
 using Assets.Scripts.Classes.Helpers;
+using Assets.Scripts.Interface;
 using UnityEngine;
 
 namespace Assets.Scripts.Classes.Agent
 {
-    public class Mind : MonoBehaviour
+    public class Mind : MonoBehaviour, IPropagateStimuli
     {
         private Body _body;
         private List<Piece> _otherPieces;
         public Dictionary<Configuration.Behaviors, Behavior> AgentBehaviors;
         //user input
         private bool _userDisturbedPiece;
-        //inercia driver - public in order to appear in unity editor
-        public int InerciaDriver = Random.Range(0, 50);
 
-        //behavior fields
+        //Behavior fields
         private float _behaviorDuration;
         public float IntimateRadius = 10.0f;
         public float PersonalRadius = 17.0f;
@@ -34,7 +33,7 @@ namespace Assets.Scripts.Classes.Agent
             _body.NotifyAgentMind += () =>
             {
                 _userDisturbedPiece = true;
-                Debug.Log("user input");
+                //Debug.Log("user input");
             };
 
             _otherPieces = new List<Piece>();
@@ -56,7 +55,7 @@ namespace Assets.Scripts.Classes.Agent
             if (_userDisturbedPiece)
             {
                 List<Behavior> availableBehaviors = AgentBehaviors.Values.ToList().FindAll(b => b.IsOver == true);
-                //fires at least one behavior
+                //fires at least one Behavior
                 int behaviorsToExecute = Random.Range(1, availableBehaviors.Count);
 
                 while (behaviorsToExecute > 0)
@@ -69,7 +68,7 @@ namespace Assets.Scripts.Classes.Agent
 
                 //reset user input since the user handled the piece
                 _userDisturbedPiece = false;
-                Debug.Log("User driven behavior");
+                //Debug.Log("User driven Behavior");
             }
         }
 
@@ -77,53 +76,59 @@ namespace Assets.Scripts.Classes.Agent
         {
             foreach (Behavior behavior in AgentBehaviors.Values)
             {
-                //Debug.Log("type " + behavior.BehaviorType + ", at " + behavior.BehaviorDrive);
+                //Debug.Log("type " + Behavior.BehaviorType + ", at " + ComplexBehavior.BehaviorDrive);
                 if (behavior.IsOver && behavior.BehaviorDrive >= 90)
                 {
                     RunBehaviorAndNotify(behavior);
 
-                    Debug.Log("Inercia driven behavior");
+                    //Debug.Log("Inercia driven Behavior");
                 }
             }
         }
 
         private void RunBehaviorAndNotify(Behavior behavior)
         {
+            //TODO: it can now be simplified
             switch (behavior.BehaviorType)
             {
                 case Configuration.Behaviors.Blink:
-                    (behavior as BlinkBehavior).PrepareBehavior(_body.Color, _behaviorDuration);
+                    (behavior as BlinkBehavior).PrepareBehavior(_body, _behaviorDuration);
                     break;
                 case Configuration.Behaviors.Resize:
-                    (behavior as ResizeBehavior).PrepareBehavior(_body.Size, _behaviorDuration);
+                    (behavior as ResizeBehavior).PrepareBehavior(_body, _behaviorDuration);
                     break;
                 case Configuration.Behaviors.Rotate:
-                    (behavior as RotationBehavior).PrepareBehavior(_body.CurrentRotation, _behaviorDuration);
+                    (behavior as RotationBehavior).PrepareBehavior(_body, _behaviorDuration);
                     break;
             }
             behavior.StartBehavior();
 
-            Vector3 piecePosition = transform.position;
-            foreach (Piece piece in _otherPieces)
-            {
-                piece.Mind.CheckReceivedStimulus(piecePosition, behavior);
-            }
+            SendStimulus(behavior);
 
             //reset inercia driver
             behavior.BehaviorDrive = 0;
 
-            Debug.Log("executed " + behavior.BehaviorType);
+            //Debug.Log("executed " + Behavior.BehaviorType);
         }
 
-        private void CheckReceivedStimulus(Vector3 stimilusPosition, Behavior activeBehavior)
+        public void SendStimulus(Behavior stimulatingBehavior)
+        {
+            Vector3 piecePosition = transform.position;
+            foreach (Piece piece in _otherPieces)
+            {
+                piece.Mind.ReceiveStimulus(piecePosition, stimulatingBehavior);
+            }
+        }
+
+        public void ReceiveStimulus(Vector3 stimilusPosition, Behavior stimulatingBehavior)
         {
             Vector3 piecePosition = transform.localPosition;
             float sqrDistance = (stimilusPosition - piecePosition).sqrMagnitude;
             
-            //filtering behavior to simulate needs at this point; only affecting inactive behaviors
-            List<Behavior> affectedBehaviors = AgentBehaviors.Values.ToList().FindAll(b => (b.BehaviorType == activeBehavior.BehaviorType) && b.IsOver);
+            //filtering Behavior to simulate needs at this point; only affecting inactive behaviors
+            List<Behavior> affectedBehaviors = AgentBehaviors.Values.ToList().FindAll(b => (b.BehaviorType == stimulatingBehavior.BehaviorType) && b.IsOver);
 
-            Debug.Log("Check stimuli: piece being called : " + transform.name + ", behavior stimulus sent: " + activeBehavior.BehaviorType);
+            //Debug.Log("Check stimuli: piece being called : " + transform.name + ", Behavior stimulus sent: " + stimulatingBehavior.BehaviorType);
 
             foreach (Behavior behavior in affectedBehaviors)
             {
@@ -149,7 +154,7 @@ namespace Assets.Scripts.Classes.Agent
                             behavior.BehaviorDrive = 100;
                         }
 
-                        Debug.Log("inercia after stimulus " + behavior.BehaviorDrive + ", behavior: " + behavior.BehaviorType);
+                        //Debug.Log("inercia after stimulus " + Behavior.BehaviorDrive + ", ComplexBehavior: " + ComposedBehavior.BehaviorType);
                     }
                 }
             }

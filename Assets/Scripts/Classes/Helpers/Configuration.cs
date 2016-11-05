@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.Classes.Helpers
@@ -27,6 +28,22 @@ namespace Assets.Scripts.Classes.Helpers
             CustomPersonality
         }
 
+        public enum Colors
+        {
+            White,
+            Gray,
+            Black,
+            Yellow,
+            Orange,
+            Red,
+            Pink,
+            Purple,
+            Blue,
+            Cyan,
+            Green,
+            Brown
+        }
+
         public enum Size
         {
             Small,
@@ -38,7 +55,8 @@ namespace Assets.Scripts.Classes.Helpers
         {
             Linear,
             EaseIn,
-            Instant
+            Instant,
+            EaseInOut
         }
 
         public enum Behaviors
@@ -46,6 +64,15 @@ namespace Assets.Scripts.Classes.Helpers
             Blink,
             Resize,
             Rotate
+        }
+
+        public enum ComposedBehaviors
+        {
+            Joy,
+            Sadness,
+            Disgust,
+            Fear,
+            Anger
         }
 
         // Singleton 	
@@ -57,20 +84,35 @@ namespace Assets.Scripts.Classes.Helpers
         public bool BlinkingBehaviorActive;
 
         public List<BlinkingSpeed> AvailableBlinkSpeeds;
-        public List<Color> AvailableColors;
         public List<Personality> AvailablePersonalities;
         public List<Size> AvailableSizes;
         public List<Transitions> AvailableTransitions;
 
+        // hack that allow editing color associations in editor
+        [Serializable]
+        public struct ColorPair
+        {
+            public Colors Name;
+            public Color Color;
+        }
+        public ColorPair[] ColorPairs;
+
         public Dictionary<BlinkingSpeed, float> BlinkingSpeedsValues;
         public Dictionary<Personality, BlinkingSpeed> PersonalityBlinkingSpeeds;
         public Dictionary<Personality, Color> PersonalityColors;
+        public Dictionary<Colors, Color> ColorNames;
         public Dictionary<Size, float> SizeValues;
 
         //due to the random order of execution in Unity's scripts, this assigment is required in the Awake function
         public void Awake()
         {
             _instance = FindObjectOfType(typeof(Configuration)) as Configuration;
+
+            ColorNames = new Dictionary<Colors, Color>();
+            foreach (ColorPair pair in ColorPairs)
+            {
+                ColorNames.Add(pair.Name, pair.Color);
+            }
         }
 
         // Construct 	
@@ -93,16 +135,15 @@ namespace Assets.Scripts.Classes.Helpers
                 BlinkingSpeed.VeryFast
             };
 
-            AvailableColors = new List<Color>
+            //Indexes colors to allow an easy pairing with custom color picked from the editor - set in editor
+            ColorNames = new Dictionary<Colors, Color>
             {
-                Color.blue,
-                Color.magenta,
-                Color.red,
-                Color.green,
-                Color.black,
-                Color.white,
-                Color.yellow,
-                
+                { Colors.Blue, Color.blue},
+                { Colors.Red, Color.red},
+                { Colors.Green, Color.green},
+                { Colors.Black, Color.black},
+                { Colors.White, Color.white},
+                { Colors.Yellow, Color.yellow}
             };
 
             BlinkingSpeedsValues = new Dictionary<BlinkingSpeed, float>
@@ -145,9 +186,11 @@ namespace Assets.Scripts.Classes.Helpers
                 {Size.Large, 7.5f}
             };
 
+            //NOTE: for our application we're only using 2 for now, set in-editor
             AvailableTransitions = new List<Transitions>
             {
                 Transitions.EaseIn,
+                Transitions.EaseInOut,
                 Transitions.Instant,
                 Transitions.Linear
             };

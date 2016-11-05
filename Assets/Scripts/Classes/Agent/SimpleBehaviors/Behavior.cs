@@ -3,22 +3,26 @@ using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Interface;
 using UnityEngine;
 
-namespace Assets.Scripts.Classes.Agent.Behaviors
+namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
 {
     public abstract class Behavior : IBehavior
     {
         public Configuration.Behaviors BehaviorType;
         public bool IsOver = true;
+        public float BehaviorDrive = Random.Range(0.0f, 35.0f);
         protected float StartTime;
         protected float BehaviorDuration;
-        public float BehaviorDrive = Random.Range(0.0f, 35.0f);
-        private float _driveMultiplier;
-        private const float DriveStep = 3.0f;
+        protected float DriveMultiplier;
+        protected const float DriveStep = 3.0f;
 
-        protected Behavior(float multiplier)
+        protected Behavior(float multiplier, bool behaviorDriveActive = true)
         {
-            _driveMultiplier = multiplier;
-            UpdateBehaviorDriver();
+            DriveMultiplier = multiplier;
+
+            if (behaviorDriveActive)
+            {
+                UpdateBehaviorDriver();
+            }
         }
 
         public void StartBehavior()
@@ -27,11 +31,11 @@ namespace Assets.Scripts.Classes.Agent.Behaviors
             IsOver = false;
         }
 
-        private void UpdateBehaviorDriver()
+        protected void UpdateBehaviorDriver()
         {
             if (BehaviorDrive <= 100)
             {
-                BehaviorDrive += DriveStep * _driveMultiplier;
+                BehaviorDrive += DriveStep * DriveMultiplier;
             }
 
             //Debug.Log("inercia state " + InerciaDriver);
@@ -42,6 +46,8 @@ namespace Assets.Scripts.Classes.Agent.Behaviors
                 UpdateBehaviorDriver();
             }).Start();
         }
+
+        public abstract void PrepareBehavior(Body body, float duration);
 
         public abstract void ApplyBehavior(Body agentBody);
 
