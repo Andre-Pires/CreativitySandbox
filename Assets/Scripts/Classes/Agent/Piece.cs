@@ -41,7 +41,7 @@ namespace Assets.Scripts.Classes.Agent
 
             _cubeObject.AddComponent<Mind>();
             Mind = _cubeObject.GetComponent<Mind>();
-            Mind.InitializeParameters(piece.Body, otherPieces);
+            Mind.InitializeParameters(piece.Body, Personality, otherPieces);
 
             Debug.Log("New agent part added: part " + name + ". " + piece.Body.Size + " size and " + Personality + " personality");
         }
@@ -69,7 +69,7 @@ namespace Assets.Scripts.Classes.Agent
 
             _cubeObject.AddComponent<Mind>();
             Mind = _cubeObject.GetComponent<Mind>();
-            Mind.InitializeParameters(Body, otherPieces);
+            Mind.InitializeParameters(Body, Personality, otherPieces);
 
             Debug.Log("New agent part added: part " + name + ". " + size + " size and " + personality + " personality");
         }

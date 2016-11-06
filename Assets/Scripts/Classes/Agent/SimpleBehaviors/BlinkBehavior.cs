@@ -15,7 +15,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         }
 
         //this function randomizes the Behavior
-        public override void PrepareBehavior(Body body, float duration) 
+        public override void PrepareBehavior(Body body, int repetitions, float duration) 
         {
 
             var transitionsCount = Configuration.Instance.AvailableTransitions.Count;
@@ -48,10 +48,14 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
             {
                 BehaviorDuration = duration;
             }
+
+            MaxBehaviorRepetitions = repetitions;
+            CurrentBehaviorRepetition = 1;
+            AnimationIntervalTime = BehaviorDuration / MaxBehaviorRepetitions;
         }
 
         //this function allows to customize the Behavior in the mind
-        public void PrepareBehavior(Body body, Color finalColor, Configuration.Transitions transition, float duration)
+        public void PrepareBehavior(Body body, Color finalColor, Configuration.Transitions transition, int repetitions, float duration)
         {
 
             Color = body.Color;
@@ -66,6 +70,10 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
             {
                 BehaviorDuration = duration;
             }
+
+            MaxBehaviorRepetitions = repetitions;
+            CurrentBehaviorRepetition = 1;
+            AnimationIntervalTime = BehaviorDuration / MaxBehaviorRepetitions;
         }
 
         public override void ApplyBehavior(Body agentBody)
@@ -73,7 +81,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
             switch (BlinkTransition)
             {
                 case Configuration.Transitions.Linear:
-                    var lerp = (Time.time - StartTime)/BehaviorDuration;
+                    var lerp = (Time.time - StartTime)/AnimationIntervalTime;
                     agentBody.GetComponent<Renderer>().material.color = Color.Lerp(Color, BlinkColor, lerp);
                     break;
                 case Configuration.Transitions.Instant:
@@ -83,12 +91,12 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 {
                     Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInExpo);
                     agentBody.GetComponent<Renderer>().material.color = Color.Lerp(Color, BlinkColor,
-                        easeFunction(0, 1, Time.time - StartTime, BehaviorDuration));
+                        easeFunction(0, 1, Time.time - StartTime, AnimationIntervalTime));
                     break;
                 }
                 case Configuration.Transitions.EaseInOut:
                 {
-                    float totalTime = BehaviorDuration / 2;
+                    float totalTime = AnimationIntervalTime / 2;
 
                     if (Time.time - StartTime <= totalTime)
                     {
@@ -110,11 +118,17 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 }
             }
 
-            if (Time.time - StartTime > BehaviorDuration)
+            if ((Time.time - StartTime) > AnimationIntervalTime)
             {
-                IsOver = true;
-                FinalizeEffects(agentBody);
-                //Debug.Log("Behavior ended");
+                if (CurrentBehaviorRepetition == MaxBehaviorRepetitions)
+                {
+                    IsOver = true;
+                    FinalizeEffects(agentBody);
+                    //Debug.Log("Behavior ended");
+                    return;
+                }
+                CurrentBehaviorRepetition++;
+                StartTime = Time.time;
             }
         }
 

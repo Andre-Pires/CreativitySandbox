@@ -14,6 +14,10 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         protected float BehaviorDuration;
         protected float DriveMultiplier;
         protected const float DriveStep = 3.0f;
+        protected int MaxBehaviorRepetitions = 1;
+        protected int CurrentBehaviorRepetition = 1;
+        protected float AnimationIntervalTime;
+
 
         protected Behavior(float multiplier, bool behaviorDriveActive = true)
         {
@@ -29,6 +33,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         {
             StartTime = Time.time;
             IsOver = false;
+            BehaviorDrive = 0;
         }
 
         protected void UpdateBehaviorDriver()
@@ -47,7 +52,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
             }).Start();
         }
 
-        public abstract void PrepareBehavior(Body body, float duration);
+        public abstract void PrepareBehavior(Body body, int repetitions, float duration);
 
         public abstract void ApplyBehavior(Body agentBody);
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.Classes.Agent.ComposedBehaviors;
 using Assets.Scripts.Classes.Agent.SimpleBehaviors;
 using Assets.Scripts.Classes.Helpers;
 using UnityEngine;
@@ -80,7 +81,7 @@ namespace Assets.Scripts.Classes.Agent
         public BlinkBehavior BlinkBehavior;
         public ResizeBehavior ResizeBehavior;
         public RotationBehavior RotationBehavior;
-        public Dictionary<Configuration.Behaviors, Behavior> AgentBehaviors;
+        public Dictionary<Configuration.ComposedBehaviors, ComposedBehavior> AgentBehaviors;
 
         //dragging fields
         public bool DraggingStatus;
@@ -199,7 +200,7 @@ namespace Assets.Scripts.Classes.Agent
         public void Update()
         {
             
-            foreach (Behavior behavior in AgentBehaviors.Values)
+            foreach (ComposedBehavior behavior in AgentBehaviors.Values)
             {
                 if (!behavior.IsOver)
                 {

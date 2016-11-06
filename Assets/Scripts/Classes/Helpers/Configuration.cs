@@ -72,7 +72,21 @@ namespace Assets.Scripts.Classes.Helpers
             Sadness,
             Disgust,
             Fear,
-            Anger
+            Anger,
+            Random
+        }
+
+        public enum ActiveBehaviors
+        {
+            StandardBehavior,
+            ExcitedBehavior
+        }
+
+        public enum ProxemicDistance
+        {
+            Personal,
+            Social,
+            Intimate
         }
 
         // Singleton 	
@@ -104,6 +118,7 @@ namespace Assets.Scripts.Classes.Helpers
         public Dictionary<BlinkingSpeed, float> BlinkingSpeedsValues;
         public Dictionary<Personality, BlinkingSpeed> PersonalityBlinkingSpeeds;
         public Dictionary<Personality, Color> PersonalityColors;
+        public Dictionary<Personality, ComposedBehaviors> Personalitybehaviors;
         public Dictionary<Colors, Color> ColorNames;
         public Dictionary<Size, float> SizeValues;
         //due to the random order of execution in Unity's scripts, this assigment is required in the Awake function
@@ -119,6 +134,18 @@ namespace Assets.Scripts.Classes.Helpers
                 ColorNames.Add(pair.Name, pair.Color);
                 AvailableColors.Add(pair.Color);
             }
+
+            PersonalityColors = new Dictionary<Personality, Color>
+            {
+                {Personality.Shy, ColorNames[Colors.Purple]},
+                {Personality.Sociable, ColorNames[Colors.Pink]},
+                {Personality.Grumpy, ColorNames[Colors.Orange]},
+                {Personality.Friendly, ColorNames[Colors.Green]},
+                {Personality.Realist, ColorNames[Colors.Gray]},
+                {Personality.Imaginative, ColorNames[Colors.Yellow]},
+                {Personality.Foreigner, ColorNames[Colors.Brown]}
+            };
+
         }
 
         // Construct 	
@@ -149,7 +176,8 @@ namespace Assets.Scripts.Classes.Helpers
                 { Colors.Green, Color.green},
                 { Colors.Black, Color.black},
                 { Colors.White, Color.white},
-                { Colors.Yellow, Color.yellow}
+                { Colors.Yellow, Color.yellow},
+                { Colors.Gray, Color.gray},
             };
 
             BlinkingSpeedsValues = new Dictionary<BlinkingSpeed, float>
@@ -161,19 +189,7 @@ namespace Assets.Scripts.Classes.Helpers
                 {BlinkingSpeed.VerySlow, 3.0f}
             };
 
-            //TODO - change values to appropriate colors
-            PersonalityColors = new Dictionary<Personality, Color>
-            {
-                {Personality.Shy, Color.blue},
-                {Personality.Sociable, Color.magenta},
-                {Personality.Grumpy, Color.red},
-                {Personality.Friendly, Color.green},
-                {Personality.Realist, Color.black},
-                {Personality.Imaginative, Color.yellow},
-                {Personality.Foreigner, Color.black}
-            };
-
-            //TODO - change values to appropriate values
+            //for now these have been disregarded
             PersonalityBlinkingSpeeds = new Dictionary<Personality, BlinkingSpeed>
             {
                 {Personality.Shy, BlinkingSpeed.Slow},
@@ -183,6 +199,17 @@ namespace Assets.Scripts.Classes.Helpers
                 {Personality.Realist, BlinkingSpeed.VerySlow},
                 {Personality.Imaginative, BlinkingSpeed.VeryFast},
                 {Personality.Foreigner, BlinkingSpeed.Normal}
+            };
+
+            Personalitybehaviors = new Dictionary<Personality, ComposedBehaviors>
+            {
+                {Personality.Shy, ComposedBehaviors.Fear},
+                {Personality.Sociable, ComposedBehaviors.Joy},
+                {Personality.Grumpy, ComposedBehaviors.Anger},
+                {Personality.Friendly, ComposedBehaviors.Joy},
+                {Personality.Realist, ComposedBehaviors.Sadness},
+                {Personality.Imaginative, ComposedBehaviors.Joy},
+                {Personality.Foreigner, ComposedBehaviors.Random}
             };
 
             SizeValues = new Dictionary<Size, float>

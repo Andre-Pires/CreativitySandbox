@@ -15,14 +15,14 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         }
 
         //this function randomizes the Behavior
-        public override void PrepareBehavior(Body body, float duration)
+        public override void PrepareBehavior(Body body, int repetitions, float duration)
         {
             var transitionsCount = Configuration.Instance.AvailableTransitions.Count;
 
             //rotation Behavior
             Configuration.Transitions rotTransition =
                 Configuration.Instance.AvailableTransitions[Random.Range(0, transitionsCount)];
-            float rotationAmount = Random.Range(0.0f, 720.0f);
+            float rotationAmount = Random.Range(-540.0f, 540.0f);
 
             Orientation = body.CurrentRotation;
             FinalOrientation = rotationAmount;
@@ -37,13 +37,16 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 BehaviorDuration = duration;
             }
 
+            MaxBehaviorRepetitions = repetitions;
+            CurrentBehaviorRepetition = 1;
+            AnimationIntervalTime = BehaviorDuration / MaxBehaviorRepetitions;
         }
 
         //this function allows to customize the Behavior in the mind
-        public void PrepareBehavior(Body body, float rotationAmount, Configuration.Transitions rotationTransition, float duration)
+        public void PrepareBehavior(Body body, float rotationAmount, Configuration.Transitions rotationTransition, int repetitions, float duration)
         {
             Orientation = body.CurrentRotation;
-            FinalOrientation = rotationAmount;
+            FinalOrientation = Orientation + rotationAmount;
             RotateTransition = rotationTransition;
 
             if (rotationTransition == Configuration.Transitions.Instant)
@@ -54,6 +57,10 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
             {
                 BehaviorDuration = duration;
             }
+
+            MaxBehaviorRepetitions = repetitions;
+            CurrentBehaviorRepetition = 1;
+            AnimationIntervalTime = BehaviorDuration / MaxBehaviorRepetitions;
         }
 
         public override void ApplyBehavior(Body agentBody)
@@ -64,7 +71,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
             switch (RotateTransition)
             {
                 case Configuration.Transitions.Linear:
-                    var lerp = (Time.time - StartTime)/BehaviorDuration;
+                    var lerp = (Time.time - StartTime)/AnimationIntervalTime;
                     agentBody.transform.rotation = Quaternion.Slerp(agentBody.transform.rotation,
                         Quaternion.Euler(0, FinalOrientation, 0), lerp);
                     break;
@@ -75,14 +82,14 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 {
                     Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInExpo);
                     float currentRotation = easeFunction(Orientation, FinalOrientation - Orientation,
-                        Time.time - StartTime, BehaviorDuration);
+                        Time.time - StartTime, AnimationIntervalTime);
 
                     agentBody.transform.eulerAngles = new Vector3(rotationX, currentRotation, rotationZ);
                     break;
                 }
                 case Configuration.Transitions.EaseInOut:
                 {
-                    float totalTime = BehaviorDuration / 2;
+                    float totalTime = AnimationIntervalTime / 2;
 
                     if (Time.time - StartTime <= totalTime)
                     {
@@ -108,11 +115,17 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 }
             }
 
-            if (Time.time - StartTime > BehaviorDuration)
+            if ((Time.time - StartTime) > AnimationIntervalTime)
             {
-                IsOver = true;
-                FinalizeEffects(agentBody);
-                //Debug.Log("Behavior ended");
+                if (CurrentBehaviorRepetition == MaxBehaviorRepetitions)
+                {
+                    IsOver = true;
+                    FinalizeEffects(agentBody);
+                    //Debug.Log("Behavior ended");
+                    return;
+                }
+                CurrentBehaviorRepetition++;
+                StartTime = Time.time;
             }
 
         }

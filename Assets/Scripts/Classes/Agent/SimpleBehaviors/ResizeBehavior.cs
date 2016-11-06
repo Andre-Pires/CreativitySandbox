@@ -15,8 +15,9 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         }
 
         //this function randomizes the Behavior
-        public override void PrepareBehavior(Body body, float duration)
+        public override void PrepareBehavior(Body body, int repetitions, float duration)
         {
+            
             var transitionsCount = Configuration.Instance.AvailableTransitions.Count;
             var sizesCount = Configuration.Instance.AvailableSizes.Count;
 
@@ -49,10 +50,13 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 BehaviorDuration = duration;
             }
 
+            MaxBehaviorRepetitions = repetitions;
+            CurrentBehaviorRepetition = 1;
+            AnimationIntervalTime = BehaviorDuration / MaxBehaviorRepetitions;
         }
 
         //this function allows to customize the Behavior in the mind
-        public void PrepareBehavior(Body body, Configuration.Size finalSize, Configuration.Transitions sizeTransition, float duration)
+        public void PrepareBehavior(Body body, Configuration.Size finalSize, Configuration.Transitions sizeTransition, int repetitions, float duration)
         {
             Size = body.Size;
             FinalSize = finalSize;
@@ -66,6 +70,10 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
             {
                 BehaviorDuration = duration;
             }
+
+            MaxBehaviorRepetitions = repetitions;
+            CurrentBehaviorRepetition = 1;
+            AnimationIntervalTime = BehaviorDuration / MaxBehaviorRepetitions;
         }
 
         public override void ApplyBehavior(Body agentBody)
@@ -76,7 +84,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
             switch (SizeTransition)
             {
                 case Configuration.Transitions.Linear:
-                    var lerp = (Time.time - StartTime)/BehaviorDuration;
+                    var lerp = (Time.time - StartTime)/AnimationIntervalTime;
                     agentBody.transform.localScale = Vector3.one * (Mathf.Lerp(currentSize, finalSize, lerp));
                     agentBody.transform.localPosition = new Vector3(agentBody.transform.localPosition.x,
                         agentBody.transform.GetComponent<Renderer>().bounds.extents.y, agentBody.transform.localPosition.z);
@@ -87,14 +95,14 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 case Configuration.Transitions.EaseIn:
                 {
                     Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInExpo);
-                    agentBody.transform.localScale = Vector3.one * easeFunction(currentSize, finalSize - currentSize, Time.time - StartTime, BehaviorDuration);
+                    agentBody.transform.localScale = Vector3.one * easeFunction(currentSize, finalSize - currentSize, Time.time - StartTime, AnimationIntervalTime);
                     agentBody.transform.localPosition = new Vector3(agentBody.transform.localPosition.x,
                         agentBody.transform.GetComponent<Renderer>().bounds.extents.y, agentBody.transform.localPosition.z);
                 }
                     break;
                 case Configuration.Transitions.EaseInOut:
                 {
-                    float totalTime = BehaviorDuration / 2;
+                    float totalTime = AnimationIntervalTime / 2;
 
                     if (Time.time - StartTime <= totalTime)
                     {
@@ -123,13 +131,18 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                     break;
             }
 
-            if (Time.time - StartTime > BehaviorDuration)
+            if ((Time.time - StartTime) > AnimationIntervalTime)
             {
-                IsOver = true;
-                FinalizeEffects(agentBody);
-                //Debug.Log("Behavior ended");
+                if (CurrentBehaviorRepetition == MaxBehaviorRepetitions)
+                {
+                    IsOver = true;
+                    FinalizeEffects(agentBody);
+                    //Debug.Log("Behavior ended");
+                    return;
+                }
+                CurrentBehaviorRepetition++;
+                StartTime = Time.time;
             }
-
         }
 
         public override void FinalizeEffects(Body body)

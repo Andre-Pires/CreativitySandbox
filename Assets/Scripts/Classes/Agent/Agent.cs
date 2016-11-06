@@ -35,7 +35,8 @@ namespace Assets.Scripts.Classes.Agent
             var pieceName = Constants.CharacterName + " " + _currentPieceIndex;
             _currentPieceIndex++;
 
-            Piece newPiece = new Piece(pieceName, Configuration.Personality.CustomPersonality,
+            //TODO: always a joy personality - must change!!!!
+            Piece newPiece = new Piece(pieceName, Configuration.Personality.Friendly,
                 Configuration.Instance.AvailableSizes[Random.Range(0, numberOfSizes)], _pieces);
             _pieces.Add(pieceName, newPiece);
 

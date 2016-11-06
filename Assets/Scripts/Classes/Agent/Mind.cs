@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.Classes.Agent.ComposedBehaviors;
 using Assets.Scripts.Classes.Agent.SimpleBehaviors;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Interface;
@@ -11,7 +12,7 @@ namespace Assets.Scripts.Classes.Agent
     {
         private Body _body;
         private List<Piece> _otherPieces;
-        public Dictionary<Configuration.Behaviors, Behavior> AgentBehaviors;
+        public Dictionary<Configuration.ComposedBehaviors, ComposedBehavior> AgentBehaviors;
         //user input
         private bool _userDisturbedPiece;
 
@@ -21,12 +22,20 @@ namespace Assets.Scripts.Classes.Agent
         public float PersonalRadius = 17.0f;
         public float SocialRadius = 25.0f;
 
-        public void InitializeParameters(Body body, List<Piece> otherPieces)
+        public void InitializeParameters(Body body, Configuration.Personality personality, List<Piece> otherPieces)
         {
-            AgentBehaviors = new Dictionary<Configuration.Behaviors, Behavior>();
-            AgentBehaviors.Add(Configuration.Behaviors.Blink, new BlinkBehavior(Random.Range(1.0f, 2.5f)));
-            AgentBehaviors.Add(Configuration.Behaviors.Resize, new ResizeBehavior(Random.Range(1.0f, 2.5f)));
-            AgentBehaviors.Add(Configuration.Behaviors.Rotate, new RotationBehavior(Random.Range(1.0f, 2.5f)));
+            AgentBehaviors = new Dictionary<Configuration.ComposedBehaviors, ComposedBehavior>();
+
+            switch (personality)
+            {
+                case Configuration.Personality.Sociable:
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Joy, new JoyBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 2.5f)));
+                    break;
+
+                default: //TODO for now default launches the joy behavior
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Joy, new JoyBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 2.5f)));
+                    break;
+            }
 
             _body = body;
             _body.AgentBehaviors = AgentBehaviors; 
@@ -54,14 +63,17 @@ namespace Assets.Scripts.Classes.Agent
         {
             if (_userDisturbedPiece)
             {
-                List<Behavior> availableBehaviors = AgentBehaviors.Values.ToList().FindAll(b => b.IsOver == true);
+                List<ComposedBehavior> availableBehaviors = AgentBehaviors.Values.ToList().FindAll(b => b.IsOver == true);
+
                 //fires at least one Behavior
                 int behaviorsToExecute = Random.Range(1, availableBehaviors.Count);
 
-                while (behaviorsToExecute > 0)
+                while (behaviorsToExecute > 0 && availableBehaviors.Count > 0)
                 {
-                    Behavior currentBehavior = availableBehaviors[Random.Range(0, availableBehaviors.Count)];
-                    RunBehaviorAndNotify(currentBehavior);
+                    //TODO: isto estoira aqui tem a ver com o indice
+                    //o código está todo mal, tem de ser totalmente revisto 
+                    ComposedBehavior currentBehavior = availableBehaviors[Random.Range(0, availableBehaviors.Count)];
+                    RunBehaviorAndNotify(currentBehavior, Configuration.ActiveBehaviors.StandardBehavior);
 
                     behaviorsToExecute--;
                 }
@@ -74,44 +86,46 @@ namespace Assets.Scripts.Classes.Agent
 
         private void CheckIfBehaviorsReady()
         {
-            foreach (Behavior behavior in AgentBehaviors.Values)
+            //first check the excited behaviors, displayed when two pieces with the same behavior interact
+            foreach (ComposedBehavior behavior in AgentBehaviors.Values)
             {
-                //Debug.Log("type " + Behavior.BehaviorType + ", at " + ComplexBehavior.BehaviorDrive);
-                if (behavior.IsOver && behavior.BehaviorDrive >= 90)
+                //Debug.Log("behavior type " + behavior.BehaviorType + ", at " + behavior.StandardBehaviorDrive);
+
+                if (behavior.IsOver && behavior.ExcitedBehaviorDrive >= 90)
                 {
-                    RunBehaviorAndNotify(behavior);
+                    RunBehaviorAndNotify(behavior, Configuration.ActiveBehaviors.ExcitedBehavior);
+
+                    //Debug.Log("Inercia driven Behavior");
+                    return;
+                }
+            }
+
+            //then the standard behaviors, displayed in every other interaction
+            foreach (ComposedBehavior behavior in AgentBehaviors.Values)
+            {
+                //Debug.Log("behavior type " + behavior.BehaviorType + ", at " + behavior.StandardBehaviorDrive);
+
+                if (behavior.IsOver && behavior.StandardBehaviorDrive >= 90)
+                {
+                    RunBehaviorAndNotify(behavior, Configuration.ActiveBehaviors.StandardBehavior);
 
                     //Debug.Log("Inercia driven Behavior");
                 }
             }
         }
 
-        private void RunBehaviorAndNotify(Behavior behavior)
+        private void RunBehaviorAndNotify(ComposedBehavior behavior, Configuration.ActiveBehaviors behaviorToPrepare)
         {
-            //TODO: it can now be simplified
-            switch (behavior.BehaviorType)
-            {
-                case Configuration.Behaviors.Blink:
-                    (behavior as BlinkBehavior).PrepareBehavior(_body, _behaviorDuration);
-                    break;
-                case Configuration.Behaviors.Resize:
-                    (behavior as ResizeBehavior).PrepareBehavior(_body, _behaviorDuration);
-                    break;
-                case Configuration.Behaviors.Rotate:
-                    (behavior as RotationBehavior).PrepareBehavior(_body, _behaviorDuration);
-                    break;
-            }
+            behavior.PrepareBehavior(_body, behaviorToPrepare, _behaviorDuration);
+             
             behavior.StartBehavior();
 
             SendStimulus(behavior);
 
-            //reset inercia driver
-            behavior.BehaviorDrive = 0;
-
-            //Debug.Log("executed " + Behavior.BehaviorType);
+            Debug.Log("executed " + behavior.BehaviorType + " for " + _behaviorDuration + " seconds");
         }
 
-        public void SendStimulus(Behavior stimulatingBehavior)
+        public void SendStimulus(ComposedBehavior stimulatingBehavior)
         {
             Vector3 piecePosition = transform.position;
             foreach (Piece piece in _otherPieces)
@@ -120,41 +134,36 @@ namespace Assets.Scripts.Classes.Agent
             }
         }
 
-        public void ReceiveStimulus(Vector3 stimilusPosition, Behavior stimulatingBehavior)
+        public void ReceiveStimulus(Vector3 stimilusPosition, ComposedBehavior stimulatingBehavior)
         {
             Vector3 piecePosition = transform.localPosition;
             float sqrDistance = (stimilusPosition - piecePosition).sqrMagnitude;
             
             //filtering Behavior to simulate needs at this point; only affecting inactive behaviors
-            List<Behavior> affectedBehaviors = AgentBehaviors.Values.ToList().FindAll(b => (b.BehaviorType == stimulatingBehavior.BehaviorType) && b.IsOver);
+            List<ComposedBehavior> affectedBehaviors = AgentBehaviors.Values.ToList().FindAll(b => b.IsOver);
 
             //Debug.Log("Check stimuli: piece being called : " + transform.name + ", Behavior stimulus sent: " + stimulatingBehavior.BehaviorType);
 
-            foreach (Behavior behavior in affectedBehaviors)
+            foreach (ComposedBehavior behavior in affectedBehaviors)
             {
                 if (sqrDistance < SocialRadius * SocialRadius)
                 {
-                    if (behavior.BehaviorDrive < 100)
+                    if (behavior.StandardBehaviorDrive < 100)
                     {
                         if (sqrDistance < IntimateRadius * IntimateRadius)
                         {
-                            behavior.BehaviorDrive += 45;
+                            behavior.ReceiveStimuli(Configuration.ProxemicDistance.Intimate, stimulatingBehavior);
                         }
                         else if(sqrDistance < PersonalRadius * PersonalRadius)
                         {
-                            behavior.BehaviorDrive += 35;
+                            behavior.ReceiveStimuli(Configuration.ProxemicDistance.Personal, stimulatingBehavior);
                         }
                         else if (sqrDistance < SocialRadius * SocialRadius)
                         {
-                            behavior.BehaviorDrive += 25;
+                            behavior.ReceiveStimuli(Configuration.ProxemicDistance.Social, stimulatingBehavior);
                         }
 
-                        if (behavior.BehaviorDrive > 100)
-                        {
-                            behavior.BehaviorDrive = 100;
-                        }
-
-                        //Debug.Log("inercia after stimulus " + Behavior.BehaviorDrive + ", ComplexBehavior: " + ComposedBehavior.BehaviorType);
+                        //Debug.Log("inercia after stimulus " + Behavior.StandardBehaviorDrive + ", ComplexBehavior: " + ComposedBehavior.BehaviorType);
                     }
                 }
             }
