@@ -31,9 +31,12 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
 
         public void StartBehavior()
         {
-            StartTime = Time.time;
-            IsOver = false;
             BehaviorDrive = 0;
+            if (MaxBehaviorRepetitions > 0)
+            {
+                StartTime = Time.time;
+                IsOver = false;
+            }
         }
 
         protected void UpdateBehaviorDriver()

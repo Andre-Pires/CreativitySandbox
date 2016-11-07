@@ -89,7 +89,14 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                     break;
                 case Configuration.Transitions.EaseIn:
                 {
-                    Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInExpo);
+                    Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInQuint);
+                    agentBody.GetComponent<Renderer>().material.color = Color.Lerp(Color, BlinkColor,
+                        easeFunction(0, 1, Time.time - StartTime, AnimationIntervalTime));
+                    break;
+                }
+                case Configuration.Transitions.EaseOut:
+                {
+                    Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseOutQuint);
                     agentBody.GetComponent<Renderer>().material.color = Color.Lerp(Color, BlinkColor,
                         easeFunction(0, 1, Time.time - StartTime, AnimationIntervalTime));
                     break;
@@ -100,7 +107,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
 
                     if (Time.time - StartTime <= totalTime)
                     {
-                        Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInCubic);
+                        Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInQuint);
                         float timeElapsed = Time.time - StartTime;
                         agentBody.GetComponent<Renderer>().material.color = Color.Lerp(Color, BlinkColor, easeFunction(0, 1, timeElapsed, totalTime));
 
@@ -108,7 +115,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                     }
                     else
                     {
-                        Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseOutCubic);
+                        Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseOutQuint);
                         float timeElapsed = Time.time - StartTime - totalTime;
                         agentBody.GetComponent<Renderer>().material.color = Color.Lerp(Color, BlinkColor, 1-easeFunction(0, 1, timeElapsed, totalTime));
 
@@ -120,7 +127,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
 
             if ((Time.time - StartTime) > AnimationIntervalTime)
             {
-                if (CurrentBehaviorRepetition == MaxBehaviorRepetitions)
+                if (CurrentBehaviorRepetition == MaxBehaviorRepetitions + 1) 
                 {
                     IsOver = true;
                     FinalizeEffects(agentBody);

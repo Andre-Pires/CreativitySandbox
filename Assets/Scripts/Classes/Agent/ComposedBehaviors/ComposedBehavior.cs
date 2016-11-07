@@ -63,6 +63,8 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                 {
                     behavior.StartBehavior();
                 }
+
+                Debug.Log("Starting excited " + BehaviorType);
             }
             else
             {
@@ -72,6 +74,8 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                 {
                     behavior.StartBehavior();
                 }
+
+                Debug.Log("Starting standard " + BehaviorType);
             }
         }
 

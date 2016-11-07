@@ -27,15 +27,14 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                     {
                         case Configuration.Behaviors.Blink:
                             (behavior as BlinkBehavior).PrepareBehavior(body, _behaviorColor,
-                                Configuration.Transitions.EaseInOut, 5, duration);
+                                Configuration.Transitions.EaseInOut, 4, duration);
                             break;
                         case Configuration.Behaviors.Resize:
                             (behavior as ResizeBehavior).PrepareBehavior(body, Configuration.Size.Medium,
-                                Configuration.Transitions.EaseInOut, 4, duration);
+                                Configuration.Transitions.EaseInOut, 3, duration);
                             break;
                         case Configuration.Behaviors.Rotate:
-                            float randomDirection = UnityEngine.Random.Range(0, 100) > 50 ? 1 : -1;
-                            (behavior as RotationBehavior).PrepareBehavior(body, 360.0f * randomDirection,
+                            (behavior as RotationBehavior).PrepareBehavior(body, 360.0f, Configuration.RotationDirection.Random, 
                                 Configuration.Transitions.EaseIn, 2, duration);
                             break;
                         default:
@@ -55,11 +54,10 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                             break;
                         case Configuration.Behaviors.Resize:
                             (behavior as ResizeBehavior).PrepareBehavior(body, Configuration.Size.Medium,
-                                Configuration.Transitions.EaseInOut, 2, duration);
+                                Configuration.Transitions.EaseInOut, 1, duration);
                             break;
                         case Configuration.Behaviors.Rotate:
-                            float randomDirection = UnityEngine.Random.Range(0, 100) > 50 ? 1 : -1;
-                            (behavior as RotationBehavior).PrepareBehavior(body, 360.0f*randomDirection,
+                            (behavior as RotationBehavior).PrepareBehavior(body, 360.0f, Configuration.RotationDirection.Random, 
                                 Configuration.Transitions.EaseIn, 1, duration);
                             break;
                         default:

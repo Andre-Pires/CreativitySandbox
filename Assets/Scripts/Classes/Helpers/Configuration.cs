@@ -55,8 +55,17 @@ namespace Assets.Scripts.Classes.Helpers
         {
             Linear,
             EaseIn,
+            EaseOut,
             Instant,
             EaseInOut
+        }
+
+        public enum RotationDirection
+        {
+            Left,
+            Right,
+            Alternating,
+            Random
         }
 
         public enum Behaviors

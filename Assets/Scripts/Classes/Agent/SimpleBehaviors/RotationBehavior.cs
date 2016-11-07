@@ -8,6 +8,9 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         public Configuration.Transitions RotateTransition;
         public float Orientation;
         public float FinalOrientation;
+        public float RotationAmount;
+        public Configuration.RotationDirection RotationDirection;
+
 
         public RotationBehavior(float multiplier, bool behaviorDriveActive = true) : base(multiplier, behaviorDriveActive)
         {
@@ -22,11 +25,29 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
             //rotation Behavior
             Configuration.Transitions rotTransition =
                 Configuration.Instance.AvailableTransitions[Random.Range(0, transitionsCount)];
-            float rotationAmount = Random.Range(-540.0f, 540.0f);
+
+            RotationDirection = Configuration.RotationDirection.Random;
+            RotationAmount = Random.Range(-540.0f, 540.0f);
+            float randomDirection = Random.Range(0, 100) > 50 ? 1 : -1;
+            switch (RotationDirection)
+            {
+                case Configuration.RotationDirection.Left:
+                    RotationAmount *= -1.0f;
+                    break;
+                case Configuration.RotationDirection.Right:
+                    RotationAmount *= 1.0f;
+                    break;
+                case Configuration.RotationDirection.Alternating:
+                    RotationAmount *= randomDirection;
+                    break;
+                case Configuration.RotationDirection.Random:
+                    RotationAmount *= randomDirection;
+                    break;
+            }
 
             Orientation = body.CurrentRotation;
-            FinalOrientation = rotationAmount;
             RotateTransition = rotTransition;
+            FinalOrientation = Orientation + RotationAmount;
 
             if (rotTransition == Configuration.Transitions.Instant)
             {
@@ -37,17 +58,45 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 BehaviorDuration = duration;
             }
 
+            
             MaxBehaviorRepetitions = repetitions;
             CurrentBehaviorRepetition = 1;
             AnimationIntervalTime = BehaviorDuration / MaxBehaviorRepetitions;
+
+            //to allow one extra rotation to face foward again
+            if (RotationDirection == Configuration.RotationDirection.Alternating)
+            {
+                MaxBehaviorRepetitions++;
+            }
         }
 
         //this function allows to customize the Behavior in the mind
-        public void PrepareBehavior(Body body, float rotationAmount, Configuration.Transitions rotationTransition, int repetitions, float duration)
+        public void PrepareBehavior(Body body, float rotationAmount, Configuration.RotationDirection direction, Configuration.Transitions rotationTransition, int repetitions, float duration)
         {
+            
+            RotationAmount = rotationAmount;
+            RotationDirection = direction;
+            float randomDirection = Random.Range(0, 100) > 50 ? 1 : -1;
+            switch (RotationDirection)
+            {
+                case Configuration.RotationDirection.Left:
+                    RotationAmount *= -1.0f;
+                    break;
+                case Configuration.RotationDirection.Right:
+                    RotationAmount *= 1.0f;
+                    break;
+                case Configuration.RotationDirection.Alternating:
+                    RotationAmount *= randomDirection;
+                    break;
+                case Configuration.RotationDirection.Random:
+                    RotationAmount *= randomDirection;
+                    break;
+            }
+
             Orientation = body.CurrentRotation;
-            FinalOrientation = Orientation + rotationAmount;
             RotateTransition = rotationTransition;
+            FinalOrientation = Orientation + RotationAmount;
+
 
             if (rotationTransition == Configuration.Transitions.Instant)
             {
@@ -61,7 +110,14 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
             MaxBehaviorRepetitions = repetitions;
             CurrentBehaviorRepetition = 1;
             AnimationIntervalTime = BehaviorDuration / MaxBehaviorRepetitions;
+            
+            //to allow one extra rotation to face foward again
+            if (RotationDirection == Configuration.RotationDirection.Alternating)
+            {
+                MaxBehaviorRepetitions++;
+            }
         }
+
 
         public override void ApplyBehavior(Body agentBody)
         {
@@ -80,7 +136,16 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                     break;
                 case Configuration.Transitions.EaseIn:
                 {
-                    Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInExpo);
+                    Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInQuint);
+                    float currentRotation = easeFunction(Orientation, FinalOrientation - Orientation,
+                        Time.time - StartTime, AnimationIntervalTime);
+
+                    agentBody.transform.eulerAngles = new Vector3(rotationX, currentRotation, rotationZ);
+                    break;
+                }
+                case Configuration.Transitions.EaseOut:
+                {
+                    Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseOutQuint);
                     float currentRotation = easeFunction(Orientation, FinalOrientation - Orientation,
                         Time.time - StartTime, AnimationIntervalTime);
 
@@ -93,7 +158,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
 
                     if (Time.time - StartTime <= totalTime)
                     {
-                        Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInCubic);
+                        Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInQuint);
                         float distance = FinalOrientation - Orientation;
                         float timeElapsed = Time.time - StartTime;
                         float currentRotation = easeFunction(Orientation, distance, timeElapsed, totalTime);
@@ -103,7 +168,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                     }
                     else
                     {
-                        Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseOutCubic);
+                        Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseOutQuint);
                         float distance = -(FinalOrientation - Orientation);
                         float timeElapsed = Time.time - StartTime - totalTime;
                         float currentRotation = easeFunction(FinalOrientation, distance, timeElapsed, totalTime);
@@ -121,9 +186,25 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 {
                     IsOver = true;
                     FinalizeEffects(agentBody);
-                    //Debug.Log("Behavior ended");
+                    Debug.Log("Behavior ended");
                     return;
                 }
+
+                //if rotation alternates always invert the final orientation
+                if (RotationDirection == Configuration.RotationDirection.Alternating)
+                {
+                    float segmentFinalOrientation = FinalOrientation;
+                    FinalOrientation = Orientation + (-1.0f * RotationAmount);
+                    Orientation = segmentFinalOrientation;
+                    Debug.Log("alternating - current rot: " + agentBody.CurrentRotation + ", final rot " + FinalOrientation);
+
+                }
+                else
+                {
+                    Orientation = FinalOrientation;
+                    FinalOrientation = Orientation + RotationAmount;
+                }
+
                 CurrentBehaviorRepetition++;
                 StartTime = Time.time;
             }
@@ -132,7 +213,11 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
 
         public override void FinalizeEffects(Body body)
         {
+            //TODO- parece estar a fazer até aos 90 p ex e somar mais 90 ficando nos 180 - why?
+
             body.CurrentRotation = FinalOrientation;
+
+            Debug.Log("current rot: " + body.CurrentRotation + ", final rot " + FinalOrientation);
         }
 
     }
