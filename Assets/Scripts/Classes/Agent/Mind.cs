@@ -28,12 +28,23 @@ namespace Assets.Scripts.Classes.Agent
 
             switch (personality)
             {
-                case Configuration.Personality.Sociable:
+                case Configuration.Personality.Joy:
                     AgentBehaviors.Add(Configuration.ComposedBehaviors.Joy, new JoyBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 2.5f)));
                     break;
-
-                default: //TODO for now default launches the joy behavior
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Joy, new JoyBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 2.5f)));
+                case Configuration.Personality.Fear:
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Fear, new FearBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 2.5f)));
+                    break;
+                case Configuration.Personality.Anger:
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Anger, new AngerBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 2.5f)));
+                    break;
+                case Configuration.Personality.Disgust:
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Disgust, new DisgustBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 2.5f)));
+                    break;
+                case Configuration.Personality.Sadness:
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Sadness, new SadnessBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 2.5f)));
+                    break;
+                default: //TODO for now default launches one behavior
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Sadness, new SadnessBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 2.5f)));
                     break;
             }
 
@@ -70,8 +81,6 @@ namespace Assets.Scripts.Classes.Agent
 
                 while (behaviorsToExecute > 0 && availableBehaviors.Count > 0)
                 {
-                    //TODO: isto estoira aqui tem a ver com o indice
-                    //o código está todo mal, tem de ser totalmente revisto 
                     ComposedBehavior currentBehavior = availableBehaviors[Random.Range(0, availableBehaviors.Count)];
                     RunBehaviorAndNotify(currentBehavior, Configuration.ActiveBehaviors.StandardBehavior);
 
@@ -181,6 +190,7 @@ namespace Assets.Scripts.Classes.Agent
 
         public void OnDrawGizmos()
         {
+            /*
             Gizmos.color = Color.red;
 
             Gizmos.DrawWireSphere(transform.position, IntimateRadius);
@@ -192,7 +202,7 @@ namespace Assets.Scripts.Classes.Agent
             Gizmos.color = Color.green;
 
             Gizmos.DrawWireSphere(transform.position, SocialRadius);
-
+            */
         }
     }
 }

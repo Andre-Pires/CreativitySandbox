@@ -360,7 +360,8 @@ namespace Assets.Scripts.Classes.Agent
         public void OnDrawGizmos()
         {
             /*Gizmos.color = new Color(1, 0, 0, 0.5F);
-            Gizmos.DrawSphere(Body.position,Body.localScale.x/2);*/
+            Gizmos.DrawSphere(transform.position,transform.GetComponent<Renderer>().bounds.extents.magnitude);*/
+
         }
     }
 }

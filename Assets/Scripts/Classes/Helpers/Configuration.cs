@@ -18,13 +18,18 @@ namespace Assets.Scripts.Classes.Helpers
 
         public enum Personality
         {
-            Shy,
+            /*Shy,
             Sociable,
             Grumpy,
             Friendly,
             Realist,
             Imaginative,
-            Foreigner,
+            Foreigner,*/
+            Joy,
+            Sadness,
+            Disgust,
+            Fear,
+            Anger,
             CustomPersonality
         }
 
@@ -41,6 +46,7 @@ namespace Assets.Scripts.Classes.Helpers
             Blue,
             Cyan,
             Green,
+            DarkGreen,
             Brown
         }
 
@@ -127,7 +133,8 @@ namespace Assets.Scripts.Classes.Helpers
         public Dictionary<BlinkingSpeed, float> BlinkingSpeedsValues;
         public Dictionary<Personality, BlinkingSpeed> PersonalityBlinkingSpeeds;
         public Dictionary<Personality, Color> PersonalityColors;
-        public Dictionary<Personality, ComposedBehaviors> Personalitybehaviors;
+        public Dictionary<Personality, ComposedBehaviors> PersonalityBehaviors;
+        public Dictionary<Personality, Size> PersonalitySizes;
         public Dictionary<Colors, Color> ColorNames;
         public Dictionary<Size, float> SizeValues;
         //due to the random order of execution in Unity's scripts, this assigment is required in the Awake function
@@ -146,13 +153,18 @@ namespace Assets.Scripts.Classes.Helpers
 
             PersonalityColors = new Dictionary<Personality, Color>
             {
-                {Personality.Shy, ColorNames[Colors.Purple]},
+                /*{Personality.Shy, ColorNames[Colors.Pink]},
                 {Personality.Sociable, ColorNames[Colors.Pink]},
                 {Personality.Grumpy, ColorNames[Colors.Orange]},
                 {Personality.Friendly, ColorNames[Colors.Green]},
                 {Personality.Realist, ColorNames[Colors.Gray]},
                 {Personality.Imaginative, ColorNames[Colors.Yellow]},
-                {Personality.Foreigner, ColorNames[Colors.Brown]}
+                {Personality.Foreigner, ColorNames[Colors.Brown]}*/
+                {Personality.Joy, ColorNames[Colors.Green]},
+                {Personality.Sadness, ColorNames[Colors.Cyan]},
+                {Personality.Disgust, ColorNames[Colors.DarkGreen]},
+                {Personality.Anger, ColorNames[Colors.Orange]},
+                {Personality.Fear, ColorNames[Colors.Pink]},
             };
 
         }
@@ -201,24 +213,44 @@ namespace Assets.Scripts.Classes.Helpers
             //for now these have been disregarded
             PersonalityBlinkingSpeeds = new Dictionary<Personality, BlinkingSpeed>
             {
-                {Personality.Shy, BlinkingSpeed.Slow},
+                /*{Personality.Shy, BlinkingSpeed.Slow},
                 {Personality.Sociable, BlinkingSpeed.Normal},
                 {Personality.Grumpy, BlinkingSpeed.VeryFast},
                 {Personality.Friendly, BlinkingSpeed.Fast},
                 {Personality.Realist, BlinkingSpeed.VerySlow},
                 {Personality.Imaginative, BlinkingSpeed.VeryFast},
-                {Personality.Foreigner, BlinkingSpeed.Normal}
+                {Personality.Foreigner, BlinkingSpeed.Normal}*/
+                {Personality.Sadness, BlinkingSpeed.Slow},
+                {Personality.Fear, BlinkingSpeed.Fast},
+                {Personality.Anger, BlinkingSpeed.VeryFast},
+                {Personality.Joy, BlinkingSpeed.Fast},
+                {Personality.Disgust, BlinkingSpeed.Normal}
             };
 
-            Personalitybehaviors = new Dictionary<Personality, ComposedBehaviors>
+            PersonalityBehaviors = new Dictionary<Personality, ComposedBehaviors>
             {
+                /*
                 {Personality.Shy, ComposedBehaviors.Fear},
                 {Personality.Sociable, ComposedBehaviors.Joy},
                 {Personality.Grumpy, ComposedBehaviors.Anger},
                 {Personality.Friendly, ComposedBehaviors.Joy},
                 {Personality.Realist, ComposedBehaviors.Sadness},
                 {Personality.Imaginative, ComposedBehaviors.Joy},
-                {Personality.Foreigner, ComposedBehaviors.Random}
+                {Personality.Foreigner, ComposedBehaviors.Random}*/
+                {Personality.Fear, ComposedBehaviors.Fear},
+                {Personality.Joy, ComposedBehaviors.Joy},
+                {Personality.Anger, ComposedBehaviors.Anger},
+                {Personality.Sadness, ComposedBehaviors.Sadness},
+                {Personality.CustomPersonality, ComposedBehaviors.Random}
+            };
+
+            PersonalitySizes = new Dictionary<Personality, Size>
+            {
+                {Personality.Sadness, Size.Medium},
+                {Personality.Fear, Size.Medium},
+                {Personality.Anger, Size.Medium},
+                {Personality.Joy, Size.Medium},
+                {Personality.Disgust, Size.Medium}
             };
 
             SizeValues = new Dictionary<Size, float>

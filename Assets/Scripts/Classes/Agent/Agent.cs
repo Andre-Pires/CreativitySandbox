@@ -16,7 +16,7 @@ namespace Assets.Scripts.Classes.Agent
         public Agent()
         {
             //provide option to clear agent configuration
-            CreateAgentPiece.Instance.OnSelect += AddBlankComponent;
+            CreateAgentPiece.Instance.OnSelect += AddComponent;
 
             _pieces = new Dictionary<string, Piece>();
             _piecesUIManagers = new Dictionary<string, PieceUIManager>();
@@ -29,14 +29,13 @@ namespace Assets.Scripts.Classes.Agent
         }
 
         //create an initial component with random settings
-        public void AddBlankComponent()
+        public void AddComponent()
         {
             var numberOfSizes = Configuration.Instance.SizeValues.Count;
-            var pieceName = Constants.CharacterName + " " + _currentPieceIndex;
+            var pieceName = Constants.Instance.PersonalitiesStrings[Configuration.Personality.CustomPersonality] + " " + _currentPieceIndex;
             _currentPieceIndex++;
 
-            //TODO: always a joy personality - must change!!!!
-            Piece newPiece = new Piece(pieceName, Configuration.Personality.Friendly,
+            Piece newPiece = new Piece(pieceName, Configuration.Personality.CustomPersonality,
                 Configuration.Instance.AvailableSizes[Random.Range(0, numberOfSizes)], _pieces);
             _pieces.Add(pieceName, newPiece);
 
@@ -47,9 +46,26 @@ namespace Assets.Scripts.Classes.Agent
             _pieces.ToList().FindAll(p => p.Value.Name != pieceName).ForEach(p => p.Value.StoreAgentPiece(newPiece));
         }
 
-        public void AddCloneComponent(Piece piece)
+        public void AddComponent(Configuration.Personality personality)
         {
-            var pieceName = Constants.CharacterName + " " + _currentPieceIndex;
+            var numberOfSizes = Configuration.Instance.SizeValues.Count;
+            var pieceName = Constants.Instance.PersonalitiesStrings[personality] + " " + _currentPieceIndex;
+            _currentPieceIndex++;
+
+            Piece newPiece = new Piece(pieceName, personality,
+                Configuration.Instance.PersonalitySizes[personality], _pieces);
+            _pieces.Add(pieceName, newPiece);
+
+            PieceUIManager newPieceManager = new PieceUIManager(newPiece, this);
+            _piecesUIManagers.Add(pieceName, newPieceManager);
+
+            //adding the piece to the other agents minds 
+            _pieces.ToList().FindAll(p => p.Value.Name != pieceName).ForEach(p => p.Value.StoreAgentPiece(newPiece));
+        }
+
+        public void AddComponent(Piece piece)
+        {
+            var pieceName = Constants.Instance.PersonalitiesStrings[piece.Personality] + " " + _currentPieceIndex;
             _currentPieceIndex++;
 
             Piece newPiece = new Piece(pieceName, piece, _pieces);

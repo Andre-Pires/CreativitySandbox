@@ -127,7 +127,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
 
             if ((Time.time - StartTime) > AnimationIntervalTime)
             {
-                if (CurrentBehaviorRepetition == MaxBehaviorRepetitions + 1) 
+                if (CurrentBehaviorRepetition == MaxBehaviorRepetitions) 
                 {
                     IsOver = true;
                     FinalizeEffects(agentBody);

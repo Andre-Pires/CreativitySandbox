@@ -100,9 +100,9 @@ namespace Assets.Scripts.Classes.Helpers
                 var hitColliders = Physics.OverlapSphere(position,
                     transform.GetComponent<Renderer>().bounds.extents.magnitude);
 
-                //Debug.DrawLine(position, position + (transform.localScale / 2), Color.cyan, 30.0f);
+                //Debug.DrawLine(position, position + new Vector3(0, transform.GetComponent<Renderer>().bounds.extents.magnitude * 2.0f, 0), Color.red, 30.0f);
 
-                if (hitColliders.Length <= 1) //You haven't hit someone with a collider here, excluding ours
+                if (hitColliders.Length <= 0) //You haven't hit someone with a collider here
                 {
                     //Debug.Log("clear");
                     clearPosition = true;
@@ -115,8 +115,12 @@ namespace Assets.Scripts.Classes.Helpers
                     break;
                 }
             }
-            transform.localPosition = position;
+            transform.position = position;
+
+            //Debug.Log("count " + safetyCounter);
+
         }
+
 
         public static GameObject GetChild(GameObject parent, string name)
         {

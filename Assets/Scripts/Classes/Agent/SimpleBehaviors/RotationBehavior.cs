@@ -62,12 +62,6 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
             MaxBehaviorRepetitions = repetitions;
             CurrentBehaviorRepetition = 1;
             AnimationIntervalTime = BehaviorDuration / MaxBehaviorRepetitions;
-
-            //to allow one extra rotation to face foward again
-            if (RotationDirection == Configuration.RotationDirection.Alternating)
-            {
-                MaxBehaviorRepetitions++;
-            }
         }
 
         //this function allows to customize the Behavior in the mind
@@ -110,12 +104,6 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
             MaxBehaviorRepetitions = repetitions;
             CurrentBehaviorRepetition = 1;
             AnimationIntervalTime = BehaviorDuration / MaxBehaviorRepetitions;
-            
-            //to allow one extra rotation to face foward again
-            if (RotationDirection == Configuration.RotationDirection.Alternating)
-            {
-                MaxBehaviorRepetitions++;
-            }
         }
 
 
@@ -186,17 +174,25 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 {
                     IsOver = true;
                     FinalizeEffects(agentBody);
-                    Debug.Log("Behavior ended");
+                    //Debug.Log("Behavior ended");
                     return;
                 }
 
-                //if rotation alternates always invert the final orientation
+                //if rotation alternates always invert the previous orientation
                 if (RotationDirection == Configuration.RotationDirection.Alternating)
                 {
-                    float segmentFinalOrientation = FinalOrientation;
-                    FinalOrientation = Orientation + (-1.0f * RotationAmount);
-                    Orientation = segmentFinalOrientation;
-                    Debug.Log("alternating - current rot: " + agentBody.CurrentRotation + ", final rot " + FinalOrientation);
+                    if (CurrentBehaviorRepetition + 1 == MaxBehaviorRepetitions)
+                    {
+                        Orientation = FinalOrientation;
+                        FinalOrientation = agentBody.CurrentRotation;
+                    }
+                    else
+                    {
+                        float segmentFinalOrientation = FinalOrientation;
+                        RotationAmount *= -1.0f;
+                        FinalOrientation = agentBody.CurrentRotation + RotationAmount;
+                        Orientation = segmentFinalOrientation;
+                    }
 
                 }
                 else
@@ -213,11 +209,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
 
         public override void FinalizeEffects(Body body)
         {
-            //TODO- parece estar a fazer até aos 90 p ex e somar mais 90 ficando nos 180 - why?
-
             body.CurrentRotation = FinalOrientation;
-
-            Debug.Log("current rot: " + body.CurrentRotation + ", final rot " + FinalOrientation);
         }
 
     }

@@ -1,6 +1,4 @@
-﻿#define SOUND_VERSION_ACTIVE
-
-using Assets.Scripts.Classes.Helpers;
+﻿using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.IO;
 using Assets.Scripts.Classes.UI;
 using Assets.Scripts.Scripts.CameraControl;

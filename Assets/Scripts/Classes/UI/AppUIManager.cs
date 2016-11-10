@@ -57,7 +57,9 @@ namespace Assets.Scripts.Classes.UI
         //necessary since if gameObjects start inactive their associated scripts aren't accessible
         public void SetupUI()
         {
-            GameObject.Find("MainMenu").gameObject.SetActive(false);
+            GameObject.Find("PieceMenu").gameObject.SetActive(false);
+            GameObject.Find("PieceSelection").gameObject.SetActive(false);
+            Debug.Log("desactivou");
             GameObject.Find("SceneSelector").gameObject.SetActive(false);
             GameObject.Find("Settings Menu/Options").gameObject.SetActive(false);
 
