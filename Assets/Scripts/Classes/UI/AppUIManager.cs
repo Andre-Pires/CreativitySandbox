@@ -9,18 +9,21 @@ namespace Assets.Scripts.Classes.UI
     {
         private static AppUIManager _instance;
 
-        private GameObject _audioRecordingStartInfo;
-        private GameObject _audioRecordingStoppedInfo;
-        public GameObject AvailableAgentPiecesList;
+        //General UI
+        public GameObject AudioRecordingStartInfo;
+        public GameObject AudioRecordingStoppedInfo;
+        private bool _recordingStoppedInfoTimeout;
 
-        
+        //Application
         public GameObject ApplicationMode;
 
         //Agent
         public GameObject PieceSelection;
+        public GameObject AvailableAgentPiecesList;
 
         //Screen Recorder
         public GameObject ClearVideoRecordings;
+        public GameObject TakeSnapshot;
         public GameObject MovieActScreen;
         public GameObject ActScreenInput;
         public GameObject ActScreenSave;
@@ -31,19 +34,17 @@ namespace Assets.Scripts.Classes.UI
         public GameObject ColorMenuCloseButton;
         public GameObject SkyboxColorPicker;
         public GameObject SetColorPicker;
+        public GameObject ColorPicker;
 
         //Canvases
         public GameObject MainCanvas;
         public GameObject ScreenOverlays;
-
-        private bool _recordingStoppedInfoTimeout;
 
         public void Awake()
         {
             //due to the random order of execution in Unity's scripts, this assigment is required in the Awake function
             _instance = FindObjectOfType(typeof(AppUIManager)) as AppUIManager;
 
-            BindUIObjects();
             SetupUI();
         }
 
@@ -64,23 +65,12 @@ namespace Assets.Scripts.Classes.UI
             }
         }
 
-        private void BindUIObjects()
-        {
-            _audioRecordingStartInfo = GameObject.Find("AudioRecordingWarning").gameObject;
-            _audioRecordingStoppedInfo = GameObject.Find("AudioRecordingSuccessful").gameObject;
-        }
-
-
         // ReSharper disable once InconsistentNaming
         //necessary since if gameObjects start inactive their associated scripts aren't accessible
         public void SetupUI()
         {
-            GameObject.Find("PieceMenu").gameObject.SetActive(false);
-            GameObject.Find("PieceSelection").gameObject.SetActive(false);
-            GameObject.Find("SceneSelector").gameObject.SetActive(false);
-
-            _audioRecordingStartInfo.SetActive(false);
-            _audioRecordingStoppedInfo.SetActive(false);
+            AudioRecordingStartInfo.SetActive(false);
+            AudioRecordingStoppedInfo.SetActive(false);
             MovieActScreen.SetActive(false);
             ActScreenSave.SetActive(false);
 
@@ -95,13 +85,13 @@ namespace Assets.Scripts.Classes.UI
 
         public void DisplayRecordingStarted()
         {
-            _audioRecordingStartInfo.SetActive(true);
+            AudioRecordingStartInfo.SetActive(true);
         }
 
         public void DisplayRecordingStopped()
         {
-            _audioRecordingStartInfo.SetActive(false);
-            _audioRecordingStoppedInfo.SetActive(true);
+            AudioRecordingStartInfo.SetActive(false);
+            AudioRecordingStoppedInfo.SetActive(true);
 
             new Thread(() =>
             {
@@ -128,7 +118,7 @@ namespace Assets.Scripts.Classes.UI
         {
             if (_recordingStoppedInfoTimeout)
             {
-                _audioRecordingStoppedInfo.SetActive(false);
+                AudioRecordingStoppedInfo.SetActive(false);
                 _recordingStoppedInfoTimeout = false;
             }
 

@@ -59,8 +59,8 @@ namespace Assets.Scripts.Classes.IO
                 throw new NullReferenceException("The panel used for flash is deactivated in the editor");
             }
 
-            TakeSnapshot.Instance.OnSelect += TakeSingleSnapshot;
-            AppUIManager.Instance.ClearVideoRecordings.GetComponent<ClearVideoRecordings>().OnSelect += ClearMovieRecordings;
+            AppUIManager.Instance.TakeSnapshot.GetComponent<Button>().onClick.AddListener(TakeSingleSnapshot);
+            AppUIManager.Instance.ClearVideoRecordings.GetComponent<Button>().onClick.AddListener(ClearMovieRecordings);
             //clear empty directories
             ClearEmptyDirectories();
 
@@ -257,18 +257,11 @@ namespace Assets.Scripts.Classes.IO
             HandleScreenFlash();
         }
 
-        public void OnApplicationQuit()
-        {
-            //removing listeners when destroyed
-            TakeSnapshot.Instance.OnSelect -= TakeSingleSnapshot;
-            AppUIManager.Instance.ClearVideoRecordings.GetComponent<ClearVideoRecordings>().OnSelect -= ClearMovieRecordings;
-        }
-
         // ReSharper disable once InconsistentNaming
         public void OnGUI()
         {
             //only show if there is a previous shot and is pointing at scenario
-            if (_numberOfShots > 0 && !AppUIManager.Instance.MovieActScreen.activeSelf)
+            if (_numberOfShots > 0 && !(AppUIManager.Instance.MovieActScreen.activeSelf || AppUIManager.Instance.ColorPicker.activeSelf))
             {
                 GUI.color = new Color(1.0f, 1.0f, 1.0f, OverlayOpacity);
                 GUI.DrawTexture(_rect, _latestScreenshot, ScaleMode.StretchToFill, true);

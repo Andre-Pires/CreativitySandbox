@@ -205,7 +205,7 @@ namespace Assets.Scripts.Scripts.CameraControl
 
             if (_lookAtInUse == null)
             {
-                Debug.Log("Look at is null");
+                //Debug.Log("Look at is null");
                 return;
             }
 

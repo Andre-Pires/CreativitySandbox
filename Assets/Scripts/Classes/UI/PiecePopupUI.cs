@@ -62,7 +62,7 @@ namespace Assets.Scripts.Classes.UI
         {
             if (settingsPopup != null)
             {
-                settingsPopup.transform.SetParent(GameObject.Find("Canvas").transform, false);
+                settingsPopup.transform.SetParent(AppUIManager.Instance.MainCanvas.transform, false);
                 settingsPopup.name = _piece.Name + "_Popup";
 
                 {

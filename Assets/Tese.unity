@@ -2843,7 +2843,6 @@ GameObject:
   - 222: {fileID: 451152058}
   - 114: {fileID: 451152057}
   - 114: {fileID: 451152056}
-  - 114: {fileID: 451152055}
   m_Layer: 5
   m_Name: Delete
   m_TagString: Untagged
@@ -2870,17 +2869,6 @@ RectTransform:
   m_AnchoredPosition: {x: 385, y: 133.89119}
   m_SizeDelta: {x: 60, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &451152055
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 451152053}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d6abd59ff11e59438ece5f469346b78, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &451152056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2920,17 +2908,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 451152055}
-        m_MethodName: OnClick
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 234570562}
         m_MethodName: SetActive
         m_Mode: 6
@@ -4673,10 +4650,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf49553c3e753f043ab56761981610c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AvailableAgentPiecesList: {fileID: 991127180}
+  AudioRecordingStartInfo: {fileID: 1708712544}
+  AudioRecordingStoppedInfo: {fileID: 1003677821}
   ApplicationMode: {fileID: 579640024}
   PieceSelection: {fileID: 1736919667}
+  AvailableAgentPiecesList: {fileID: 991127180}
   ClearVideoRecordings: {fileID: 451152053}
+  TakeSnapshot: {fileID: 1676369661}
   MovieActScreen: {fileID: 1146532284}
   ActScreenInput: {fileID: 1780544783}
   ActScreenSave: {fileID: 1743241234}
@@ -4684,7 +4664,8 @@ MonoBehaviour:
   ColorPickerBackground: {fileID: 424300782}
   ColorMenuCloseButton: {fileID: 954289696}
   SkyboxColorPicker: {fileID: 2011569250}
-  SetColorPicker: {fileID: 1645391047}
+  SetColorPicker: {fileID: 1187055318}
+  ColorPicker: {fileID: 1645391047}
   MainCanvas: {fileID: 37629686}
   ScreenOverlays: {fileID: 1574385645}
 --- !u!1 &859803789
@@ -5920,7 +5901,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 1.25}
-  m_SizeDelta: {x: 0, y: 2.5}
+  m_SizeDelta: {x: -450, y: 2.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &991127182
 MonoBehaviour:
@@ -6084,7 +6065,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1003677822
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6637,7 +6618,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1254273326
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7139,7 +7120,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1440860364
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8100,7 +8081,6 @@ GameObject:
   - 222: {fileID: 1676369666}
   - 114: {fileID: 1676369665}
   - 114: {fileID: 1676369664}
-  - 114: {fileID: 1676369663}
   m_Layer: 5
   m_Name: Shoot
   m_TagString: Untagged
@@ -8127,17 +8107,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1676369663
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1676369661}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c5a090bb0e812d4788fb64a8fbd8659, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1676369664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8176,18 +8145,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1676369665}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1676369663}
-        m_MethodName: OnClick
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &1676369665
@@ -8350,7 +8308,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1708712545
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8512,7 +8470,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 2.5}
-  m_SizeDelta: {x: 0, y: 5}
+  m_SizeDelta: {x: -450, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1736619247
 CanvasRenderer:
@@ -8569,7 +8527,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1736919668
 RectTransform:
   m_ObjectHideFlags: 0

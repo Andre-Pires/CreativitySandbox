@@ -51,11 +51,11 @@ namespace Assets.Scripts.Scripts.UI
 
                     if (pieceName != "")
                     {
-                        transform.GetComponent<CreateAgentPiece>().OnTrigger(tempPersonality, pieceName);
-                        pieceNameInput.SetActive(false);
-                        ScreenOverlays.SetActive(false);
                         MainCanvas.SetActive(true);
+                        ScreenOverlays.SetActive(false);
+                        pieceNameInput.SetActive(false);
                         pieceNameInput.GetComponentInChildren<InputField>().text = "";
+                        transform.GetComponent<CreateAgentPiece>().OnTrigger(tempPersonality, pieceName);
                     }
                 });
 
