@@ -17,7 +17,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         //this function randomizes the Behavior
         public override void PrepareBehavior(Body body, int repetitions, float duration)
         {
-            
+            KeepBehaviorSetting = false;
             var transitionsCount = Configuration.Instance.AvailableTransitions.Count;
             var sizesCount = Configuration.Instance.AvailableSizes.Count;
 
@@ -56,8 +56,10 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         }
 
         //this function allows to customize the Behavior in the mind
-        public void PrepareBehavior(Body body, Configuration.Size finalSize, Configuration.Transitions sizeTransition, int repetitions, float duration)
+        public void PrepareBehavior(Body body, Configuration.Size finalSize, Configuration.Transitions sizeTransition,
+            int repetitions, float duration, bool keepBehaviorSetting = false)
         {
+            KeepBehaviorSetting = keepBehaviorSetting;
             Size = body.Size;
             FinalSize = finalSize;
             SizeTransition = sizeTransition;
@@ -71,7 +73,14 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 BehaviorDuration = duration;
             }
 
-            MaxBehaviorRepetitions = repetitions;
+            if (keepBehaviorSetting)
+            {
+                MaxBehaviorRepetitions = repetitions +1;
+            }
+            else
+            {
+                MaxBehaviorRepetitions = repetitions;
+            }
             CurrentBehaviorRepetition = 1;
             AnimationIntervalTime = BehaviorDuration / MaxBehaviorRepetitions;
         }
@@ -94,7 +103,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                     break;
                 case Configuration.Transitions.EaseIn:
                 {
-                    Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInQuint);
+                    Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInSine);
                     agentBody.transform.localScale = Vector3.one*
                                                      easeFunction(currentSize, finalSize - currentSize,
                                                          Time.time - StartTime, AnimationIntervalTime);
@@ -105,7 +114,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 }
                 case Configuration.Transitions.EaseOut:
                 {
-                    Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseOutQuint);
+                    Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseOutSine);
                     agentBody.transform.localScale = Vector3.one *
                                                         easeFunction(currentSize, finalSize - currentSize,
                                                             Time.time - StartTime, AnimationIntervalTime);
@@ -120,7 +129,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
 
                     if (Time.time - StartTime <= totalTime)
                     {
-                        Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInQuint);
+                        Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInSine);
                         float distance = finalSize - currentSize;
                         float timeElapsed = Time.time - StartTime;
                         agentBody.transform.localScale = Vector3.one * easeFunction(currentSize, distance, timeElapsed, totalTime);
@@ -131,7 +140,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                     }
                     else
                     {
-                        Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseOutQuint);
+                        Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseOutSine);
                         float distance = -(finalSize - currentSize);
                         float timeElapsed = Time.time - StartTime - totalTime;
                         agentBody.transform.localScale = Vector3.one * easeFunction(finalSize, distance, timeElapsed, totalTime);
@@ -147,7 +156,11 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
 
             if ((Time.time - StartTime) > AnimationIntervalTime)
             {
-                if (CurrentBehaviorRepetition == MaxBehaviorRepetitions)
+                if (CurrentBehaviorRepetition + 1 == MaxBehaviorRepetitions && KeepBehaviorSetting)
+                {
+                    SizeTransition = Configuration.Transitions.EaseIn;
+                }
+                else if (CurrentBehaviorRepetition == MaxBehaviorRepetitions)
                 {
                     IsOver = true;
                     FinalizeEffects(agentBody);
@@ -162,13 +175,13 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         public override void FinalizeEffects(Body body)
         {
             //by easing out we are leaving the original color in place
-            if (SizeTransition == Configuration.Transitions.EaseInOut)
+            if (KeepBehaviorSetting)
             {
-                body.Size = Size;
+                body.Size = FinalSize;
             }
             else
             {
-                body.Size = FinalSize;
+                body.Size = Size;
             }
         }
 

@@ -5,27 +5,51 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts.Classes.UI
 {
-    public class AppUIManager
+    public class AppUIManager : MonoBehaviour
     {
         private static AppUIManager _instance;
 
         private GameObject _audioRecordingStartInfo;
         private GameObject _audioRecordingStoppedInfo;
         public GameObject AvailableAgentPiecesList;
-        public GameObject ColorMenuCloseButton;
-        public GameObject SkyboxColorPicker;
-        public GameObject SetColorPicker;
+
+        
+        public GameObject ApplicationMode;
+
+        //Agent
+        public GameObject PieceSelection;
+
+        //Screen Recorder
+        public GameObject ClearVideoRecordings;
         public GameObject MovieActScreen;
         public GameObject ActScreenInput;
         public GameObject ActScreenSave;
+        public GameObject ScreenFlashOverlay;
+
+        //Scenario Color Picker
+        public GameObject ColorPickerBackground;
+        public GameObject ColorMenuCloseButton;
+        public GameObject SkyboxColorPicker;
+        public GameObject SetColorPicker;
+
+        //Canvases
+        public GameObject MainCanvas;
+        public GameObject ScreenOverlays;
 
         private bool _recordingStoppedInfoTimeout;
+
+        public void Awake()
+        {
+            //due to the random order of execution in Unity's scripts, this assigment is required in the Awake function
+            _instance = FindObjectOfType(typeof(AppUIManager)) as AppUIManager;
+
+            BindUIObjects();
+            SetupUI();
+        }
 
         // Construct 	
         private AppUIManager()
         {
-            BindUIObjects();
-            SetupUI();
         }
 
         //  Instance 	
@@ -34,7 +58,8 @@ namespace Assets.Scripts.Classes.UI
             get
             {
                 if (_instance == null)
-                    _instance = new AppUIManager();
+                    //due to the random order of execution in Unity's scripts, this assigment is required in the Awake function
+                    _instance = FindObjectOfType(typeof(AppUIManager)) as AppUIManager;
                 return _instance;
             }
         }
@@ -43,13 +68,6 @@ namespace Assets.Scripts.Classes.UI
         {
             _audioRecordingStartInfo = GameObject.Find("AudioRecordingWarning").gameObject;
             _audioRecordingStoppedInfo = GameObject.Find("AudioRecordingSuccessful").gameObject;
-            AvailableAgentPiecesList = GameObject.Find("AvailableAgentPieces/Image/List").gameObject;
-            SetColorPicker = GameObject.Find("SetColors").gameObject;
-            SkyboxColorPicker = GameObject.Find("SkyboxColors").gameObject;
-            ColorMenuCloseButton = GameObject.Find("Scenario Color controls/CloseButton").gameObject;
-            MovieActScreen = GameObject.Find("CreateNewActScreen");
-            ActScreenInput = GameObject.Find("CreateNewActScreen/WriteMessage");
-            ActScreenSave = GameObject.Find("CreateNewActScreen/SaveScreen");
         }
 
 
@@ -59,17 +77,15 @@ namespace Assets.Scripts.Classes.UI
         {
             GameObject.Find("PieceMenu").gameObject.SetActive(false);
             GameObject.Find("PieceSelection").gameObject.SetActive(false);
-            Debug.Log("desactivou");
             GameObject.Find("SceneSelector").gameObject.SetActive(false);
-            GameObject.Find("Settings Menu/Options").gameObject.SetActive(false);
 
             _audioRecordingStartInfo.SetActive(false);
             _audioRecordingStoppedInfo.SetActive(false);
-            SetColorPicker.SetActive(false);
-            SkyboxColorPicker.SetActive(false);
-            ColorMenuCloseButton.SetActive(false);
             MovieActScreen.SetActive(false);
             ActScreenSave.SetActive(false);
+
+            //inactive canvas
+            ScreenOverlays.SetActive(false);
 
             if (!Configuration.Instance.CameraMovementActive)
             {
@@ -92,6 +108,20 @@ namespace Assets.Scripts.Classes.UI
                 Thread.Sleep(1500);
                 _recordingStoppedInfoTimeout = true;
             }).Start();
+        }
+
+        public void SwitchUIApplicationMode(Configuration.ApplicationMode applicationMode)
+        {
+            if (applicationMode == Configuration.ApplicationMode.AutonomousAgent)
+            {
+                ApplicationMode.GetComponent<Image>().sprite =
+                    Resources.Load<Sprite>("Images/ColorfulButtons/OnRobot");
+            }
+            else
+            {
+                ApplicationMode.GetComponent<Image>().sprite =
+                    Resources.Load<Sprite>("Images/ColorfulButtons/OffRobot");
+            }
         }
 
         public void Update()

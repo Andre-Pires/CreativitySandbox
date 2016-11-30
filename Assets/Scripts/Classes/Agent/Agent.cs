@@ -12,11 +12,12 @@ namespace Assets.Scripts.Classes.Agent
         private readonly Dictionary<string, Piece> _pieces;
         private readonly Dictionary<string, PieceUIManager> _piecesUIManagers;
         private int _currentPieceIndex;
+        public Configuration.ApplicationMode CurrentApplicationMode;
 
-        public Agent()
+        public Agent(Configuration.ApplicationMode currentApplicationMode)
         {
-            //provide option to clear agent configuration
-            CreateAgentPiece.Instance.OnSelect += AddComponent;
+            CurrentApplicationMode = currentApplicationMode;
+            AppUIManager.Instance.PieceSelection.GetComponent<CreateAgentPiece>().OnSelect += AddComponent;
 
             _pieces = new Dictionary<string, Piece>();
             _piecesUIManagers = new Dictionary<string, PieceUIManager>();
@@ -35,32 +36,64 @@ namespace Assets.Scripts.Classes.Agent
             var pieceName = Constants.Instance.PersonalitiesStrings[Configuration.Personality.CustomPersonality] + " " + _currentPieceIndex;
             _currentPieceIndex++;
 
+            List<Piece> autonomousPieces = new List<Piece>();
+            _pieces.ToList().FindAll(p => p.Value.Name != pieceName && p.Value.PieceMode == Configuration.ApplicationMode.AutonomousAgent)
+                .ForEach(p => autonomousPieces.Add(p.Value));
+
             Piece newPiece = new Piece(pieceName, Configuration.Personality.CustomPersonality,
-                Configuration.Instance.AvailableSizes[Random.Range(0, numberOfSizes)], _pieces);
+                Configuration.Instance.AvailableSizes[Random.Range(0, numberOfSizes)], autonomousPieces, CurrentApplicationMode);
             _pieces.Add(pieceName, newPiece);
 
             PieceUIManager newPieceManager = new PieceUIManager(newPiece, this);
             _piecesUIManagers.Add(pieceName, newPieceManager);
 
             //adding the piece to the other agents minds 
-            _pieces.ToList().FindAll(p => p.Value.Name != pieceName).ForEach(p => p.Value.StoreAgentPiece(newPiece));
+            UpdateOtherAutonomousPieces(newPiece);
         }
 
-        public void AddComponent(Configuration.Personality personality)
+        public void AddComponent(Configuration.Personality personality, string name = null)
         {
-            var numberOfSizes = Configuration.Instance.SizeValues.Count;
-            var pieceName = Constants.Instance.PersonalitiesStrings[personality] + " " + _currentPieceIndex;
+            string pieceName;
+            if (name == null)
+            {
+                pieceName = Constants.Instance.PersonalitiesStrings[personality] + " " + _currentPieceIndex;
+            }
+            else
+            {
+                var nameExtension = 0;
+
+                foreach (var piece in _pieces)
+                {
+                    if (piece.Key == name)
+                    {
+                        nameExtension++;
+                    }
+                }
+
+                if (nameExtension == 0)
+                {
+                    pieceName = name;
+                }
+                else
+                {
+                    pieceName = name + " " + nameExtension;
+                }
+            }
             _currentPieceIndex++;
 
+            List<Piece> autonomousPieces = new List<Piece>();
+            _pieces.ToList().FindAll(p => p.Value.Name != pieceName && p.Value.PieceMode == Configuration.ApplicationMode.AutonomousAgent)
+                .ForEach(p => autonomousPieces.Add(p.Value));
+
             Piece newPiece = new Piece(pieceName, personality,
-                Configuration.Instance.PersonalitySizes[personality], _pieces);
+                Configuration.Instance.PersonalitySizes[personality], autonomousPieces, CurrentApplicationMode);
             _pieces.Add(pieceName, newPiece);
 
             PieceUIManager newPieceManager = new PieceUIManager(newPiece, this);
             _piecesUIManagers.Add(pieceName, newPieceManager);
 
             //adding the piece to the other agents minds 
-            _pieces.ToList().FindAll(p => p.Value.Name != pieceName).ForEach(p => p.Value.StoreAgentPiece(newPiece));
+            UpdateOtherAutonomousPieces(newPiece);
         }
 
         public void AddComponent(Piece piece)
@@ -68,22 +101,29 @@ namespace Assets.Scripts.Classes.Agent
             var pieceName = Constants.Instance.PersonalitiesStrings[piece.Personality] + " " + _currentPieceIndex;
             _currentPieceIndex++;
 
-            Piece newPiece = new Piece(pieceName, piece, _pieces);
+            List<Piece> autonomousPieces = new List<Piece>();
+            _pieces.ToList().FindAll(p => p.Value.Name != pieceName && p.Value.PieceMode == Configuration.ApplicationMode.AutonomousAgent)
+                .ForEach(p => autonomousPieces.Add(p.Value));
+
+            Piece newPiece = new Piece(pieceName, piece, autonomousPieces);
             _pieces.Add(pieceName, newPiece);
 
             PieceUIManager newPieceManager = new PieceUIManager(newPiece, this);
             _piecesUIManagers.Add(pieceName, newPieceManager);
 
             //adding the piece to the other agents minds 
-            _pieces.ToList().FindAll(p => p.Value.Name != pieceName).ForEach(p =>  p.Value.StoreAgentPiece(newPiece));
+            UpdateOtherAutonomousPieces(newPiece);
         }
 
         public void EraseAgentPiece(string pieceName)
         {
             Piece tempPiece =_pieces[pieceName];
 
-            //clearing the piece from other agents minds 
-            _pieces.ToList().FindAll(p => p.Value.Name != pieceName).ForEach(p => p.Value.RemoveStoredAgentPiece(tempPiece));
+            if (tempPiece.PieceMode == Configuration.ApplicationMode.AutonomousAgent)
+            {
+                //clearing the piece from other agents minds 
+                _pieces.ToList().FindAll(p => p.Value.Name != pieceName).ForEach(p => p.Value.RemoveStoredAgentPiece(tempPiece));
+            }
 
             _pieces.Remove(pieceName);
             tempPiece.DestroyPiece();
@@ -111,6 +151,15 @@ namespace Assets.Scripts.Classes.Agent
         public void ToggleAgentVisibility()
         {
             _piecesUIManagers.ToList().ForEach(p => p.Value.TogglePieceVisibility());
+        }
+
+        public void UpdateOtherAutonomousPieces(Piece piece)
+        {
+            if (piece.PieceMode == Configuration.ApplicationMode.AutonomousAgent)
+            {
+                _pieces.ToList().FindAll(p => p.Value.Name != piece.Name && p.Value.PieceMode == Configuration.ApplicationMode.AutonomousAgent)
+                    .ForEach(p => p.Value.StoreAgentPiece(piece));
+            }
         }
 
         public void OnDrawGizmos()

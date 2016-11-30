@@ -5,11 +5,17 @@ namespace Assets.Scripts.Scripts.UI
 {
     public class CreateAgentPiece : MonoBehaviour
     {
-        public delegate void OnSelectEvent(Configuration.Personality piecePersonality);
+        public delegate void OnSelectEvent(Configuration.Personality piecePersonality, string pieceName);
         public event OnSelectEvent OnSelect;
 
         // Singleton 	
         private static CreateAgentPiece _instance;
+
+        public void Awake()
+        {
+            if (_instance == null)
+                _instance = FindObjectOfType(typeof(CreateAgentPiece)) as CreateAgentPiece;
+        }
 
         // Construct 	
         private CreateAgentPiece()
@@ -21,7 +27,6 @@ namespace Assets.Scripts.Scripts.UI
         {
             get
             {
-                Debug.Log("get");
                 if (_instance == null)
                     _instance = FindObjectOfType(typeof(CreateAgentPiece)) as CreateAgentPiece;
                 return _instance;
@@ -33,12 +38,12 @@ namespace Assets.Scripts.Scripts.UI
         {
         }
 
-        public void OnTrigger(Configuration.Personality personality)
+        public void OnTrigger(Configuration.Personality personality, string pieceName)
         {
             // Notify of the event!
             if (OnSelect != null)
             {
-                OnSelect(personality);
+                OnSelect(personality, pieceName);
             }
             else
             {

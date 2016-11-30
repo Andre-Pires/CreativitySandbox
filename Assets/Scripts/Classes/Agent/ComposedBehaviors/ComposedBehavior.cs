@@ -28,6 +28,7 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
         protected float BehaviorDuration;
         protected float StartTime;
         public bool IsOver = true;
+        public bool BehaviorHalted;
 
         protected ComposedBehavior(float standardMultiplier, float excitedMultiplier)
         {
@@ -81,17 +82,22 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
 
         protected void UpdateBehaviorDriver()
         {
-            if (StandardBehaviorDrive <= 100)
+            if (!BehaviorHalted)
             {
-                StandardBehaviorDrive += StandardDriveStep * StandardDriveMultiplier;
+                if (StandardBehaviorDrive <= 100)
+                {
+                    StandardBehaviorDrive += StandardDriveStep * StandardDriveMultiplier;
+                }
+
+                if (ExcitedBehaviorDrive <= 100)
+                {
+                    ExcitedBehaviorDrive += ExcitedDriveStep * ExcitedDriveMultiplier;
+                }
+            
             }
 
-            if (ExcitedBehaviorDrive <= 100)
-            {
-                ExcitedBehaviorDrive += ExcitedDriveStep * ExcitedDriveMultiplier;
-            }
-
-            //Debug.Log("inercia state " + InerciaDriver);
+            /*Debug.Log("inercia state " + StandardBehaviorDrive);
+            Debug.Log("inercia state " + ExcitedBehaviorDrive);*/
 
             new Thread(() =>
             {
@@ -151,32 +157,29 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
         public void ApplyBehavior(Body agentBody)
         {
             IsOver = true;
-
+            List<Behavior> behaviorsToApply;
             if (ActiveBehavior == Configuration.ActiveBehaviors.ExcitedBehavior)
             {
-                foreach (Behavior behavior in ExcitedBehaviors)
-                {
-                    behavior.ApplyBehavior(agentBody);
-
-                    if (IsOver == true && !behavior.IsOver)
-                    {
-                        IsOver = false;
-                    }
-                }
+                behaviorsToApply = ExcitedBehaviors;
             }
             else
             {
-                foreach (Behavior behavior in StandardBehaviors)
+                behaviorsToApply = StandardBehaviors;
+            }
+
+            foreach (Behavior behavior in behaviorsToApply)
+            {
+                if (!behavior.IsOver)
                 {
                     behavior.ApplyBehavior(agentBody);
+                }
 
-                    if (IsOver == true && !behavior.IsOver)
-                    {
-                        IsOver = false;
-                    }
+                if (IsOver == true && !behavior.IsOver)
+                {
+                    IsOver = false;
                 }
             }
-            
+
         }
 
         public abstract void PrepareBehavior(Body body, Configuration.ActiveBehaviors behaviorToPrepare, float duration);

@@ -9,6 +9,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
     {
         public Configuration.Behaviors BehaviorType;
         public bool IsOver = true;
+        public bool KeepBehaviorSetting = false;
         public float BehaviorDrive = Random.Range(0.0f, 35.0f);
         protected float StartTime;
         protected float BehaviorDuration;
@@ -17,7 +18,6 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         protected int MaxBehaviorRepetitions = 1;
         protected int CurrentBehaviorRepetition = 1;
         protected float AnimationIntervalTime;
-
 
         protected Behavior(float multiplier, bool behaviorDriveActive = true)
         {
@@ -32,7 +32,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         public void StartBehavior()
         {
             BehaviorDrive = 0;
-            if (MaxBehaviorRepetitions > 0)
+            if (MaxBehaviorRepetitions > 0 && BehaviorDuration > 0.0f)
             {
                 StartTime = Time.time;
                 IsOver = false;

@@ -16,60 +16,60 @@ namespace Assets.Scripts.Classes.Agent
         public readonly Mind Mind;
         private SoundRecorder _soundRecorder;
         public Configuration.Personality Personality { get; private set; }
+        public readonly Configuration.ApplicationMode PieceMode;
+
+        public bool IsPieceVisible
+        {
+            private set
+            {
+                //no behavior
+            }
+
+            get { return _cubeObject.activeSelf; }
+        }
 
         //Piece cloner
-        public Piece(string name, Piece piece, Dictionary<string, Piece> allPieces)
+        public Piece(string name, Piece piece, List<Piece> autonomousPieces)
         {
             Personality = piece.Personality;
             Name = name;
             PieceComponentInitializer();
-
-            List<Piece> otherPieces = new List<Piece>();
-            foreach (KeyValuePair<string, Piece> keyValuePair in allPieces)
-            {
-                if (keyValuePair.Key == Name)
-                {
-                    continue;
-                }
-
-                otherPieces.Add(keyValuePair.Value);
-            }
+            PieceMode = piece.PieceMode;
 
             _cubeObject.AddComponent<Body>();
             Body = _cubeObject.GetComponent<Body>();
             Body.InitializeParameters(piece.Body);
 
-            _cubeObject.AddComponent<Mind>();
-            Mind = _cubeObject.GetComponent<Mind>();
-            Mind.InitializeParameters(piece.Body, Personality, otherPieces);
+            if (PieceMode == Configuration.ApplicationMode.AutonomousAgent)
+            {
+                List<Piece> otherPieces = autonomousPieces;
 
+                _cubeObject.AddComponent<Mind>();
+                Mind = _cubeObject.GetComponent<Mind>();
+                Mind.InitializeParameters(piece.Body, Personality, otherPieces);
+            }
             Debug.Log("New agent part added: part " + name + ". " + piece.Body.Size + " size and " + Personality + " personality");
         }
 
-        public Piece(string name, Configuration.Personality personality, Configuration.Size size, Dictionary<string, Piece> allPieces)
+        public Piece(string name, Configuration.Personality personality, Configuration.Size size, List<Piece> autonomousPieces, Configuration.ApplicationMode pieceMode)
         {
             Personality = personality;
             Name = name;
+            PieceMode = pieceMode;
             PieceComponentInitializer();
-
-            List<Piece> otherPieces = new List<Piece>();
-            foreach (KeyValuePair<string, Piece> keyValuePair in allPieces)
-            {
-                if (keyValuePair.Key == Name)
-                {
-                    continue;
-                }
-
-                otherPieces.Add(keyValuePair.Value);
-            }
 
             _cubeObject.AddComponent<Body>();
             Body = _cubeObject.GetComponent<Body>();
             Body.InitializeParameters(size, personality);
 
-            _cubeObject.AddComponent<Mind>();
-            Mind = _cubeObject.GetComponent<Mind>();
-            Mind.InitializeParameters(Body, Personality, otherPieces);
+            if (PieceMode == Configuration.ApplicationMode.AutonomousAgent)
+            {
+                List<Piece> otherPieces = autonomousPieces;
+
+                _cubeObject.AddComponent<Mind>();
+                Mind = _cubeObject.GetComponent<Mind>();
+                Mind.InitializeParameters(Body, Personality, otherPieces);
+            }
 
             Debug.Log("New agent part added: part " + name + ". " + size + " size and " + personality + " personality");
         }
@@ -124,6 +124,10 @@ namespace Assets.Scripts.Classes.Agent
             }
 
             _cubeObject.SetActive(_cubeObject.activeSelf != true);
+
+            //halt agent modules when piece is invisible
+            Mind.MindHalted = !Mind.MindHalted;
+            Body.BodyHalted = !Body.BodyHalted;
         }
 
         public void OnDrawGizmos()

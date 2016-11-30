@@ -1,8 +1,10 @@
-﻿using Assets.Scripts.Classes.Helpers;
+﻿using System.ComponentModel;
+using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.IO;
 using Assets.Scripts.Classes.UI;
 using Assets.Scripts.Scripts.CameraControl;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.Classes
 {
@@ -12,6 +14,7 @@ namespace Assets.Scripts.Classes
         private Configuration _configuration;
         private GameObject _scene;
         private AppUIManager _UIManager;
+        private Configuration.ApplicationMode _activeMode = Configuration.ApplicationMode.AutonomousAgent;
 
         // Use this for initialization
         public void Start()
@@ -24,8 +27,6 @@ namespace Assets.Scripts.Classes
                 _scene.AddComponent<MicrophoneInput>();
             }
 
-            _agent = new Agent.Agent();
-
             //Camera control script
             Camera.main.gameObject.AddComponent<ThirdPersonCamera>();
 
@@ -36,7 +37,11 @@ namespace Assets.Scripts.Classes
             _configuration = _scene.GetComponent<Configuration>();
 
             //NOTE: should run last to allow the remaining components to setup first
-            _UIManager = AppUIManager.Instance;
+            _UIManager = _scene.GetComponent<AppUIManager>();
+
+            AppUIManager.Instance.ApplicationMode.GetComponent<Button>().onClick.AddListener(UpdateApplicationMode);
+
+            _agent = new Agent.Agent(_activeMode);
         }
 
         // Update is called once per frame
@@ -47,21 +52,37 @@ namespace Assets.Scripts.Classes
 
             if (Input.GetKeyDown(KeyCode.Escape))
                 UnityEngine.Application.Quit();
+        }
 
-            _UIManager.Update();
+        public void UpdateApplicationMode()
+        {
+            switch (_activeMode)
+            {
+                case Configuration.ApplicationMode.AutonomousAgent:
+                    _activeMode = Configuration.ApplicationMode.ManuallyActivatedAgent;
+                    break;
+                case Configuration.ApplicationMode.ManuallyActivatedAgent:
+                    _activeMode = Configuration.ApplicationMode.AutonomousAgent;
+                    break;
+                default:
+                    throw new InvalidEnumArgumentException("Didn't pair with the implemented application modes");
+            }
+
+            _agent.CurrentApplicationMode = _activeMode;
         }
 
         public void OnDrawGizmos()
         {
             if (!UnityEngine.Application.isPlaying) return;
 
-            _agent.OnDrawGizmos();
+            if (_agent != null)
+                _agent.OnDrawGizmos();
         }
 
         public void OnGUI()
         {
-            _agent.OnGUI();
-            _UIManager.OnGUI();
+            if (_agent != null)
+                _agent.OnGUI();
         }
     }
 }

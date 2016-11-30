@@ -44,6 +44,7 @@ namespace Assets.Scripts.Classes.Helpers
             Pink,
             Purple,
             Blue,
+            DarkBlue,
             Cyan,
             Green,
             DarkGreen,
@@ -104,6 +105,12 @@ namespace Assets.Scripts.Classes.Helpers
             Intimate
         }
 
+        public enum ApplicationMode
+        {
+            AutonomousAgent,
+            ManuallyActivatedAgent
+        }
+
         // Singleton 	
         private static Configuration _instance;
 
@@ -137,9 +144,10 @@ namespace Assets.Scripts.Classes.Helpers
         public Dictionary<Personality, Size> PersonalitySizes;
         public Dictionary<Colors, Color> ColorNames;
         public Dictionary<Size, float> SizeValues;
-        //due to the random order of execution in Unity's scripts, this assigment is required in the Awake function
+
         public void Awake()
         {
+            //due to the random order of execution in Unity's scripts, this assigment is required in the Awake function
             _instance = FindObjectOfType(typeof(Configuration)) as Configuration;
 
             ColorNames = new Dictionary<Colors, Color>();
@@ -160,11 +168,11 @@ namespace Assets.Scripts.Classes.Helpers
                 {Personality.Realist, ColorNames[Colors.Gray]},
                 {Personality.Imaginative, ColorNames[Colors.Yellow]},
                 {Personality.Foreigner, ColorNames[Colors.Brown]}*/
-                {Personality.Joy, ColorNames[Colors.Green]},
-                {Personality.Sadness, ColorNames[Colors.Cyan]},
+                {Personality.Joy, ColorNames[Colors.Yellow]},
+                {Personality.Sadness, ColorNames[Colors.Blue]},
                 {Personality.Disgust, ColorNames[Colors.DarkGreen]},
-                {Personality.Anger, ColorNames[Colors.Orange]},
-                {Personality.Fear, ColorNames[Colors.Pink]},
+                {Personality.Anger, ColorNames[Colors.Red]},
+                {Personality.Fear, ColorNames[Colors.Purple]},
             };
 
         }

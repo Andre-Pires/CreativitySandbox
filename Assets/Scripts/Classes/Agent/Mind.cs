@@ -10,6 +10,17 @@ namespace Assets.Scripts.Classes.Agent
 {
     public class Mind : MonoBehaviour, IPropagateStimuli
     {
+        private bool _mindHalted;
+        public bool MindHalted
+        {
+            set
+            {
+                _mindHalted = value;
+                AgentBehaviors.Values.ToList().ForEach(behavior => behavior.BehaviorHalted = value);
+            }
+
+            get { return _mindHalted; }
+        }
         private Body _body;
         private List<Piece> _otherPieces;
         public Dictionary<Configuration.ComposedBehaviors, ComposedBehavior> AgentBehaviors;
@@ -29,22 +40,22 @@ namespace Assets.Scripts.Classes.Agent
             switch (personality)
             {
                 case Configuration.Personality.Joy:
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Joy, new JoyBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 2.5f)));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Joy, new JoyBehavior(Random.Range(1.0f, 1.5f), 0));
                     break;
                 case Configuration.Personality.Fear:
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Fear, new FearBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 2.5f)));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Fear, new FearBehavior(Random.Range(1.0f, 1.5f), 0));
                     break;
                 case Configuration.Personality.Anger:
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Anger, new AngerBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 2.5f)));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Anger, new AngerBehavior(Random.Range(1.0f, 1.5f), 0));
                     break;
                 case Configuration.Personality.Disgust:
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Disgust, new DisgustBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 2.5f)));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Disgust, new DisgustBehavior(Random.Range(1.0f, 1.5f), 0));
                     break;
                 case Configuration.Personality.Sadness:
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Sadness, new SadnessBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 2.5f)));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Sadness, new SadnessBehavior(Random.Range(1.0f, 1.5f), 0));
                     break;
                 default: //TODO for now default launches one behavior
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Sadness, new SadnessBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 2.5f)));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Sadness, new SadnessBehavior(Random.Range(1.0f, 1.5f), 0));
                     break;
             }
 
@@ -62,14 +73,27 @@ namespace Assets.Scripts.Classes.Agent
 
         public void Update()
         {
+            if (MindHalted)
+            {
+                return;
+            }
+
             //used in the behaviors triggered this frame
             _behaviorDuration = Random.Range(1.0f, 2.5f);
 
-            CheckForUserInput();
+            //CheckForUserInput();
 
             CheckIfBehaviorsReady();
+
+            //TODO - remove - only for debugging, fires the excited behavior
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                AgentBehaviors.ToList().FirstOrDefault().Value.ReceiveStimuli(Configuration.ProxemicDistance.Personal, AgentBehaviors.ToList().FirstOrDefault().Value);
+            }
         }
 
+
+        //NOTE: unused at the moment
         private void CheckForUserInput()
         {
             if (_userDisturbedPiece)
@@ -137,7 +161,7 @@ namespace Assets.Scripts.Classes.Agent
         public void SendStimulus(ComposedBehavior stimulatingBehavior)
         {
             Vector3 piecePosition = transform.position;
-            foreach (Piece piece in _otherPieces)
+            foreach (Piece piece in _otherPieces.FindAll(p => p.IsPieceVisible))
             {
                 piece.Mind.ReceiveStimulus(piecePosition, stimulatingBehavior);
             }
@@ -151,7 +175,7 @@ namespace Assets.Scripts.Classes.Agent
             //filtering Behavior to simulate needs at this point; only affecting inactive behaviors
             List<ComposedBehavior> affectedBehaviors = AgentBehaviors.Values.ToList().FindAll(b => b.IsOver);
 
-            //Debug.Log("Check stimuli: piece being called : " + transform.name + ", Behavior stimulus sent: " + stimulatingBehavior.BehaviorType);
+            Debug.Log("Check stimuli: piece being called : " + transform.name + ", Behavior stimulus sent: " + stimulatingBehavior.BehaviorType);
 
             foreach (ComposedBehavior behavior in affectedBehaviors)
             {
@@ -190,7 +214,6 @@ namespace Assets.Scripts.Classes.Agent
 
         public void OnDrawGizmos()
         {
-            /*
             Gizmos.color = Color.red;
 
             Gizmos.DrawWireSphere(transform.position, IntimateRadius);
@@ -202,7 +225,6 @@ namespace Assets.Scripts.Classes.Agent
             Gizmos.color = Color.green;
 
             Gizmos.DrawWireSphere(transform.position, SocialRadius);
-            */
         }
     }
 }

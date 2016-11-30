@@ -7,7 +7,7 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
 {
     public class DisgustBehavior : ComposedBehavior
     {
-        private readonly Color _behaviorColor = Configuration.Instance.ColorNames[Configuration.Colors.Green];
+        private readonly Color _behaviorColor = Configuration.Instance.ColorNames[Configuration.Colors.Purple];
 
         public DisgustBehavior(float standardMultiplier, float excitedMultiplier) : base(standardMultiplier, excitedMultiplier)
         {
@@ -27,15 +27,15 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                     {
                         case Configuration.Behaviors.Blink:
                             (behavior as BlinkBehavior).PrepareBehavior(body, _behaviorColor,
-                                Configuration.Transitions.EaseInOut, 8, duration);
+                                Configuration.Transitions.EaseInOut, 8, 2.0f, true);
                             break;
                         case Configuration.Behaviors.Resize:
                             (behavior as ResizeBehavior).PrepareBehavior(body, Configuration.Size.Small,
-                                Configuration.Transitions.EaseInOut, 10, duration);
+                                Configuration.Transitions.EaseInOut, 5, 2.0f, true);
                             break;
                         case Configuration.Behaviors.Rotate:
                             (behavior as RotationBehavior).PrepareBehavior(body, 25.0f, Configuration.RotationDirection.Alternating, 
-                                Configuration.Transitions.EaseIn, 6, duration);
+                                Configuration.Transitions.EaseIn, 6, 2.0f);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -49,16 +49,33 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                     switch (behavior.BehaviorType)
                     {
                         case Configuration.Behaviors.Blink:
-                            (behavior as BlinkBehavior).PrepareBehavior(body, _behaviorColor,
-                                Configuration.Transitions.EaseInOut, 4, duration);
+                            if (body.Color == _behaviorColor)
+                            {
+                                Color newColor = Configuration.Instance.PersonalityColors[Configuration.Personality.Disgust];
+                                (behavior as BlinkBehavior).PrepareBehavior(body, newColor,
+                                    Configuration.Transitions.EaseInOut, 4, 1.7f, true);
+                            }
+                            else
+                            {
+                                (behavior as BlinkBehavior).PrepareBehavior(body, _behaviorColor,
+                                    Configuration.Transitions.EaseInOut, 4, 1.7f);
+                            }
                             break;
                         case Configuration.Behaviors.Resize:
-                            (behavior as ResizeBehavior).PrepareBehavior(body, Configuration.Size.Small,
-                                Configuration.Transitions.EaseInOut, 4, duration);
+                            if (body.Size == Configuration.Size.Small)
+                            {
+                                (behavior as ResizeBehavior).PrepareBehavior(body, Configuration.Size.Medium,
+                                    Configuration.Transitions.EaseInOut, 3, 1.7f, true);
+                            }
+                            else
+                            {
+                                (behavior as ResizeBehavior).PrepareBehavior(body, Configuration.Size.Small,
+                                    Configuration.Transitions.EaseInOut, 3, 1.7f);
+                            }
                             break;
                         case Configuration.Behaviors.Rotate:
                             (behavior as RotationBehavior).PrepareBehavior(body, 25.0f, Configuration.RotationDirection.Alternating, 
-                                Configuration.Transitions.Linear, 4, duration);
+                                Configuration.Transitions.Linear, 4, 1.7f);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();

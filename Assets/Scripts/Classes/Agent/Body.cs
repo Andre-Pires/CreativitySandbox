@@ -9,7 +9,9 @@ namespace Assets.Scripts.Classes.Agent
 {
     public class Body : MonoBehaviour
     {
+        public bool BodyHalted;
         private Transform _body;
+        private Mind _mind;
         private bool _alreadyInitialized;
         private const float ScenarioPlacementRadius = 26.0f;
         public delegate void OnPropertyChange();
@@ -96,9 +98,14 @@ namespace Assets.Scripts.Classes.Agent
         //autonomous Behavior
         public bool DisplayingBehavior;
 
-        public void InitializeParameters(Configuration.Size size, Configuration.Personality personality)
+        public void InitializeParameters(Configuration.Size size, Configuration.Personality personality, Mind mind = null)
         {
             _body = transform;
+
+            if (mind != null)
+            {
+                _mind = mind;
+            }
 
             if (personality == Configuration.Personality.CustomPersonality)
             {
@@ -199,21 +206,29 @@ namespace Assets.Scripts.Classes.Agent
 
         public void Update()
         {
-            
-            foreach (ComposedBehavior behavior in AgentBehaviors.Values)
+            if (BodyHalted)
             {
-                if (!behavior.IsOver)
+                return;
+            }
+
+            //TODO - not very elegant
+            if (AgentBehaviors != null)
+            {
+                foreach (ComposedBehavior behavior in AgentBehaviors.Values)
                 {
-                    behavior.ApplyBehavior(this);
+                    if (!behavior.IsOver)
+                    {
+                        behavior.ApplyBehavior(this);
+                    }
                 }
             }
 
             HandleBlinking();
-
             HandleRotation();
 
             HandleDragging();
         }
+
 
         private void HandleBlinking()
         {

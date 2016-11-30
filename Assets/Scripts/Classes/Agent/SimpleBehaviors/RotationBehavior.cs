@@ -9,6 +9,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         public float Orientation;
         public float FinalOrientation;
         public float RotationAmount;
+        public float AnimationEndPause;
         public Configuration.RotationDirection RotationDirection;
 
 
@@ -20,6 +21,9 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         //this function randomizes the Behavior
         public override void PrepareBehavior(Body body, int repetitions, float duration)
         {
+            //random direction doesn't pause when changing direction
+            AnimationEndPause = 0;
+            KeepBehaviorSetting = false;
             var transitionsCount = Configuration.Instance.AvailableTransitions.Count;
 
             //rotation Behavior
@@ -65,9 +69,12 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         }
 
         //this function allows to customize the Behavior in the mind
-        public void PrepareBehavior(Body body, float rotationAmount, Configuration.RotationDirection direction, Configuration.Transitions rotationTransition, int repetitions, float duration)
+        public void PrepareBehavior(Body body, float rotationAmount, Configuration.RotationDirection direction, Configuration.Transitions rotationTransition,
+            int repetitions, float duration, float changeDirectionPause = 0, bool keepBehaviorParameter = false)
         {
-            
+            AnimationEndPause = changeDirectionPause;
+            KeepBehaviorSetting = keepBehaviorParameter;
+
             RotationAmount = rotationAmount;
             RotationDirection = direction;
             float randomDirection = Random.Range(0, 100) > 50 ? 1 : -1;
@@ -101,7 +108,14 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 BehaviorDuration = duration;
             }
 
-            MaxBehaviorRepetitions = repetitions;
+            if (direction == Configuration.RotationDirection.Alternating)
+            {
+                MaxBehaviorRepetitions = repetitions + 1;
+            }
+            else
+            {
+                MaxBehaviorRepetitions = repetitions;
+            }
             CurrentBehaviorRepetition = 1;
             AnimationIntervalTime = BehaviorDuration / MaxBehaviorRepetitions;
         }
@@ -111,6 +125,13 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         {
             float rotationX = agentBody.transform.rotation.eulerAngles.x;
             float rotationZ = agentBody.transform.rotation.eulerAngles.z;
+
+            //when the animation is over we pause before changing direction
+            if ((Time.time - StartTime) > AnimationIntervalTime && (Time.time - StartTime) < (AnimationIntervalTime + AnimationEndPause)
+                && CurrentBehaviorRepetition != MaxBehaviorRepetitions)
+            {
+                return;
+            }
 
             switch (RotateTransition)
             {
@@ -168,16 +189,15 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 }
             }
 
-            if ((Time.time - StartTime) > AnimationIntervalTime)
+            if ((Time.time - StartTime) > AnimationIntervalTime && CurrentBehaviorRepetition == MaxBehaviorRepetitions)
             {
-                if (CurrentBehaviorRepetition == MaxBehaviorRepetitions)
-                {
-                    IsOver = true;
-                    FinalizeEffects(agentBody);
-                    //Debug.Log("Behavior ended");
-                    return;
-                }
-
+                IsOver = true;
+                FinalizeEffects(agentBody);
+                //Debug.Log("Behavior ended");
+                return;
+            }
+            else if ((Time.time - StartTime) > (AnimationIntervalTime + AnimationEndPause) && CurrentBehaviorRepetition != MaxBehaviorRepetitions)
+            {
                 //if rotation alternates always invert the previous orientation
                 if (RotationDirection == Configuration.RotationDirection.Alternating)
                 {
@@ -204,12 +224,19 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 CurrentBehaviorRepetition++;
                 StartTime = Time.time;
             }
-
         }
 
         public override void FinalizeEffects(Body body)
         {
-            body.CurrentRotation = FinalOrientation;
+
+            if (KeepBehaviorSetting)
+            {
+                body.CurrentRotation = RotationAmount;
+            }
+            else
+            {
+                body.CurrentRotation = FinalOrientation;
+            }
         }
 
     }

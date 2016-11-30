@@ -166,7 +166,7 @@ namespace Assets.Scripts.Scripts.UI
             }
 
             //A non-clickable backdrop was added to block raycasting
-            GameObject closeBackdrop = Utility.GetChild(gameObject, "Background");
+            GameObject closeBackdrop = AppUIManager.Instance.ColorPickerBackground;
             closeBackdrop.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.height);
         }
     }

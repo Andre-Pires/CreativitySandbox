@@ -116,6 +116,8 @@ namespace Assets.Scripts.Classes.Helpers
                 }
             }
             transform.position = position;
+            //the bounds give out a local y
+            transform.localPosition = new Vector3(transform.localPosition.x, prefabBounds.extents.y ,transform.localPosition.z);
 
             //Debug.Log("count " + safetyCounter);
 

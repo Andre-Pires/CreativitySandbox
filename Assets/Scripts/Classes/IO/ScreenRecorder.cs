@@ -53,15 +53,14 @@ namespace Assets.Scripts.Classes.IO
             SetupCustomActScreen(_applicationResWidth, _applicationResHeight);
             //
 
-            _screenFlashPanel = GameObject.Find("ScreenFlash");
+            _screenFlashPanel = AppUIManager.Instance.ScreenFlashOverlay;
             if (_screenFlashPanel == null)
             {
                 throw new NullReferenceException("The panel used for flash is deactivated in the editor");
             }
-            _screenFlashPanel.SetActive(false);
 
             TakeSnapshot.Instance.OnSelect += TakeSingleSnapshot;
-            ClearVideoRecordings.Instance.OnSelect += ClearMovieRecordings;
+            AppUIManager.Instance.ClearVideoRecordings.GetComponent<ClearVideoRecordings>().OnSelect += ClearMovieRecordings;
             //clear empty directories
             ClearEmptyDirectories();
 
@@ -201,7 +200,6 @@ namespace Assets.Scripts.Classes.IO
             {
                 AppUIManager.Instance.ActScreenInput.SetActive(true);
                 AppUIManager.Instance.ActScreenSave.SetActive(false);
-                AppUIManager.Instance.MovieActScreen.SetActive(false);
                 _actScreenMovieDone = false;
             }
         }
@@ -230,7 +228,7 @@ namespace Assets.Scripts.Classes.IO
         public void FlashScreen()
         {
             _flashActive = true;
-            _screenFlashPanel.SetActive(true);
+            AppUIManager.Instance.ScreenFlashOverlay.SetActive(true);
         }
 
         public void HandleScreenFlash()
@@ -244,7 +242,7 @@ namespace Assets.Scripts.Classes.IO
                 {
                     image.color = new Color(image.color.r, image.color.g, image.color.b, 1.0f);
                     _flashActive = false;
-                    _screenFlashPanel.SetActive(false);
+                    AppUIManager.Instance.ScreenFlashOverlay.SetActive(false);
                 }
             }
         }
@@ -263,7 +261,7 @@ namespace Assets.Scripts.Classes.IO
         {
             //removing listeners when destroyed
             TakeSnapshot.Instance.OnSelect -= TakeSingleSnapshot;
-            ClearVideoRecordings.Instance.OnSelect -= ClearMovieRecordings;
+            AppUIManager.Instance.ClearVideoRecordings.GetComponent<ClearVideoRecordings>().OnSelect -= ClearMovieRecordings;
         }
 
         // ReSharper disable once InconsistentNaming

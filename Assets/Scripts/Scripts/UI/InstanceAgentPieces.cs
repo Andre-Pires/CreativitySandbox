@@ -6,6 +6,12 @@ namespace Assets.Scripts.Scripts.UI
 {
     public class InstanceAgentPieces : MonoBehaviour
     {
+        public GameObject ButtonList;
+        public Button CloseButtonList;
+        public GameObject NamingFieldsList;
+        public GameObject ScreenOverlays;
+        public GameObject MainCanvas;
+
         // Construct 	
         public void Start()
         {
@@ -21,12 +27,39 @@ namespace Assets.Scripts.Scripts.UI
                 var sprite = Resources.Load<Sprite>("Images/Agent/" + Configuration.Instance.PersonalitySizes[personality]);
                 personalityItem.GetComponent<Image>().sprite = sprite;
                 personalityItem.GetComponent<Image>().color = Configuration.Instance.PersonalityColors[personality];
+                personalityItem.GetComponentInChildren<Text>().text = "";
+
+                GameObject pieceNameInput = Instantiate(Resources.Load("Prefabs/UISettings/WritePieceName")) as GameObject;
+                pieceNameInput.transform.SetParent(NamingFieldsList.transform, false);
+
+                GameObject pieceThumbnail = Utility.GetChild(pieceNameInput, "Thumbnail");
+                pieceThumbnail.GetComponentInChildren<Image>().sprite = sprite;
+                pieceThumbnail.GetComponentInChildren<Image>().color = Configuration.Instance.PersonalityColors[personality];
+
+                button.onClick.AddListener(() =>
+                {
+                    pieceNameInput.SetActive(true);
+                    ScreenOverlays.SetActive(true);
+                    MainCanvas.SetActive(false);
+                    CloseButtonList.onClick.Invoke();
+                });
 
                 var tempPersonality = personality;
-                button.onClick.AddListener(() => transform.GetComponent<CreateAgentPiece>().OnTrigger(tempPersonality));
-                personalityItem.GetComponentInChildren<Text>().text = Constants.Instance.PersonalitiesStrings[personality];
-                
-                personalityItem.transform.SetParent(this.transform, false);
+                pieceNameInput.GetComponentInChildren<Button>().onClick.AddListener(() =>
+                {
+                    string pieceName = pieceNameInput.GetComponentInChildren<InputField>().text;
+
+                    if (pieceName != "")
+                    {
+                        transform.GetComponent<CreateAgentPiece>().OnTrigger(tempPersonality, pieceName);
+                        pieceNameInput.SetActive(false);
+                        ScreenOverlays.SetActive(false);
+                        MainCanvas.SetActive(true);
+                        pieceNameInput.GetComponentInChildren<InputField>().text = "";
+                    }
+                });
+
+                personalityItem.transform.SetParent(ButtonList.transform, false);
             }
 
         }
