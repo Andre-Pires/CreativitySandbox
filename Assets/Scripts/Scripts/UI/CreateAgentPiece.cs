@@ -5,8 +5,11 @@ namespace Assets.Scripts.Scripts.UI
 {
     public class CreateAgentPiece : MonoBehaviour
     {
-        public delegate void OnSelectEvent(Configuration.Personality piecePersonality, string pieceName);
-        public event OnSelectEvent OnSelect;
+        public delegate void OnAutonomousCreationEvent(Configuration.Personality piecePersonality, string pieceName);
+        public event OnAutonomousCreationEvent OnAutonomousPieceCreation;
+
+        public delegate void OnManualCreationEvent(Configuration.Personality piecePersonality, Configuration.Size size, string pieceName);
+        public event OnManualCreationEvent OnManualPieceCreation;
 
         // Singleton 	
         private static CreateAgentPiece _instance;
@@ -38,17 +41,32 @@ namespace Assets.Scripts.Scripts.UI
         {
         }
 
-        public void OnTrigger(Configuration.Personality personality, string pieceName)
+        public void OnAutonomousTrigger(Configuration.Personality personality, string pieceName)
         {
             // Notify of the event!
-            if (OnSelect != null)
+            if (OnAutonomousPieceCreation != null)
             {
-                OnSelect(personality, pieceName);
+                OnAutonomousPieceCreation(personality, pieceName);
             }
             else
             {
                 Debug.Log("Event listener was null");
             }
         }
+
+        public void OnManualTrigger(Configuration.Personality personality, Configuration.Size size, string pieceName)
+        {
+            // Notify of the event!
+            if (OnManualPieceCreation != null)
+            {
+                OnManualPieceCreation(personality, size, pieceName);
+            }
+            else
+            {
+                Debug.Log("Event listener was null");
+            }
+        }
+
+
     }
 }

@@ -12,14 +12,14 @@ namespace Assets.Scripts.Classes.Agent
         public bool BodyHalted;
         private Transform _body;
         private Mind _mind;
+        private Configuration.ApplicationMode _pieceMode;
         private bool _alreadyInitialized;
         private const float ScenarioPlacementRadius = 26.0f;
+
         public delegate void OnPropertyChange();
         public event OnPropertyChange NotifyUI;
 
         public delegate void OnBehaviorActivation();
-        public event OnBehaviorActivation NotifyOtherAgents;
-
         public event OnBehaviorActivation NotifyAgentMind;
 
         //blinking and color
@@ -98,14 +98,11 @@ namespace Assets.Scripts.Classes.Agent
         //autonomous Behavior
         public bool DisplayingBehavior;
 
-        public void InitializeParameters(Configuration.Size size, Configuration.Personality personality, Mind mind = null)
+
+        public void InitializeParameters(Configuration.Size size, Configuration.Personality personality, Configuration.ApplicationMode pieceMode)
         {
             _body = transform;
-
-            if (mind != null)
-            {
-                _mind = mind;
-            }
+            _pieceMode = pieceMode;
 
             if (personality == Configuration.Personality.CustomPersonality)
             {
@@ -145,9 +142,10 @@ namespace Assets.Scripts.Classes.Agent
         }
 
         //Body cloner
-        public void InitializeParameters(Body body)
+        public void InitializeParameters(Body body, Configuration.ApplicationMode pieceMode)
         {
             _body = transform;
+            _pieceMode = pieceMode;
             Color = body.Color;
 
             if (Configuration.Instance.BlinkingBehaviorActive)
@@ -211,20 +209,25 @@ namespace Assets.Scripts.Classes.Agent
                 return;
             }
 
-            //TODO - not very elegant
-            if (AgentBehaviors != null)
+            bool executingBehavior = false;
+
+            if (_pieceMode == Configuration.ApplicationMode.AutonomousAgent && AgentBehaviors != null)
             {
                 foreach (ComposedBehavior behavior in AgentBehaviors.Values)
                 {
                     if (!behavior.IsOver)
                     {
                         behavior.ApplyBehavior(this);
+                        executingBehavior = true;
                     }
                 }
             }
 
-            HandleBlinking();
-            HandleRotation();
+            if (!executingBehavior)
+            {
+                HandleBlinking();
+                HandleRotation();
+            }
 
             HandleDragging();
         }

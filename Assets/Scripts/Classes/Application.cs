@@ -14,7 +14,7 @@ namespace Assets.Scripts.Classes
         private Configuration _configuration;
         private GameObject _scene;
         private AppUIManager _UIManager;
-        private Configuration.ApplicationMode _activeMode = Configuration.ApplicationMode.AutonomousAgent;
+        public Configuration.ApplicationMode ActiveMode = Configuration.ApplicationMode.AutonomousAgent;
 
         // Use this for initialization
         public void Start()
@@ -41,7 +41,7 @@ namespace Assets.Scripts.Classes
 
             AppUIManager.Instance.ApplicationMode.GetComponent<Button>().onClick.AddListener(UpdateApplicationMode);
 
-            _agent = new Agent.Agent(_activeMode);
+            _agent = new Agent.Agent(ActiveMode);
         }
 
         // Update is called once per frame
@@ -56,19 +56,19 @@ namespace Assets.Scripts.Classes
 
         public void UpdateApplicationMode()
         {
-            switch (_activeMode)
+            switch (ActiveMode)
             {
                 case Configuration.ApplicationMode.AutonomousAgent:
-                    _activeMode = Configuration.ApplicationMode.ManuallyActivatedAgent;
+                    ActiveMode = Configuration.ApplicationMode.ManuallyActivatedAgent;
                     break;
                 case Configuration.ApplicationMode.ManuallyActivatedAgent:
-                    _activeMode = Configuration.ApplicationMode.AutonomousAgent;
+                    ActiveMode = Configuration.ApplicationMode.AutonomousAgent;
                     break;
                 default:
                     throw new InvalidEnumArgumentException("Didn't pair with the implemented application modes");
             }
 
-            _agent.CurrentApplicationMode = _activeMode;
+            _agent.CurrentApplicationMode = ActiveMode;
         }
 
         public void OnDrawGizmos()

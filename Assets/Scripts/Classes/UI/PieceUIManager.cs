@@ -32,7 +32,7 @@ namespace Assets.Scripts.Classes.UI
 
             SetupPieceButtonUI();
 
-            if (_agent.CurrentApplicationMode == Configuration.ApplicationMode.ManuallyActivatedAgent)
+            if (_agent.CurrentApplicationMode == Configuration.ApplicationMode.ConfigurableAgent)
             {
                 //after setting up the piece button pass to the popup so it can reflect its changes
                 _popupUI = new PiecePopupUI(_piece, _pieceButton);

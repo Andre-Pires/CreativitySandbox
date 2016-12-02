@@ -29,7 +29,7 @@ namespace Assets.Scripts.Classes.Agent
         }
 
         //Piece cloner
-        public Piece(string name, Piece piece, List<Piece> autonomousPieces)
+        public Piece(string name, Piece piece, List<Piece> autonomousPieces = null)
         {
             Personality = piece.Personality;
             Name = name;
@@ -38,7 +38,7 @@ namespace Assets.Scripts.Classes.Agent
 
             _cubeObject.AddComponent<Body>();
             Body = _cubeObject.GetComponent<Body>();
-            Body.InitializeParameters(piece.Body);
+            Body.InitializeParameters(piece.Body, PieceMode);
 
             if (PieceMode == Configuration.ApplicationMode.AutonomousAgent)
             {
@@ -51,7 +51,7 @@ namespace Assets.Scripts.Classes.Agent
             Debug.Log("New agent part added: part " + name + ". " + piece.Body.Size + " size and " + Personality + " personality");
         }
 
-        public Piece(string name, Configuration.Personality personality, Configuration.Size size, List<Piece> autonomousPieces, Configuration.ApplicationMode pieceMode)
+        public Piece(string name, Configuration.Personality personality, Configuration.Size size, Configuration.ApplicationMode pieceMode, List<Piece> autonomousPieces = null)
         {
             Personality = personality;
             Name = name;
@@ -60,7 +60,7 @@ namespace Assets.Scripts.Classes.Agent
 
             _cubeObject.AddComponent<Body>();
             Body = _cubeObject.GetComponent<Body>();
-            Body.InitializeParameters(size, personality);
+            Body.InitializeParameters(size, personality, pieceMode);
 
             if (PieceMode == Configuration.ApplicationMode.AutonomousAgent)
             {

@@ -17,7 +17,8 @@ namespace Assets.Scripts.Classes.Agent
         public Agent(Configuration.ApplicationMode currentApplicationMode)
         {
             CurrentApplicationMode = currentApplicationMode;
-            AppUIManager.Instance.PieceSelection.GetComponent<CreateAgentPiece>().OnSelect += AddComponent;
+            AppUIManager.Instance.PieceSelection.GetComponent<CreateAgentPiece>().OnAutonomousPieceCreation += AddComponent;
+            AppUIManager.Instance.PieceSelection.GetComponent<CreateAgentPiece>().OnManualPieceCreation += AddComponent;
 
             _pieces = new Dictionary<string, Piece>();
             _piecesUIManagers = new Dictionary<string, PieceUIManager>();
@@ -41,7 +42,7 @@ namespace Assets.Scripts.Classes.Agent
                 .ForEach(p => autonomousPieces.Add(p.Value));
 
             Piece newPiece = new Piece(pieceName, Configuration.Personality.CustomPersonality,
-                Configuration.Instance.AvailableSizes[Random.Range(0, numberOfSizes)], autonomousPieces, CurrentApplicationMode);
+                Configuration.Instance.AvailableSizes[Random.Range(0, numberOfSizes)], CurrentApplicationMode, autonomousPieces);
             _pieces.Add(pieceName, newPiece);
 
             PieceUIManager newPieceManager = new PieceUIManager(newPiece, this);
@@ -52,6 +53,11 @@ namespace Assets.Scripts.Classes.Agent
         }
 
         public void AddComponent(Configuration.Personality personality, string name = null)
+        {
+            AddComponent(personality, Configuration.Instance.PersonalitySizes[personality], name);
+        }
+
+        public void AddComponent(Configuration.Personality personality, Configuration.Size size, string name = null)
         {
             string pieceName;
             if (name == null)
@@ -85,8 +91,7 @@ namespace Assets.Scripts.Classes.Agent
             _pieces.ToList().FindAll(p => p.Value.Name != pieceName && p.Value.PieceMode == Configuration.ApplicationMode.AutonomousAgent)
                 .ForEach(p => autonomousPieces.Add(p.Value));
 
-            Piece newPiece = new Piece(pieceName, personality,
-                Configuration.Instance.PersonalitySizes[personality], autonomousPieces, CurrentApplicationMode);
+            Piece newPiece = new Piece(pieceName, personality, size, CurrentApplicationMode, autonomousPieces);
             _pieces.Add(pieceName, newPiece);
 
             PieceUIManager newPieceManager = new PieceUIManager(newPiece, this);
@@ -96,6 +101,8 @@ namespace Assets.Scripts.Classes.Agent
             UpdateOtherAutonomousPieces(newPiece);
         }
 
+        
+        //Allows copying components
         public void AddComponent(Piece piece)
         {
             var pieceName = Constants.Instance.PersonalitiesStrings[piece.Personality] + " " + _currentPieceIndex;

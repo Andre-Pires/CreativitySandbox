@@ -39,10 +39,12 @@ namespace Assets.Scripts.Classes.Helpers
             Gray,
             Black,
             Yellow,
+            DarkYellow,
             Orange,
             Red,
-            Pink,
+            DarkRed,
             Purple,
+            DarkPurple,
             Blue,
             DarkBlue,
             Cyan,
@@ -108,7 +110,8 @@ namespace Assets.Scripts.Classes.Helpers
         public enum ApplicationMode
         {
             AutonomousAgent,
-            ManuallyActivatedAgent
+            ManuallyActivatedAgent,
+            ConfigurableAgent
         }
 
         // Singleton 	
