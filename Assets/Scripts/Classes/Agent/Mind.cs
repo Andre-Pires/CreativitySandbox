@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Classes.Agent.ComposedBehaviors;
 using Assets.Scripts.Classes.Agent.SimpleBehaviors;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Interface;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Classes.Agent
 {
@@ -89,6 +91,18 @@ namespace Assets.Scripts.Classes.Agent
             if (Input.GetKeyDown(KeyCode.F))
             {
                 AgentBehaviors.ToList().FirstOrDefault().Value.ReceiveStimuli(Configuration.ProxemicDistance.Personal, AgentBehaviors.ToList().FirstOrDefault().Value);
+            }
+
+            if (Input.GetKeyDown(KeyCode.D))
+            {
+                try
+                {
+                    AgentBehaviors.ToList().FirstOrDefault().Value.ReceiveStimuli(Configuration.ProxemicDistance.Personal, _otherPieces.ToList().FirstOrDefault().Mind.AgentBehaviors.FirstOrDefault().Value);
+                }
+                catch (Exception)
+                {
+                    Debug.Log("empty");
+                }
             }
         }
 
@@ -175,7 +189,7 @@ namespace Assets.Scripts.Classes.Agent
             //filtering Behavior to simulate needs at this point; only affecting inactive behaviors
             List<ComposedBehavior> affectedBehaviors = AgentBehaviors.Values.ToList().FindAll(b => b.IsOver);
 
-            Debug.Log("Check stimuli: piece being called : " + transform.name + ", Behavior stimulus sent: " + stimulatingBehavior.BehaviorType);
+            //Debug.Log("Check stimuli: piece being called : " + transform.name + ", Behavior stimulus sent: " + stimulatingBehavior.BehaviorType);
 
             foreach (ComposedBehavior behavior in affectedBehaviors)
             {

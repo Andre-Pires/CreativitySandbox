@@ -87,7 +87,7 @@ namespace Assets.Scripts.Classes.Agent
         private void PieceComponentInitializer()
         {
             _root = GameObject.Find("Scene");
-            _cubeObject = Object.Instantiate(Resources.Load("Prefabs/Agent/Cube")) as GameObject;
+            _cubeObject = Object.Instantiate(Resources.Load("Prefabs/Agent/Agent")) as GameObject;
 
             if (_cubeObject != null)
             {
@@ -128,14 +128,6 @@ namespace Assets.Scripts.Classes.Agent
             //halt agent modules when piece is invisible
             Mind.MindHalted = !Mind.MindHalted;
             Body.BodyHalted = !Body.BodyHalted;
-        }
-
-        public void OnDrawGizmos()
-        {
-        }
-
-        public void OnGUI()
-        {
         }
 
         public void DestroyPiece()

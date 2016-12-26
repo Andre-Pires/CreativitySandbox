@@ -71,14 +71,14 @@ namespace Assets.Scripts.Scripts.CameraControl
 
         private void Update()
         {
-            if (!Configuration.Instance.CameraMovementActive)
-            {
-                return;
-            }
-
             if (BirdViewLookAt == null)
             {
                 BirdViewLookAt = GameObject.FindGameObjectWithTag("Scenario").transform;
+            }
+
+            if (!Configuration.Instance.CameraMovementActive)
+            {
+                return;
             }
 
             if (_currentCameraMode != ActiveCameraMode.ColorPicker)

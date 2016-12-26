@@ -82,9 +82,11 @@ namespace Assets.Scripts.Classes.Helpers
             return new Bounds();
         }
 
-        public static void PlaceNewGameObject(Transform transform, Vector3 startPosition, float placementRadius)
+        public static void PlaceNewGameObject(Transform transform, Vector3 startPosition, float placementRadius, Renderer renderer = null)
         {
-            var prefabBounds = transform.gameObject.GetComponent<Renderer>().bounds;
+            var objectRenderer = (renderer == null) ? transform.gameObject.GetComponent<Renderer>() : renderer;
+
+            var prefabBounds = objectRenderer.bounds;
             var clearPosition = false;
             var position = Vector3.one;
             //to avoid infinite loops
@@ -98,7 +100,7 @@ namespace Assets.Scripts.Classes.Helpers
                         Random.Range(startPosition.z - placementRadius, startPosition.z + placementRadius));
 
                 var hitColliders = Physics.OverlapSphere(position,
-                    transform.GetComponent<Renderer>().bounds.extents.magnitude);
+                    prefabBounds.extents.magnitude);
 
                 //Debug.DrawLine(position, position + new Vector3(0, transform.GetComponent<Renderer>().bounds.extents.magnitude * 2.0f, 0), Color.red, 30.0f);
 
@@ -117,7 +119,7 @@ namespace Assets.Scripts.Classes.Helpers
             }
             transform.position = position;
             //the bounds give out a local y
-            transform.localPosition = new Vector3(transform.localPosition.x, prefabBounds.extents.y ,transform.localPosition.z);
+            transform.localPosition = new Vector3(transform.localPosition.x, 0/*prefabBounds.extents.y */,transform.localPosition.z);
 
             //Debug.Log("count " + safetyCounter);
 

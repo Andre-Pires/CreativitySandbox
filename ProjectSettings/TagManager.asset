@@ -10,6 +10,7 @@ TagManager:
   - Scenario
   - ConfigFile
   - SettingsPopup
+  - VertHandle
   layers:
   - Default
   - TransparentFX

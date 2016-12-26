@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.UI;
 using Assets.Scripts.Scripts.UI;
@@ -70,7 +71,8 @@ namespace Assets.Scripts.Classes.Agent
 
                 foreach (var piece in _pieces)
                 {
-                    if (piece.Key == name)
+                    //allows to detect if the name as already occurred and adds an extension to differenciate it
+                    if (Regex.IsMatch(piece.Key, string.Format(@"({0}|({0}(\s\d*)?))\z", Regex.Escape(name))))
                     {
                         nameExtension++;
                     }
@@ -129,7 +131,8 @@ namespace Assets.Scripts.Classes.Agent
             if (tempPiece.PieceMode == Configuration.ApplicationMode.AutonomousAgent)
             {
                 //clearing the piece from other agents minds 
-                _pieces.ToList().FindAll(p => p.Value.Name != pieceName).ForEach(p => p.Value.RemoveStoredAgentPiece(tempPiece));
+                _pieces.ToList().FindAll(p => p.Value.Name != pieceName 
+                    && p.Value.PieceMode == Configuration.ApplicationMode.AutonomousAgent).ForEach(p => p.Value.RemoveStoredAgentPiece(tempPiece));
             }
 
             _pieces.Remove(pieceName);
@@ -169,14 +172,5 @@ namespace Assets.Scripts.Classes.Agent
             }
         }
 
-        public void OnDrawGizmos()
-        {
-            _pieces.ToList().ForEach(p => p.Value.OnDrawGizmos());
-        }
-
-        public void OnGUI()
-        {
-            _pieces.ToList().ForEach(p => p.Value.OnGUI());
-        }
     }
 }

@@ -18,13 +18,6 @@ namespace Assets.Scripts.Classes.Helpers
 
         public enum Personality
         {
-            /*Shy,
-            Sociable,
-            Grumpy,
-            Friendly,
-            Realist,
-            Imaginative,
-            Foreigner,*/
             Joy,
             Sadness,
             Disgust,
@@ -164,18 +157,11 @@ namespace Assets.Scripts.Classes.Helpers
 
             PersonalityColors = new Dictionary<Personality, Color>
             {
-                /*{Personality.Shy, ColorNames[Colors.Pink]},
-                {Personality.Sociable, ColorNames[Colors.Pink]},
-                {Personality.Grumpy, ColorNames[Colors.Orange]},
-                {Personality.Friendly, ColorNames[Colors.Green]},
-                {Personality.Realist, ColorNames[Colors.Gray]},
-                {Personality.Imaginative, ColorNames[Colors.Yellow]},
-                {Personality.Foreigner, ColorNames[Colors.Brown]}*/
-                {Personality.Joy, ColorNames[Colors.Yellow]},
+                {Personality.Joy, ColorNames[Colors.DarkYellow]},
                 {Personality.Sadness, ColorNames[Colors.Blue]},
-                {Personality.Disgust, ColorNames[Colors.DarkGreen]},
+                {Personality.Disgust, ColorNames[Colors.Green]},
                 {Personality.Anger, ColorNames[Colors.Red]},
-                {Personality.Fear, ColorNames[Colors.Purple]},
+                {Personality.Fear, ColorNames[Colors.Purple]}
             };
 
         }
@@ -224,13 +210,6 @@ namespace Assets.Scripts.Classes.Helpers
             //for now these have been disregarded
             PersonalityBlinkingSpeeds = new Dictionary<Personality, BlinkingSpeed>
             {
-                /*{Personality.Shy, BlinkingSpeed.Slow},
-                {Personality.Sociable, BlinkingSpeed.Normal},
-                {Personality.Grumpy, BlinkingSpeed.VeryFast},
-                {Personality.Friendly, BlinkingSpeed.Fast},
-                {Personality.Realist, BlinkingSpeed.VerySlow},
-                {Personality.Imaginative, BlinkingSpeed.VeryFast},
-                {Personality.Foreigner, BlinkingSpeed.Normal}*/
                 {Personality.Sadness, BlinkingSpeed.Slow},
                 {Personality.Fear, BlinkingSpeed.Fast},
                 {Personality.Anger, BlinkingSpeed.VeryFast},
@@ -240,14 +219,6 @@ namespace Assets.Scripts.Classes.Helpers
 
             PersonalityBehaviors = new Dictionary<Personality, ComposedBehaviors>
             {
-                /*
-                {Personality.Shy, ComposedBehaviors.Fear},
-                {Personality.Sociable, ComposedBehaviors.Joy},
-                {Personality.Grumpy, ComposedBehaviors.Anger},
-                {Personality.Friendly, ComposedBehaviors.Joy},
-                {Personality.Realist, ComposedBehaviors.Sadness},
-                {Personality.Imaginative, ComposedBehaviors.Joy},
-                {Personality.Foreigner, ComposedBehaviors.Random}*/
                 {Personality.Fear, ComposedBehaviors.Fear},
                 {Personality.Joy, ComposedBehaviors.Joy},
                 {Personality.Anger, ComposedBehaviors.Anger},

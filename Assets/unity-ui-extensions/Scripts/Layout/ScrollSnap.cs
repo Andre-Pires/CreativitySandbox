@@ -113,6 +113,8 @@ namespace Assets.Scripts.Layout
 
         public bool SelectButtonAutomatically = true;
 
+        private bool _checkForNewPages = true;
+
         // Use this for initialization
         private void Awake()
         {
@@ -140,6 +142,24 @@ namespace Assets.Scripts.Layout
             {
                 prevButton.GetComponent<Button>().onClick.AddListener(() => { PreviousScreen(); });
             }
+        }
+
+        private bool CheckForNewPages()
+        {
+            if (!AlreadyInitialized)
+            {
+                // checking how many children of list are active
+                foreach (object tr in listContainerTransform)
+                {
+                    //NOTE: verificar se as paginas já podem ser actualizadas
+                    if (((Transform)tr).gameObject.activeInHierarchy)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private void Start()
@@ -349,15 +369,24 @@ namespace Assets.Scripts.Layout
             UpdateListItemsSize();
             UpdateListItemPositions();
 
-            //NOTE: verificar se as paginas já podem ser actualizadas
-            if (pages != 0)
+            if (_checkForNewPages)
             {
-                new Thread(() =>
+                _checkForNewPages = true;
+
+                if (CheckForNewPages())
                 {
-                    Thread.Sleep(200);
                     AlreadyInitialized = true;
-                }).Start();
+                }
+                else
+                {
+                    new Thread(() =>
+                    {
+                        Thread.Sleep(200);
+                        _checkForNewPages = true;
+                    }).Start();
+                }
             }
+            
 
             if (lerp)
             {
@@ -495,7 +524,6 @@ namespace Assets.Scripts.Layout
 
                 PageChanged(page);
             }
-
         }
 
         //changes the bullets on the bottom of the page - pagination

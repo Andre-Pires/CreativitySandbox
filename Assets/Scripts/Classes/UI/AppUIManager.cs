@@ -9,6 +9,9 @@ namespace Assets.Scripts.Classes.UI
     {
         private static AppUIManager _instance;
 
+        //Scene root
+        public GameObject SceneRoot;
+
         //General UI
         public GameObject AudioRecordingStartInfo;
         public GameObject AudioRecordingStoppedInfo;
@@ -32,6 +35,7 @@ namespace Assets.Scripts.Classes.UI
         //Scenario Color Picker
         public GameObject ColorPickerBackground;
         public GameObject ColorMenuCloseButton;
+        public GameObject ColorMenuOpenButton;
         public GameObject SkyboxColorPicker;
         public GameObject SetColorPicker;
         public GameObject ColorPicker;
@@ -105,12 +109,12 @@ namespace Assets.Scripts.Classes.UI
             if (applicationMode == Configuration.ApplicationMode.AutonomousAgent)
             {
                 ApplicationMode.GetComponent<Image>().sprite =
-                    Resources.Load<Sprite>("Images/ColorfulButtons/OnRobot");
+                    Resources.Load<Sprite>("Images/ColorfulButtons/OffRobot");
             }
             else
             {
                 ApplicationMode.GetComponent<Image>().sprite =
-                    Resources.Load<Sprite>("Images/ColorfulButtons/OffRobot");
+                    Resources.Load<Sprite>("Images/ColorfulButtons/OnRobot");
             }
         }
 

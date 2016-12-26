@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Classes.Helpers;
+using Assets.Scripts.Classes.UI;
 using UnityEngine;
 using UnityEngine.UI;
 using Application = Assets.Scripts.Classes.Application;
@@ -17,9 +18,6 @@ namespace Assets.Scripts.Scripts.UI
         //piece staging area
         private Configuration.Size _sizeStagedPiece;
         private Configuration.Personality _personalityStagedPiece;
-
-        //TODO - Remove this and put it in the AppUIManager
-        public GameObject Root;
 
         // Construct 	
         public void Start()
@@ -56,11 +54,10 @@ namespace Assets.Scripts.Scripts.UI
                 pieceSizeInput.transform.SetParent(SizeInputList.transform, false);
                 GameObject piecesSizesList = Utility.GetChild(pieceSizeInput, "List");
 
-                //TODO: test if the application is running in autonomous mode or manual and create the piece accordingly
                 var tempPersonality = personality;
                 button.onClick.AddListener(() =>
                 {
-                    if (Root.GetComponent<Application>().ActiveMode == Configuration.ApplicationMode.ManuallyActivatedAgent)
+                    if (AppUIManager.Instance.SceneRoot.GetComponent<Application>().ActiveMode == Configuration.ApplicationMode.ManuallyActivatedAgent)
                     {
                         pieceSizeInput.SetActive(true);
                     }
@@ -86,7 +83,6 @@ namespace Assets.Scripts.Scripts.UI
                         item.GetComponent<Button>().onClick.AddListener(() =>
                         {
                             _sizeStagedPiece = tempSize;
-                            Debug.Log("size " + _sizeStagedPiece);
                         });
 
                         Utility.GetChild(pieceSizeInput, "YesButton").GetComponent<Button>().onClick.AddListener(() =>
@@ -102,8 +98,13 @@ namespace Assets.Scripts.Scripts.UI
                     }
                 }
 
-                
-                pieceNameInput.GetComponentInChildren<Button>().onClick.AddListener(() =>
+                Utility.GetChild(pieceSizeInput, "CloseButton").GetComponentInChildren<Button>().onClick.AddListener(() =>
+                {
+                    MainCanvas.SetActive(true);
+                    ScreenOverlays.SetActive(false);
+                });
+
+                Utility.GetChild(pieceNameInput, "SaveName").GetComponentInChildren<Button>().onClick.AddListener(() =>
                 {
                     string pieceName = pieceNameInput.GetComponentInChildren<InputField>().text;
 
@@ -114,7 +115,7 @@ namespace Assets.Scripts.Scripts.UI
                         pieceNameInput.SetActive(false);
                         pieceNameInput.GetComponentInChildren<InputField>().text = "";
 
-                        if (Root.GetComponent<Application>().ActiveMode == Configuration.ApplicationMode.ManuallyActivatedAgent)
+                        if (AppUIManager.Instance.SceneRoot.GetComponent<Application>().ActiveMode == Configuration.ApplicationMode.ManuallyActivatedAgent)
                         {
                             transform.GetComponent<CreateAgentPiece>().OnManualTrigger(_personalityStagedPiece, _sizeStagedPiece, pieceName);
                         }
@@ -123,6 +124,14 @@ namespace Assets.Scripts.Scripts.UI
                             transform.GetComponent<CreateAgentPiece>().OnAutonomousTrigger(_personalityStagedPiece, pieceName);
                         }
                     }
+                });
+
+                Utility.GetChild(pieceNameInput, "CloseButton").GetComponentInChildren<Button>().onClick.AddListener(() =>
+                {
+                        MainCanvas.SetActive(true);
+                        ScreenOverlays.SetActive(false);
+                        pieceNameInput.SetActive(false);
+                        pieceNameInput.GetComponentInChildren<InputField>().text = "";
                 });
 
                 personalityItem.transform.SetParent(ButtonList.transform, false);

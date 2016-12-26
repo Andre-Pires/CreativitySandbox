@@ -89,6 +89,8 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         {
             float currentSize = Configuration.Instance.SizeValues[Size];
             float finalSize = Configuration.Instance.SizeValues[FinalSize];
+            Renderer renderer = agentBody.Mesh.GetComponent<Renderer>();
+
 
             switch (SizeTransition)
             {
@@ -96,7 +98,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                     var lerp = (Time.time - StartTime)/AnimationIntervalTime;
                     agentBody.transform.localScale = Vector3.one * (Mathf.Lerp(currentSize, finalSize, lerp));
                     agentBody.transform.localPosition = new Vector3(agentBody.transform.localPosition.x,
-                        agentBody.transform.GetComponent<Renderer>().bounds.extents.y, agentBody.transform.localPosition.z);
+                        0/*renderer.bounds.extents.y*/, agentBody.transform.localPosition.z);
                     break;
                 case Configuration.Transitions.Instant:
                     agentBody.Size = FinalSize;
@@ -108,7 +110,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                                                      easeFunction(currentSize, finalSize - currentSize,
                                                          Time.time - StartTime, AnimationIntervalTime);
                     agentBody.transform.localPosition = new Vector3(agentBody.transform.localPosition.x,
-                        agentBody.transform.GetComponent<Renderer>().bounds.extents.y,
+                        0/*renderer.bounds.extents.y*/,
                         agentBody.transform.localPosition.z);
                     break;
                 }
@@ -119,7 +121,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                                                         easeFunction(currentSize, finalSize - currentSize,
                                                             Time.time - StartTime, AnimationIntervalTime);
                     agentBody.transform.localPosition = new Vector3(agentBody.transform.localPosition.x,
-                        agentBody.transform.GetComponent<Renderer>().bounds.extents.y,
+                        0/*renderer.bounds.extents.y*/,
                         agentBody.transform.localPosition.z);
                     break;
                 }
@@ -134,7 +136,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                         float timeElapsed = Time.time - StartTime;
                         agentBody.transform.localScale = Vector3.one * easeFunction(currentSize, distance, timeElapsed, totalTime);
                         agentBody.transform.localPosition = new Vector3(agentBody.transform.localPosition.x,
-                            agentBody.transform.GetComponent<Renderer>().bounds.extents.y, agentBody.transform.localPosition.z);
+                            0/*renderer.bounds.extents.y*/, agentBody.transform.localPosition.z);
 
                         //Debug.Log("easing in: " + easeFunction(currentSize, distance, timeElapsed, totalTime));
                     }
@@ -145,13 +147,19 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                         float timeElapsed = Time.time - StartTime - totalTime;
                         agentBody.transform.localScale = Vector3.one * easeFunction(finalSize, distance, timeElapsed, totalTime);
                         agentBody.transform.localPosition = new Vector3(agentBody.transform.localPosition.x,
-                            agentBody.transform.GetComponent<Renderer>().bounds.extents.y, agentBody.transform.localPosition.z);
+                            0/*renderer.bounds.extents.y*/, agentBody.transform.localPosition.z);
 
                         //Debug.Log("easing out: " + easeFunction(finalSize, distance, timeElapsed, totalTime));
                     }
 
                 }
                     break;
+            }
+
+            Vector3 hitNormal;
+            if (agentBody.IsColliding(out hitNormal))
+            {
+                agentBody.transform.position += hitNormal.normalized*0.1f;
             }
 
             if ((Time.time - StartTime) > AnimationIntervalTime)

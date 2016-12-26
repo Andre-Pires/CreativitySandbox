@@ -10,7 +10,8 @@ namespace Assets.Scripts.Classes.Agent
     public class Body : MonoBehaviour
     {
         public bool BodyHalted;
-        private Transform _body;
+        public Transform Transform;
+        public Transform Mesh;
         private Mind _mind;
         private Configuration.ApplicationMode _pieceMode;
         private bool _alreadyInitialized;
@@ -30,7 +31,7 @@ namespace Assets.Scripts.Classes.Agent
             set
             {
                 _color = value;
-                _body.GetComponent<Renderer>().material.color = _color;
+                Mesh.GetComponent<Renderer>().material.color = _color;
 
                 if (NotifyUI != null) NotifyUI();
             }
@@ -42,7 +43,7 @@ namespace Assets.Scripts.Classes.Agent
             get { return _blinkColor; }
             set
             {
-                _body.GetComponent<Renderer>().material.color = Color;
+                Mesh.GetComponent<Renderer>().material.color = Color;
                 _blinkColor = value;
 
                 if (NotifyUI != null) NotifyUI();
@@ -57,8 +58,8 @@ namespace Assets.Scripts.Classes.Agent
             {
                 _size = value;
                 //using size's enum index to select correct multiplier
-                _body.localScale = Vector3.one * Configuration.Instance.SizeValues[value];
-                _body.localPosition = new Vector3(_body.localPosition.x, _body.GetComponent<Renderer>().bounds.extents.y, _body.localPosition.z);
+                Transform.localScale = Vector3.one * Configuration.Instance.SizeValues[value];
+                Transform.localPosition = new Vector3(Transform.localPosition.x, 0 /*Mesh.GetComponent<Renderer>().bounds.extents.y*/, Transform.localPosition.z);
 
                 if (NotifyUI != null) NotifyUI();
             }
@@ -72,7 +73,7 @@ namespace Assets.Scripts.Classes.Agent
             {
                 if (value == Configuration.BlinkingSpeed.Stopped)
                 {
-                    _body.GetComponent<Renderer>().material.color = Color;
+                    Mesh.GetComponent<Renderer>().material.color = Color;
                 }
                 _blinkSpeed = value;
 
@@ -101,8 +102,10 @@ namespace Assets.Scripts.Classes.Agent
 
         public void InitializeParameters(Configuration.Size size, Configuration.Personality personality, Configuration.ApplicationMode pieceMode)
         {
-            _body = transform;
+            Transform = transform;
+            Mesh = Utility.GetChild(gameObject, "AgentMesh").transform;
             _pieceMode = pieceMode;
+            CurrentRotation = Transform.localEulerAngles.y;
 
             if (personality == Configuration.Personality.CustomPersonality)
             {
@@ -128,13 +131,13 @@ namespace Assets.Scripts.Classes.Agent
                 }
             }
 
-            _body.GetComponent<Renderer>().material.color = Color;
+            Mesh.GetComponent<Renderer>().material.color = Color;
 
             //using size's enum index to select correct multiplier
             Size = size;
 
             //place cube in a vacant position in the set
-            Utility.PlaceNewGameObject(_body, Vector3.zero, ScenarioPlacementRadius);
+            Utility.PlaceNewGameObject(Transform, Vector3.zero, ScenarioPlacementRadius, Mesh.GetComponent<Renderer>());
 
             SetupDrag();
 
@@ -144,7 +147,10 @@ namespace Assets.Scripts.Classes.Agent
         //Body cloner
         public void InitializeParameters(Body body, Configuration.ApplicationMode pieceMode)
         {
-            _body = transform;
+            Transform = transform;
+            Mesh = Utility.GetChild(gameObject, "AgentMesh").transform;
+            CurrentRotation = Transform.localEulerAngles.y;
+
             _pieceMode = pieceMode;
             Color = body.Color;
 
@@ -158,7 +164,7 @@ namespace Assets.Scripts.Classes.Agent
             Size = body.Size;
 
             //place cube in a vacant position in the set
-            Utility.PlaceNewGameObject(_body, Vector3.zero, ScenarioPlacementRadius);
+            Utility.PlaceNewGameObject(Mesh, Vector3.zero, ScenarioPlacementRadius, Mesh.GetComponent<Renderer>());
 
             SetupDrag();
         }
@@ -166,14 +172,14 @@ namespace Assets.Scripts.Classes.Agent
         private void SetupDrag()
         {
             //initializing dragging variables
-            _objectToDrag = _body;
+            _objectToDrag = Transform;
             //create a list with the colliders of the children and object
             _collidersToIgnore = new List<Collider>();
-            _collidersToIgnore.Add(_body.gameObject.GetComponent<Collider>());
+            _collidersToIgnore.Add(Mesh.GetComponent<Collider>());
 
             if (Configuration.Instance.SoundRecordingActive)
             {
-                _collidersToIgnore.Add(Utility.GetChild(_body.gameObject, "Button").GetComponent<Collider>());
+                _collidersToIgnore.Add(Utility.GetChild(Transform.gameObject, "Button").GetComponent<Collider>());
             }
         }
 
@@ -181,8 +187,8 @@ namespace Assets.Scripts.Classes.Agent
         {
             if (_alreadyInitialized)
             {
-                Collider[] hitColliders = Physics.OverlapSphere(_body.localPosition,
-                   transform.GetComponent<Renderer>().bounds.extents.magnitude);
+                Collider[] hitColliders = Physics.OverlapSphere(Transform.localPosition,
+                   Mesh.GetComponent<Renderer>().bounds.extents.magnitude);
                 int collidersHit = hitColliders.Length;
 
                 foreach (var collider in hitColliders)
@@ -197,7 +203,7 @@ namespace Assets.Scripts.Classes.Agent
                 {
                     //Debug.Log("clear");
                     //place cube in a vacant position in the set
-                    Utility.PlaceNewGameObject(_body, Vector3.zero, ScenarioPlacementRadius);
+                    Utility.PlaceNewGameObject(Transform, Vector3.zero, ScenarioPlacementRadius, Mesh.GetComponent<Renderer>());
                 }
             }
         }
@@ -228,7 +234,6 @@ namespace Assets.Scripts.Classes.Agent
                 HandleBlinking();
                 HandleRotation();
             }
-
             HandleDragging();
         }
 
@@ -240,7 +245,7 @@ namespace Assets.Scripts.Classes.Agent
                 var colorToUse = BlinkColor;
                 var duration = Configuration.Instance.BlinkingSpeedsValues[BlinkSpeed];
                 var lerp = Mathf.PingPong(Time.time, duration)/duration;
-                _body.GetComponent<Renderer>().material.color = Color.Lerp(Color, colorToUse, lerp);
+                Mesh.GetComponent<Renderer>().material.color = Color.Lerp(Color, colorToUse, lerp);
             }
         }
 
@@ -260,12 +265,12 @@ namespace Assets.Scripts.Classes.Agent
                 var touch2 = Input.GetTouch(1);
 
                 if (touch1.phase == TouchPhase.Stationary &&
-                    Utility.Instance.CheckIfClicked(_body, layerMask, touch1.position))
+                    Utility.Instance.CheckIfClicked(Mesh, layerMask, touch1.position))
                 {
                     touchSlider = touch2;
                 }
                 else if (touch2.phase == TouchPhase.Stationary &&
-                         Utility.Instance.CheckIfClicked(_body, layerMask, touch2.position))
+                         Utility.Instance.CheckIfClicked(Mesh, layerMask, touch2.position))
                 {
                     touchSlider = touch1;
                 }
@@ -278,7 +283,7 @@ namespace Assets.Scripts.Classes.Agent
                 lerpSpeed = 10.0f;
 
                 CurrentRotation += touchSlider.deltaPosition.y*rotationSpeed;
-                _body.rotation = Quaternion.Slerp(_body.rotation, Quaternion.Euler(0, CurrentRotation, 0),
+                Transform.rotation = Quaternion.Slerp(Transform.rotation, Quaternion.Euler(0, CurrentRotation, 0),
                     lerpSpeed*Time.deltaTime);
             }
             #endif
@@ -286,12 +291,12 @@ namespace Assets.Scripts.Classes.Agent
             #if UNITY_STANDALONE || UNITY_EDITOR
             if (Input.GetMouseButton(0))
             {
-                if (Utility.Instance.CheckIfClicked(_body.transform))
+                if (Utility.Instance.CheckIfClicked(Mesh))
                 {
                     lerpSpeed = 100.0f;
                     rotationSpeed = 50.0f;
                     CurrentRotation += Input.GetAxis("Mouse ScrollWheel")*rotationSpeed;
-                    _body.rotation = Quaternion.Slerp(_body.rotation, Quaternion.Euler(0, CurrentRotation, 0),
+                    Transform.rotation = Quaternion.Slerp(Transform.rotation, Quaternion.Euler(0, CurrentRotation, 0),
                         lerpSpeed*Time.deltaTime);
                 }
             }
@@ -306,7 +311,7 @@ namespace Assets.Scripts.Classes.Agent
 
             if (Input.GetMouseButtonDown(0))
             {
-                if (Utility.Instance.CheckIfClicked(_objectToDrag))
+                if (Utility.Instance.CheckIfClicked(Mesh))
                 {
                     DraggingStatus = true;
                     _dragStartPosition = transform.position;
@@ -354,9 +359,14 @@ namespace Assets.Scripts.Classes.Agent
             }
         }
 
-        private bool IsColliding(Vector3 position)
+        public bool IsColliding(Vector3 position)
         {
-            var hitColliders = Physics.OverlapSphere(position, _objectToDrag.localScale.x/2);
+            return IsColliding(position, transform.localRotation);
+        }
+
+        public bool IsColliding(Vector3 position, Quaternion rotation)
+        {
+            var hitColliders = Physics.OverlapBox(position, Transform.localScale / 2, rotation);
             var numberOfCollidersHit = hitColliders.Length;
 
             foreach (var collider in _collidersToIgnore)
@@ -369,9 +379,39 @@ namespace Assets.Scripts.Classes.Agent
 
             if (numberOfCollidersHit > 0)
             {
-                Debug.Log("collided with something");
+                //Debug.Log("collided with something");
                 return true;
             }
+            return false;
+        }
+
+        public bool IsColliding(out Vector3 hitNormal)
+        {
+            var hitColliders = Physics.OverlapBox(transform.position, _objectToDrag.localScale / 2, transform.localRotation).ToList();
+            var numberOfCollidersHit = hitColliders.Count;
+
+            foreach (var collider in _collidersToIgnore)
+            {
+                if (hitColliders.Contains(collider))
+                {
+                    numberOfCollidersHit--;
+                    hitColliders.Remove(collider);
+                }
+            }
+
+            if (numberOfCollidersHit > 0)
+            {
+                Vector3 hitPosition = Vector3.zero;
+                foreach (Collider hitCollider in hitColliders)
+                {
+                    hitPosition += hitCollider.ClosestPointOnBounds(transform.position);
+                }
+                //Debug.Log("collided with something");
+                hitNormal = transform.position - (hitPosition/hitColliders.Count);
+                return true;
+            }
+
+            hitNormal = Vector3.zero;
             return false;
         }
 

@@ -90,29 +90,28 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
 
         public override void ApplyBehavior(Body agentBody)
         {
-            
+            Renderer renderer = agentBody.Mesh.GetComponent<Renderer>();
 
             switch (BlinkTransition)
             {
                 case Configuration.Transitions.Linear:
                     var lerp = (Time.time - StartTime)/AnimationIntervalTime;
-                    agentBody.GetComponent<Renderer>().material.color = Color.Lerp(Color, BlinkColor, lerp);
+                    renderer.material.color = Color.Lerp(Color, BlinkColor, lerp);
                     break;
                 case Configuration.Transitions.Instant:
-                    agentBody.GetComponent<Renderer>().material.color = BlinkColor;
+                    renderer.material.color = BlinkColor;
                     break;
                 case Configuration.Transitions.EaseIn:
                 {
                     Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInSine);
-                    agentBody.GetComponent<Renderer>().material.color = Color.Lerp(Color, BlinkColor,
+                        renderer.material.color = Color.Lerp(Color, BlinkColor,
                         easeFunction(0, 1, Time.time - StartTime, AnimationIntervalTime));
                     break;
                 }
                 case Configuration.Transitions.EaseOut:
                 {
                     Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseOutSine);
-                    agentBody.GetComponent<Renderer>().material.color = Color.Lerp(Color, BlinkColor,
-                        easeFunction(0, 1, Time.time - StartTime, AnimationIntervalTime));
+                    renderer.material.color = Color.Lerp(Color, BlinkColor, easeFunction(0, 1, Time.time - StartTime, AnimationIntervalTime));
                     break;
                 }
                 case Configuration.Transitions.EaseInOut:
@@ -123,7 +122,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                     {
                         Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInSine);
                         float timeElapsed = Time.time - StartTime;
-                        agentBody.GetComponent<Renderer>().material.color = Color.Lerp(Color, BlinkColor, easeFunction(0, 1, timeElapsed, totalTime));
+                        renderer.material.color = Color.Lerp(Color, BlinkColor, easeFunction(0, 1, timeElapsed, totalTime));
 
                         //Debug.Log("easing in: " + easeFunction(0, 1, timeElapsed, totalTime));
                     }
@@ -132,7 +131,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                         {
                         Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseOutSine);
                         float timeElapsed = (Time.time - StartTime - AnimationEndPause)- totalTime;
-                        agentBody.GetComponent<Renderer>().material.color = Color.Lerp(Color, BlinkColor, 1-easeFunction(0, 1, timeElapsed, totalTime));
+                        renderer.material.color = Color.Lerp(Color, BlinkColor, 1-easeFunction(0, 1, timeElapsed, totalTime));
 
                         //Debug.Log("easing out: " + (1 - easeFunction(0, 1, timeElapsed, totalTime)));
                     }

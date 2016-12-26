@@ -2863,10 +2863,10 @@ RectTransform:
   m_Children:
   - {fileID: 16432113}
   m_Father: {fileID: 541237599}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 385, y: 133.89119}
+  m_AnchoredPosition: {x: 385, y: 60}
   m_SizeDelta: {x: 60, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &451152056
@@ -3032,8 +3032,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 1625616710}
-  - {fileID: 451152054}
   - {fileID: 579640025}
+  - {fileID: 451152054}
   m_Father: {fileID: 333157390}
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -3146,10 +3146,10 @@ RectTransform:
   m_Children:
   - {fileID: 1742873312}
   m_Father: {fileID: 541237599}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 385, y: 60}
+  m_AnchoredPosition: {x: 385, y: 133}
   m_SizeDelta: {x: 60, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &579640026
@@ -4297,7 +4297,6 @@ RectTransform:
   - {fileID: 438738686}
   - {fileID: 2088143406}
   - {fileID: 1187055319}
-  - {fileID: 2011569251}
   m_Father: {fileID: 1645391048}
   m_RootOrder: 2
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -4580,7 +4579,7 @@ RectTransform:
   m_RootOrder: 1
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000030517578, y: 20}
+  m_AnchoredPosition: {x: -0.000030517578, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &838300528
@@ -4659,23 +4658,23 @@ MonoBehaviour:
   - Name: 2
     Color: {r: 0, g: 0, b: 0, a: 1}
   - Name: 3
-    Color: {r: 0.9338235, g: 0.9311261, b: 0, a: 1}
+    Color: {r: 0.9558824, g: 0.95281667, b: 0.18274222, a: 1}
   - Name: 4
-    Color: {r: 0.8897059, g: 0.8134746, b: 0.013083923, a: 1}
+    Color: {r: 0.7352941, g: 0.70177877, b: 0, a: 1}
   - Name: 5
     Color: {r: 1, g: 0.6, b: 0, a: 1}
   - Name: 6
-    Color: {r: 0.89705884, g: 0.14511244, b: 0.14511244, a: 1}
+    Color: {r: 0.8897059, g: 0.1177552, b: 0.1177552, a: 1}
   - Name: 7
-    Color: {r: 0.89705884, g: 0.14511244, b: 0.14511244, a: 1}
+    Color: {r: 0.625, g: 0.078125, b: 0.078125, a: 1}
   - Name: 8
-    Color: {r: 0.9117647, g: 0.39554498, b: 0.84223145, a: 1}
+    Color: {r: 0.8897059, g: 0.20934255, b: 0.79806304, a: 1}
   - Name: 9
-    Color: {r: 0.81349474, g: 0.13797575, b: 0.85294116, a: 1}
+    Color: {r: 0.5843217, g: 0.013624581, b: 0.61764705, a: 1}
   - Name: 10
-    Color: {r: 0.28546715, g: 0.33898118, b: 0.88235295, a: 1}
+    Color: {r: 0.14987022, g: 0.21949664, b: 0.9264706, a: 1}
   - Name: 11
-    Color: {r: 0.018598635, g: 0.07362502, b: 0.63235295, a: 1}
+    Color: {r: 0.11840397, g: 0.15591228, b: 0.53676474, a: 1}
   - Name: 12
     Color: {r: 0.10477941, g: 0.83823526, b: 0.83823526, a: 1}
   - Name: 13
@@ -4695,6 +4694,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf49553c3e753f043ab56761981610c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SceneRoot: {fileID: 838300528}
   AudioRecordingStartInfo: {fileID: 1708712544}
   AudioRecordingStoppedInfo: {fileID: 1003677821}
   ApplicationMode: {fileID: 579640024}
@@ -4708,7 +4708,8 @@ MonoBehaviour:
   ScreenFlashOverlay: {fileID: 1812352161}
   ColorPickerBackground: {fileID: 424300782}
   ColorMenuCloseButton: {fileID: 954289696}
-  SkyboxColorPicker: {fileID: 2011569250}
+  ColorMenuOpenButton: {fileID: 650007098}
+  SkyboxColorPicker: {fileID: 1542036302}
   SetColorPicker: {fileID: 1187055318}
   ColorPicker: {fileID: 1645391047}
   MainCanvas: {fileID: 37629686}
@@ -8109,6 +8110,7 @@ RectTransform:
   - {fileID: 424300783}
   - {fileID: 954289697}
   - {fileID: 806426956}
+  - {fileID: 2011569251}
   m_Father: {fileID: 1574385646}
   m_RootOrder: 3
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -8613,7 +8615,6 @@ MonoBehaviour:
   SizeInputList: {fileID: 479547164}
   ScreenOverlays: {fileID: 1574385645}
   MainCanvas: {fileID: 37629686}
-  Root: {fileID: 838300528}
 --- !u!114 &1736919670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10182,11 +10183,11 @@ RectTransform:
   - {fileID: 878885411}
   - {fileID: 859803794}
   - {fileID: 1542036303}
-  m_Father: {fileID: 806426956}
-  m_RootOrder: 4
+  m_Father: {fileID: 1645391048}
+  m_RootOrder: 3
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000103230705, y: 0.000051615352}
+  m_AnchoredPosition: {x: 89.99992, y: 10.35997}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2011569252

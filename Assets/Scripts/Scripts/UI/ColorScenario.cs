@@ -12,27 +12,28 @@ namespace Assets.Scripts.Scripts.UI
     {
         private List<Renderer> _scenarioPlanes;
         private GameObject _loadedScenario;
-        private Color _currentSetColor = Color.white;
+        private Configuration.Colors _currentSetColor;
+        private Configuration.Colors _currentBackgroundColor;
         private GameObject _setColorPicker;
         private GameObject _skyboxColorPicker;
-        private Dictionary<string, int> _setColorPickerIndex;
-        private Dictionary<string, int> _skyboxColorPickerIndex;
+        private Dictionary<Configuration.Colors, int> _setColorPickerIndex;
+        private Dictionary<Configuration.Colors, int> _skyboxColorPickerIndex;
         private List<GameObject> _setColorButtons;
         private bool _alreadyInitialized;
 
         // Use this for initialization
-        private void Start()
+        public void Awake()
         {
             _setColorButtons = new List<GameObject>();
-            _setColorPickerIndex = new Dictionary<string, int>();
-            _skyboxColorPickerIndex = new Dictionary<string, int>();
+            _setColorPickerIndex = new Dictionary<Configuration.Colors, int>();
+            _skyboxColorPickerIndex = new Dictionary<Configuration.Colors, int>();
             _setColorPicker = AppUIManager.Instance.SetColorPicker;
             _skyboxColorPicker = AppUIManager.Instance.SkyboxColorPicker;
             InitializeSetParameters();
             UpdateLoadedScenario();
             SetupColorPickers();
             //add listener to button to update the values shown
-            Utility.GetChild(gameObject, "OpenScenarioColors").GetComponent<Button>().onClick.AddListener(UpdateToInUseColor);
+            AppUIManager.Instance.ColorMenuOpenButton.GetComponent<Button>().onClick.AddListener(UpdateToInUseColor);
         }
 
         
@@ -47,13 +48,15 @@ namespace Assets.Scripts.Scripts.UI
 
             if (!_alreadyInitialized)
             {
-                
+                /*Debug.Log("set -> " + Utility.GetChild(_setColorPicker, "SetColorPicker").GetComponent<ScrollSnap>().AlreadyInitialized);
+                Debug.Log("sky -> " + Utility.GetChild(_setColorPicker, "SkyboxColorPicker").GetComponent<ScrollSnap>().AlreadyInitialized);*/
                 bool bothScrollSnapsWereInitialized =
-                    Utility.GetChild(_setColorPicker, "SetColorPicker").GetComponent<ScrollSnap>().AlreadyInitialized &&
-                    Utility.GetChild(_skyboxColorPicker, "SkyboxColorPicker").GetComponent<ScrollSnap>().AlreadyInitialized;
+                    _setColorPicker.GetComponent<ScrollSnap>().AlreadyInitialized &&
+                    _skyboxColorPicker.GetComponent<ScrollSnap>().AlreadyInitialized;
 
                 if (bothScrollSnapsWereInitialized)
                 {
+                    Debug.Log("updating color");
                     UpdateToInUseColor();
                     _alreadyInitialized = true;
                 }
@@ -63,10 +66,8 @@ namespace Assets.Scripts.Scripts.UI
         // called on enable
         private void UpdateToInUseColor()
         {
-            string scenarioColor = _scenarioPlanes[0].GetComponent<Renderer>().material.color.ToString();
-            string skyboxColor = Camera.main.backgroundColor.ToString();
-            Utility.GetChild(_setColorPicker, "SetColorPicker").GetComponent<ScrollSnap>().ChangePage(_setColorPickerIndex[scenarioColor]);
-            Utility.GetChild(_skyboxColorPicker, "SkyboxColorPicker").GetComponent<ScrollSnap>().ChangePage(_skyboxColorPickerIndex[skyboxColor]);
+            Utility.GetChild(_setColorPicker, "SetColorPicker").GetComponent<ScrollSnap>().ChangePage(_setColorPickerIndex[_currentSetColor]);
+            Utility.GetChild(_skyboxColorPicker, "SkyboxColorPicker").GetComponent<ScrollSnap>().ChangePage(_skyboxColorPickerIndex[_currentBackgroundColor]);
         }
 
         private void InitializeSetParameters()
@@ -74,12 +75,13 @@ namespace Assets.Scripts.Scripts.UI
             int numberOfColors = Configuration.Instance.AvailableColors.Count;
 
             {
-                Color randomColor = Configuration.Instance.AvailableColors[Random.Range(0, numberOfColors)];
-                _currentSetColor =  randomColor;
+                Configuration.Colors randomColor = Configuration.Instance.ColorNames.Keys.ToList()[Random.Range(0, numberOfColors)];
+                _currentSetColor = randomColor;
             }
             {
-                Color randomColor = Configuration.Instance.AvailableColors[Random.Range(0, numberOfColors)];
-                Camera.main.backgroundColor = randomColor;
+                _currentBackgroundColor = Configuration.Instance.ColorNames.Keys.ToList()[Random.Range(0, numberOfColors)];
+                Color randomColor = Configuration.Instance.ColorNames[_currentBackgroundColor];
+                Camera.main.backgroundColor = Color.Lerp(randomColor, Color.black, 0.2f);
             }
         }
 
@@ -96,7 +98,7 @@ namespace Assets.Scripts.Scripts.UI
                         plane.GetComponent<Renderer>().material.color = tempButton.GetComponent<Image>().color;
                     }
 
-                    _currentSetColor = tempButton.GetComponent<Image>().color;
+                    _currentSetColor = Configuration.Instance.ColorNames.FirstOrDefault(c => c.Value == tempButton.GetComponent<Image>().color).Key;
                 });
             }
         }
@@ -108,7 +110,7 @@ namespace Assets.Scripts.Scripts.UI
 
             foreach (var plane in _scenarioPlanes)
             {
-                plane.GetComponent<Renderer>().material.color = _currentSetColor;
+                plane.GetComponent<Renderer>().material.color = Configuration.Instance.ColorNames[_currentSetColor];
             }
         }
 
@@ -118,26 +120,27 @@ namespace Assets.Scripts.Scripts.UI
                 GameObject listObject = Utility.GetChild(_setColorPicker, "List");
                 int pageIndex = 0;
 
-                foreach (var color in Configuration.Instance.AvailableColors)
+                foreach (var color in Configuration.Instance.ColorNames)
                 {
                     var item = Object.Instantiate(Resources.Load("Prefabs/UISettings/SettingsItem")) as GameObject;
-                    var tempColor = color;
-                    item.name = color.ToString();
+                    var tempColor = Color.Lerp(color.Value, Color.black, 0.2f);
+                    item.name = color.Key.ToString();
 
+                    Configuration.Colors tempColorName = color.Key;
                     item.GetComponent<Button>().onClick.AddListener(() =>
                     {
                         foreach (var plane in _scenarioPlanes)
                         {
                             plane.GetComponent<Renderer>().material.color = tempColor;
                         }
-                        _currentSetColor = tempColor;
+                        _currentSetColor = tempColorName;
                     });
                     item.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Scenario/ColorPickers/stain");
                     item.GetComponent<Image>().color = tempColor;
                     item.GetComponentInChildren<Text>().text = "";
                     item.GetComponent<RectTransform>().SetParent(listObject.transform, false);
                     _setColorButtons.Add(item);
-                    _skyboxColorPickerIndex.Add(item.name, pageIndex);
+                    _skyboxColorPickerIndex.Add(color.Key, pageIndex);
                     pageIndex++;
                 }
             }
@@ -146,21 +149,23 @@ namespace Assets.Scripts.Scripts.UI
                 GameObject listObject = Utility.GetChild(_skyboxColorPicker, "List");
                 int pageIndex = 0;
 
-                foreach (var color in Configuration.Instance.AvailableColors)
+                foreach (var color in Configuration.Instance.ColorNames)
                 {
                     var item = Object.Instantiate(Resources.Load("Prefabs/UISettings/SettingsItem")) as GameObject;
-                    var tempColor = color;
-                    item.name = color.ToString();
+                    Color tempColor = Color.Lerp(color.Value, Color.black, 0.2f); ;
+                    item.name = color.Key.ToString();
 
+                    Configuration.Colors tempColorName = color.Key;
                     item.GetComponent<Button>().onClick.AddListener(() =>
                     {
                         Camera.main.backgroundColor = tempColor;
+                        _currentBackgroundColor = tempColorName;
                     });
                     item.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Scenario/ColorPickers/stain");
                     item.GetComponent<Image>().color = tempColor;
                     item.GetComponentInChildren<Text>().text = "";
                     item.GetComponent<RectTransform>().SetParent(listObject.transform, false);
-                    _setColorPickerIndex.Add(item.name, pageIndex);
+                    _setColorPickerIndex.Add(color.Key, pageIndex);
                     pageIndex++;
                 }
             }

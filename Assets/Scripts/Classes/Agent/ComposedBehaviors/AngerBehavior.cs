@@ -7,7 +7,7 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
 {
     public class AngerBehavior : ComposedBehavior
     {
-        private readonly Color _behaviorColor = Configuration.Instance.ColorNames[Configuration.Colors.Black];
+        private readonly Color _behaviorColor = Configuration.Instance.ColorNames[Configuration.Colors.DarkRed];
 
         public AngerBehavior(float standardMultiplier, float excitedMultiplier) : base(standardMultiplier, excitedMultiplier)
         {
@@ -16,6 +16,9 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
 
         public override void PrepareBehavior(Body body, Configuration.ActiveBehaviors behaviorToPrepare, float duration)
         {
+            Animator animator = body.Mesh.GetComponent<Animator>();
+            animator.SetTrigger("TriggerAngry");
+
             BehaviorDuration = duration;
             ActiveBehavior = behaviorToPrepare;
 
@@ -27,15 +30,15 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                     {
                         case Configuration.Behaviors.Blink:
                             (behavior as BlinkBehavior).PrepareBehavior(body, _behaviorColor,
-                                Configuration.Transitions.EaseInOut, 6, 1.8f, 0.15f, true);
+                                Configuration.Transitions.EaseInOut, 3, 1.8f, 0.15f);
                             break;
                         case Configuration.Behaviors.Resize:
-                            (behavior as ResizeBehavior).PrepareBehavior(body, Configuration.Size.Large,
-                                Configuration.Transitions.EaseOut, 1, 1.0f, true);
+                            /*(behavior as ResizeBehavior).PrepareBehavior(body, Configuration.Size.Large,
+                                Configuration.Transitions.EaseInOut, 2, 1.0f);*/
                             break;
                         case Configuration.Behaviors.Rotate:
-                            (behavior as RotationBehavior).PrepareBehavior(body, 45.0f, Configuration.RotationDirection.Alternating, 
-                                Configuration.Transitions.EaseIn, 12, 2.5f);
+                            /*(behavior as RotationBehavior).PrepareBehavior(body, 45.0f, Configuration.RotationDirection.Alternating, 
+                                Configuration.Transitions.EaseIn, 12, 2.5f);*/
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -49,36 +52,20 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                     switch (behavior.BehaviorType)
                     {
                         case Configuration.Behaviors.Blink:
-                            
-                            if (body.Color == _behaviorColor)
-                            {
-                                Color newColor = Configuration.Instance.PersonalityColors[Configuration.Personality.Anger];
-                                (behavior as BlinkBehavior).PrepareBehavior(body, newColor,
-                                Configuration.Transitions.EaseInOut, 6, 2.0f, true);
-                            }
-                            else
-                            {
-                                (behavior as BlinkBehavior).PrepareBehavior(body, _behaviorColor,
-                                Configuration.Transitions.EaseInOut, 6, 2.0f);
-                            }
-                            
+
+                            (behavior as BlinkBehavior).PrepareBehavior(body, _behaviorColor,
+                            Configuration.Transitions.EaseInOut, 2, 2.0f);
                             break;
+
                         case Configuration.Behaviors.Resize:
-                            if (body.Size == Configuration.Size.Large)
-                            {
-                                (behavior as ResizeBehavior).PrepareBehavior(body, Configuration.Size.Medium, 
-                               Configuration.Transitions.EaseIn, 3, 2.0f, true);
-                            }
-                            else
-                            {
-                                (behavior as ResizeBehavior).PrepareBehavior(body, Configuration.Size.Large, 
-                               Configuration.Transitions.EaseInOut, 3, 2.0f);
-                            }
+                            
+                           /* (behavior as ResizeBehavior).PrepareBehavior(body, Configuration.Size.Large, 
+                            Configuration.Transitions.EaseInOut, 1, 1.0f);*/
                            
                             break;
                         case Configuration.Behaviors.Rotate:
-                            (behavior as RotationBehavior).PrepareBehavior(body, 45.0f, Configuration.RotationDirection.Alternating, 
-                                Configuration.Transitions.EaseOut, 8, 2.0f);
+                            /*(behavior as RotationBehavior).PrepareBehavior(body, 45.0f, Configuration.RotationDirection.Alternating, 
+                                Configuration.Transitions.EaseOut, 8, 2.0f);*/
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();

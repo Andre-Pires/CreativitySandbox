@@ -61,7 +61,6 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
             {
                 BehaviorDuration = duration;
             }
-
             
             MaxBehaviorRepetitions = repetitions;
             CurrentBehaviorRepetition = 1;
@@ -125,6 +124,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
         {
             float rotationX = agentBody.transform.rotation.eulerAngles.x;
             float rotationZ = agentBody.transform.rotation.eulerAngles.z;
+            float currentRotation = 0;
 
             //when the animation is over we pause before changing direction
             if ((Time.time - StartTime) > AnimationIntervalTime && (Time.time - StartTime) < (AnimationIntervalTime + AnimationEndPause)
@@ -136,29 +136,25 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
             switch (RotateTransition)
             {
                 case Configuration.Transitions.Linear:
-                    var lerp = (Time.time - StartTime)/AnimationIntervalTime;
-                    agentBody.transform.rotation = Quaternion.Slerp(agentBody.transform.rotation,
-                        Quaternion.Euler(0, FinalOrientation, 0), lerp);
+                    currentRotation = Mathf.Lerp(Orientation, FinalOrientation - Orientation, 1 - ((Time.time - StartTime) / AnimationIntervalTime));
                     break;
                 case Configuration.Transitions.Instant:
-                    agentBody.transform.eulerAngles = new Vector3(rotationX, FinalOrientation, rotationZ);
+                {
+                    currentRotation = FinalOrientation;
                     break;
+                }
                 case Configuration.Transitions.EaseIn:
                 {
                     Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInQuint);
-                    float currentRotation = easeFunction(Orientation, FinalOrientation - Orientation,
+                    currentRotation = easeFunction(Orientation, FinalOrientation - Orientation,
                         Time.time - StartTime, AnimationIntervalTime);
-
-                    agentBody.transform.eulerAngles = new Vector3(rotationX, currentRotation, rotationZ);
                     break;
                 }
                 case Configuration.Transitions.EaseOut:
                 {
                     Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseOutQuint);
-                    float currentRotation = easeFunction(Orientation, FinalOrientation - Orientation,
+                    currentRotation = easeFunction(Orientation, FinalOrientation - Orientation,
                         Time.time - StartTime, AnimationIntervalTime);
-
-                    agentBody.transform.eulerAngles = new Vector3(rotationX, currentRotation, rotationZ);
                     break;
                 }
                 case Configuration.Transitions.EaseInOut:
@@ -170,9 +166,7 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                         Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseInQuint);
                         float distance = FinalOrientation - Orientation;
                         float timeElapsed = Time.time - StartTime;
-                        float currentRotation = easeFunction(Orientation, distance, timeElapsed, totalTime);
-                        agentBody.transform.eulerAngles = new Vector3(rotationX, currentRotation, rotationZ);
-
+                        currentRotation = easeFunction(Orientation, distance, timeElapsed, totalTime);
                         //Debug.Log("easing in: " + easeFunction(Orientation, distance, timeElapsed, totalTime));
                     }
                     else
@@ -180,20 +174,28 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                         Interpolate.Function easeFunction = Interpolate.Ease(Interpolate.EaseType.EaseOutQuint);
                         float distance = -(FinalOrientation - Orientation);
                         float timeElapsed = Time.time - StartTime - totalTime;
-                        float currentRotation = easeFunction(FinalOrientation, distance, timeElapsed, totalTime);
-                        agentBody.transform.eulerAngles = new Vector3(rotationX, currentRotation, rotationZ);
-
+                        currentRotation = easeFunction(FinalOrientation, distance, timeElapsed, totalTime);
                         //Debug.Log("easing out: " + easeFunction(FinalOrientation, distance, timeElapsed, totalTime));
                     }
                     break;
                 }
             }
 
-            if ((Time.time - StartTime) > AnimationIntervalTime && CurrentBehaviorRepetition == MaxBehaviorRepetitions)
+            Vector3 calculatedRotation = new Vector3(rotationX, currentRotation, rotationZ);
+            agentBody.transform.eulerAngles = calculatedRotation;
+
+            Vector3 hitNormal;
+            if (agentBody.IsColliding(out hitNormal))
+            {
+                agentBody.transform.position += hitNormal.normalized * 0.1f;
+            }
+
+
+            if ((Time.time - StartTime)  > AnimationIntervalTime && CurrentBehaviorRepetition == MaxBehaviorRepetitions)
             {
                 IsOver = true;
                 FinalizeEffects(agentBody);
-                //Debug.Log("Behavior ended");
+                //Debug.Log("Behavior ended. Final or: " + FinalOrientation + ", previous or: " + Orientation);
                 return;
             }
             else if ((Time.time - StartTime) > (AnimationIntervalTime + AnimationEndPause) && CurrentBehaviorRepetition != MaxBehaviorRepetitions)
@@ -238,6 +240,5 @@ namespace Assets.Scripts.Classes.Agent.SimpleBehaviors
                 body.CurrentRotation = FinalOrientation;
             }
         }
-
     }
 }

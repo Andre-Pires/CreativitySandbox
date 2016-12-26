@@ -40,6 +40,7 @@ namespace Assets.Scripts.Classes
             _UIManager = _scene.GetComponent<AppUIManager>();
 
             AppUIManager.Instance.ApplicationMode.GetComponent<Button>().onClick.AddListener(UpdateApplicationMode);
+            AppUIManager.Instance.SwitchUIApplicationMode(ActiveMode);
 
             _agent = new Agent.Agent(ActiveMode);
         }
@@ -68,21 +69,8 @@ namespace Assets.Scripts.Classes
                     throw new InvalidEnumArgumentException("Didn't pair with the implemented application modes");
             }
 
+            AppUIManager.Instance.SwitchUIApplicationMode(ActiveMode);
             _agent.CurrentApplicationMode = ActiveMode;
-        }
-
-        public void OnDrawGizmos()
-        {
-            if (!UnityEngine.Application.isPlaying) return;
-
-            if (_agent != null)
-                _agent.OnDrawGizmos();
-        }
-
-        public void OnGUI()
-        {
-            if (_agent != null)
-                _agent.OnGUI();
         }
     }
 }
