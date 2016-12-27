@@ -10,24 +10,16 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
     {
         private readonly Color _behaviorColor = Configuration.Instance.ColorNames[Configuration.Colors.Yellow];
 
-        public JoyBehavior(float standardMultiplier, float excitedMultiplier) : base(standardMultiplier, excitedMultiplier)
+        public JoyBehavior(float standardMultiplier, float excitedMultiplier, Animator animator = null) : base(standardMultiplier, excitedMultiplier, animator)
         {
             BehaviorType = Configuration.ComposedBehaviors.Joy;
         }
 
         public override void PrepareBehavior(Body body, Configuration.ActiveBehaviors behaviorToPrepare, float duration)
         {
-            //TODO - just testing
-            //extract this to initialization
-            if (BehaviorType == Configuration.ComposedBehaviors.Joy)
+            if (Animator != null)
             {
-                Animator animator = body.Mesh.GetComponent<Animator>();
-                animator.SetTrigger("TriggerHappy");
-                
-                /*AnimationClip clip = Resources.Load<AnimationClip>("Prefabs/Agent/happy");
-                Animation animation = body.Mesh.GetComponent<Animation>();
-                animation.AddClip(clip, BehaviorType.ToString());
-                animation.Play(BehaviorType.ToString());*/
+                Animator.SetTrigger("TriggerHappy");
             }
 
             BehaviorDuration = duration;

@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 88c675bfe916bf44fbe034ff376bcb7f
-timeCreated: 1482582282
+guid: 9d66ed09f5f1bc246b2371f9a3ea2d39
+timeCreated: 1482857803
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     4300000: MainShape
     6400000: //RootNode
-    7400000: angry
+    7400000: angryExcited
     9500000: //RootNode
     13700000: //RootNode
   materials:
@@ -34,10 +34,10 @@ ModelImporter:
     extraExposedTransformPaths: []
     clipAnimations:
     - serializedVersion: 16
-      name: angry
+      name: angryExcited
       takeName: Take 001
       firstFrame: 1
-      lastFrame: 150
+      lastFrame: 125
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

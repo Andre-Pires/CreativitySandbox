@@ -13,37 +13,44 @@ namespace Assets.Scripts.Classes.IO
     public class ScreenRecorder : MonoBehaviour
     {
 
-        public float OverlayOpacity = 0.2f;
+        public const float OverlayOpacity = 0.2f;
+
+        //file path constants
         private const string FileName = "image";
         private const string FileExtension = ".png";
         private string _filePath = Constants.ImageFilePath;
 
+        //flash effect panel
         private GameObject _screenFlashPanel;
         private bool _flashActive;
+
+        //screenshot variables
         private int _numberOfShots = 0;
         private bool _recording = false;
         private bool _readySingleShot = false;
         private float _startShotTime = 0;
-        public float ShotInterval = 0.8f;
         private Texture2D _latestScreenshot;
-        private int _maxWidth = 1920;
-        private int _maxHeight = 1080;
+        private Rect _rect; //to overlay image on screen
+
+        //screenshot constants
+        private const int MaxWidth = 1920;
+        private const int MaxHeight = 1080;
+        private const float ShotInterval = 0.8f;
+        private int paddingLength = 4; //padd the remainder of photo number with zeros
 
         //custom title screen
         private bool _actScreenMovieDone;
         private bool _confirmationScreenActive;
 
-        //padd the remainder of photo number with zeros
-        private int paddingLength = 4;
-
-        //to overlay image on screen
-        private Rect _rect;
+        //delete recordings input - to check for double click
+        private bool _alreadyClicked;
+        private float _timeForDoubleClick = 0.4f;
 
         public void Start()
         {
             //in order to reduce the load of taking very high resolution screenshots in higher res devices
-            int _applicationResWidth = Mathf.Min(_maxWidth, Screen.width);
-            int _applicationResHeight = Mathf.Min(_maxHeight, Screen.height);
+            int _applicationResWidth = Mathf.Min(MaxWidth, Screen.width);
+            int _applicationResHeight = Mathf.Min(MaxHeight, Screen.height);
             
             Screen.SetResolution(_applicationResWidth, _applicationResHeight, true);
 
@@ -51,7 +58,6 @@ namespace Assets.Scripts.Classes.IO
             _latestScreenshot = new Texture2D(_applicationResWidth, _applicationResHeight, TextureFormat.RGB24, false);
 
             SetupCustomActScreen(_applicationResWidth, _applicationResHeight);
-            //
 
             _screenFlashPanel = AppUIManager.Instance.ScreenFlashOverlay;
             if (_screenFlashPanel == null)
@@ -68,7 +74,9 @@ namespace Assets.Scripts.Classes.IO
             _filePath = _filePath + "video(" + DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss", CultureInfo.InvariantCulture) +")/";
             Directory.CreateDirectory(_filePath);
 
-            Debug.Log("Path" + _filePath);
+            Debug.Log("Image files path" + _filePath);
+
+            SessionLogger.Instance.WriteToLogFile("Screen recorder initialization complete.");
         }
 
         private void SetupCustomActScreen(int width, int height)
@@ -124,6 +132,8 @@ namespace Assets.Scripts.Classes.IO
 
         public void CaptureMovieActScreen()
         {
+            SessionLogger.Instance.WriteToLogFile("Created an intermission screen (can still be discarded)");
+
             InputField inputField =
                 Utility.GetChild(AppUIManager.Instance.ActScreenInput, "InputField").GetComponent<InputField>();
             string titleMessage = inputField.text;
@@ -140,6 +150,7 @@ namespace Assets.Scripts.Classes.IO
 
         public void TakeSingleSnapshot()
         {
+            SessionLogger.Instance.WriteToLogFile("Captured a screenshot");
             _readySingleShot = true;
         }
 
@@ -159,6 +170,26 @@ namespace Assets.Scripts.Classes.IO
 
         public void ClearMovieRecordings()
         {
+            //check for double click
+            if (_alreadyClicked)
+            {
+                _alreadyClicked = false;
+            }
+            else
+            {
+                _alreadyClicked = true;
+
+                //wait to reset click
+                new Thread(() =>
+                {
+                    Thread.Sleep((int) (_timeForDoubleClick * 1000));
+                    _alreadyClicked = false;
+                }).Start();
+                return;
+            }
+
+            SessionLogger.Instance.WriteToLogFile("Deleted all recordings");
+
             DirectoryInfo directory = new DirectoryInfo(_filePath);
             foreach (FileInfo file in directory.GetFiles())
             {

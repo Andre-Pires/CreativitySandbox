@@ -45,14 +45,15 @@ namespace Assets.Scripts.Classes.IO
 
         private void Start()
         {
-            Debug.Log("Mic setup - OK");
-            Debug.Log("Sound storage path: " + FilePath);
             _audio = gameObject.GetComponent<AudioSource>();
             _audio.loop = true; // Set the AudioClip to loop
             _audio.mute = false; // Mute the sound, we don't want the player to hear it
             SelectedDevice = Microphone.devices[0];
             _micSelected = true;
             GetMicCaps();
+
+            Debug.Log("Sound storage path: " + FilePath);
+            SessionLogger.Instance.WriteToLogFile("Sound recording activate and initialization complete.");
         }
 
         private void OnGui()

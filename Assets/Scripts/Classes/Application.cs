@@ -19,12 +19,20 @@ namespace Assets.Scripts.Classes
         // Use this for initialization
         public void Start()
         {
-            //to allow the recording of messages
+
             _scene = GameObject.Find("Scene");
+
+            _scene.AddComponent<SessionLogger>();
+            SessionLogger.Instance.WriteToLogFile("Application initialization started.");
 
             if (Configuration.Instance.SoundRecordingActive)
             {
+                //to allow the recording of messages
                 _scene.AddComponent<MicrophoneInput>();
+            }
+            else
+            {
+                SessionLogger.Instance.WriteToLogFile("Sound recording deactivated.");
             }
 
             //Camera control script
@@ -38,11 +46,14 @@ namespace Assets.Scripts.Classes
 
             //NOTE: should run last to allow the remaining components to setup first
             _UIManager = _scene.GetComponent<AppUIManager>();
+            SessionLogger.Instance.WriteToLogFile("Application UI Manager and Configuration bound.");
 
             AppUIManager.Instance.ApplicationMode.GetComponent<Button>().onClick.AddListener(UpdateApplicationMode);
             AppUIManager.Instance.SwitchUIApplicationMode(ActiveMode);
 
             _agent = new Agent.Agent(ActiveMode);
+
+            SessionLogger.Instance.WriteToLogFile("Application initialization complete.");
         }
 
         // Update is called once per frame
@@ -68,6 +79,8 @@ namespace Assets.Scripts.Classes
                 default:
                     throw new InvalidEnumArgumentException("Didn't pair with the implemented application modes");
             }
+
+            SessionLogger.Instance.WriteToLogFile("Application mode switched to " + ActiveMode);
 
             AppUIManager.Instance.SwitchUIApplicationMode(ActiveMode);
             _agent.CurrentApplicationMode = ActiveMode;

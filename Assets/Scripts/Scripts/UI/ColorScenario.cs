@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Classes.Helpers;
+using Assets.Scripts.Classes.IO;
 using Assets.Scripts.Classes.UI;
 using Assets.Scripts.Layout;
 using UnityEngine;
@@ -36,7 +37,7 @@ namespace Assets.Scripts.Scripts.UI
             AppUIManager.Instance.ColorMenuOpenButton.GetComponent<Button>().onClick.AddListener(UpdateToInUseColor);
         }
 
-        
+
         // Update is called once per frame
         public void Update()
         {
@@ -68,6 +69,8 @@ namespace Assets.Scripts.Scripts.UI
         {
             Utility.GetChild(_setColorPicker, "SetColorPicker").GetComponent<ScrollSnap>().ChangePage(_setColorPickerIndex[_currentSetColor]);
             Utility.GetChild(_skyboxColorPicker, "SkyboxColorPicker").GetComponent<ScrollSnap>().ChangePage(_skyboxColorPickerIndex[_currentBackgroundColor]);
+
+            SessionLogger.Instance.WriteToLogFile("Updated the set's color.");
         }
 
         private void InitializeSetParameters()

@@ -9,15 +9,17 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
     {
         private readonly Color _behaviorColor = Configuration.Instance.ColorNames[Configuration.Colors.DarkPurple];
 
-        public FearBehavior(float standardMultiplier, float excitedMultiplier) : base(standardMultiplier, excitedMultiplier)
+        public FearBehavior(float standardMultiplier, float excitedMultiplier, Animator animator = null) : base(standardMultiplier, excitedMultiplier, animator)
         {
             BehaviorType = Configuration.ComposedBehaviors.Fear;
         }
 
         public override void PrepareBehavior(Body body, Configuration.ActiveBehaviors behaviorToPrepare, float duration)
         {
-            Animator animator = body.Mesh.GetComponent<Animator>();
-            animator.SetTrigger("TriggerFear");
+            if (Animator != null)
+            {
+                Animator.SetTrigger("TriggerFear");
+            }
 
             BehaviorDuration = duration;
             ActiveBehavior = behaviorToPrepare;

@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Classes.Helpers;
+using Assets.Scripts.Classes.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,6 +26,8 @@ namespace Assets.Scripts.Scripts.UI
             set.transform.SetParent(GameObject.Find("Scene").transform, false);
 
             Destroy(GameObject.FindGameObjectWithTag("Scenario"));
+
+            SessionLogger.Instance.WriteToLogFile("Changed set to: " + scenario + ".");
         }
     }
 }

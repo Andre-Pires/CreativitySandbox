@@ -42,19 +42,19 @@ namespace Assets.Scripts.Classes.Agent
             switch (personality)
             {
                 case Configuration.Personality.Joy:
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Joy, new JoyBehavior(Random.Range(1.0f, 1.5f), 0));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Joy, new JoyBehavior(Random.Range(1.0f, 1.5f), 0, body.Mesh.GetComponent<Animator>()));
                     break;
                 case Configuration.Personality.Fear:
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Fear, new FearBehavior(Random.Range(1.0f, 1.5f), 0));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Fear, new FearBehavior(Random.Range(1.0f, 1.5f), 0, body.Mesh.GetComponent<Animator>()));
                     break;
                 case Configuration.Personality.Anger:
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Anger, new AngerBehavior(Random.Range(1.0f, 1.5f), 0));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Anger, new AngerBehavior(Random.Range(1.0f, 1.5f), 0, body.Mesh.GetComponent<Animator>()));
                     break;
                 case Configuration.Personality.Disgust:
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Disgust, new DisgustBehavior(Random.Range(1.0f, 1.5f), 0));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Disgust, new DisgustBehavior(Random.Range(1.0f, 1.5f), 0, body.Mesh.GetComponent<Animator>()));
                     break;
                 case Configuration.Personality.Sadness:
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Sadness, new SadnessBehavior(Random.Range(1.0f, 1.5f), 0));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Sadness, new SadnessBehavior(Random.Range(1.0f, 1.5f), 0, body.Mesh.GetComponent<Animator>()));
                     break;
                 default: //TODO for now default launches one behavior
                     AgentBehaviors.Add(Configuration.ComposedBehaviors.Sadness, new SadnessBehavior(Random.Range(1.0f, 1.5f), 0));

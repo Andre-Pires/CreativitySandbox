@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: ac249367ac351ce46a3753d6c8f83be2
-timeCreated: 1482668717
+guid: 1f02054e49c859e4aaf61bf1e91a8923
+timeCreated: 1482857803
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -8,7 +8,7 @@ ModelImporter:
     100000: //RootNode
     400000: //RootNode
     4300000: MainShape
-    7400000: disgust
+    7400000: angryStandard
     9500000: //RootNode
     13700000: //RootNode
   materials:
@@ -33,10 +33,10 @@ ModelImporter:
     extraExposedTransformPaths: []
     clipAnimations:
     - serializedVersion: 16
-      name: disgust
+      name: angryStandard
       takeName: Take 001
       firstFrame: 1
-      lastFrame: 230
+      lastFrame: 130
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -65,7 +65,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 100
+    globalScale: 1
     meshCompression: 0
     addColliders: 0
     importBlendShapes: 1

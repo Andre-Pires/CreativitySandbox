@@ -42,13 +42,6 @@ namespace Assets.Scripts.Classes.Helpers
         {
             PersonalitiesStrings = new Dictionary<Configuration.Personality, string>
             {
-                /*{Configuration.Personality.Shy, "Tímido"},
-                {Configuration.Personality.Sociable, "Sociável"},
-                {Configuration.Personality.Grumpy, "Resmungão"},
-                {Configuration.Personality.Friendly, "Amigável"},
-                {Configuration.Personality.Realist, "Realista"},
-                {Configuration.Personality.Imaginative, "Imaginativo"},
-                {Configuration.Personality.Foreigner, "Estrangeiro"}*/
                 {Configuration.Personality.Fear, "Medroso"},
                 {Configuration.Personality.Sadness, "Triste"},
                 {Configuration.Personality.Disgust, "Enjoado"},

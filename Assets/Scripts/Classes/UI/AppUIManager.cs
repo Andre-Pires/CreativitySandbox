@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using Assets.Scripts.Classes.Helpers;
+using Assets.Scripts.Classes.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,6 +33,9 @@ namespace Assets.Scripts.Classes.UI
         public GameObject ActScreenSave;
         public GameObject ScreenFlashOverlay;
 
+        //Camera mode toggle
+        public GameObject CameraModeToggle;
+
         //Scenario Color Picker
         public GameObject ColorPickerBackground;
         public GameObject ColorMenuCloseButton;
@@ -50,6 +54,7 @@ namespace Assets.Scripts.Classes.UI
             _instance = FindObjectOfType(typeof(AppUIManager)) as AppUIManager;
 
             SetupUI();
+
         }
 
         // Construct 	
@@ -83,7 +88,7 @@ namespace Assets.Scripts.Classes.UI
 
             if (!Configuration.Instance.CameraMovementActive)
             {
-                GameObject.Find("CameraModeToggle").SetActive(false);
+                CameraModeToggle.SetActive(false);
             }
         }
 

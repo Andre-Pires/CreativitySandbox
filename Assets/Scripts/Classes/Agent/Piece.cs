@@ -48,7 +48,9 @@ namespace Assets.Scripts.Classes.Agent
                 Mind = _cubeObject.GetComponent<Mind>();
                 Mind.InitializeParameters(piece.Body, Personality, otherPieces);
             }
+
             Debug.Log("New agent part added: part " + name + ". " + piece.Body.Size + " size and " + Personality + " personality");
+            SessionLogger.Instance.WriteToLogFile("Created  piece's Mind and Body: " + name);
         }
 
         public Piece(string name, Configuration.Personality personality, Configuration.Size size, Configuration.ApplicationMode pieceMode, List<Piece> autonomousPieces = null)
@@ -72,6 +74,7 @@ namespace Assets.Scripts.Classes.Agent
             }
 
             Debug.Log("New agent part added: part " + name + ". " + size + " size and " + personality + " personality");
+            SessionLogger.Instance.WriteToLogFile("Created  piece's Mind and Body: " + name);
         }
 
         public void RemoveStoredAgentPiece(Piece piece)

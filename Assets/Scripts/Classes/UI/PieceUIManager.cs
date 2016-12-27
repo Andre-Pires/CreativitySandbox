@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Assets.Scripts.Classes.Agent;
 using Assets.Scripts.Classes.Helpers;
+using Assets.Scripts.Classes.IO;
 using Assets.Scripts.Layout;
 using UnityEngine;
 using UnityEngine.UI;
@@ -37,6 +38,8 @@ namespace Assets.Scripts.Classes.UI
                 //after setting up the piece button pass to the popup so it can reflect its changes
                 _popupUI = new PiecePopupUI(_piece, _pieceButton);
             }
+
+            SessionLogger.Instance.WriteToLogFile("Created  piece's UI manager: " + _piece.Name);
         }
 
 
@@ -64,10 +67,12 @@ namespace Assets.Scripts.Classes.UI
             if (_hideAgentButton.GetComponent<Image>().sprite.name == "ShowAgent")
             {
                 _hideAgentButton.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/ColorfulButtons/HideAgent");
+                SessionLogger.Instance.WriteToLogFile("Revealed piece: " + _piece.Name);
             }
             else
             {
                 _hideAgentButton.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/ColorfulButtons/ShowAgent");
+                SessionLogger.Instance.WriteToLogFile("Hid piece: " + _piece.Name);
             }
 
             _piece.ToggleVisibility();
@@ -102,8 +107,10 @@ namespace Assets.Scripts.Classes.UI
                 _popupUI.DestroyPopupUI();
 
             Object.Destroy(_pieceButton);
+
+            SessionLogger.Instance.WriteToLogFile("Destroyed piece's UI manager: " + _piece.Name);
         }
 
-        
+
     }
 }

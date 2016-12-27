@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Assets.Scripts.Classes.Agent;
 using Assets.Scripts.Classes.Helpers;
+using Assets.Scripts.Classes.IO;
 using Assets.Scripts.Classes.UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -67,6 +68,8 @@ namespace Assets.Scripts.Scripts.CameraControl
             GameObject.Find("OpenScenarioColors").GetComponent<Button>().onClick.AddListener(ToggleColorPickerCameraMode);
             AppUIManager.Instance.ColorMenuCloseButton.GetComponent<Button>().onClick.AddListener(ToggleColorPickerCameraMode);
             ColorLookAt = GameObject.Find("ColorLookAt").GetComponent<Transform>();
+
+            SessionLogger.Instance.WriteToLogFile("Camera initialization complete");
         }
 
         private void Update()
@@ -183,6 +186,8 @@ namespace Assets.Scripts.Scripts.CameraControl
                 if (Physics.Raycast(_ray, out _hit, 100, layerMask))
                 {
                     Debug.Log("New look at: " + _hit.transform.name);
+                    SessionLogger.Instance.WriteToLogFile("Changed camera LookAt to: " + _hit.transform.name);
+
                     CloseUpLookAt = _hit.transform;
                 }
             }
@@ -275,12 +280,16 @@ namespace Assets.Scripts.Scripts.CameraControl
                     _lastCameraTransformation = Camera.main.transform;
                     _currentCameraMode = ActiveCameraMode.ColorPicker;
                     Debug.Log("Color camera");
+                    SessionLogger.Instance.WriteToLogFile("Changing to color camera mode");
+
                     break;
                 case ActiveCameraMode.ColorPicker:
                     _currentCameraMode = _lastCameraMode;
                     Camera.main.transform.position = _lastCameraTransformation.position;
                     Camera.main.transform.rotation = _lastCameraTransformation.rotation;
                     Debug.Log("Standard camera");
+                    SessionLogger.Instance.WriteToLogFile("Changing to standard camera mode");
+
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

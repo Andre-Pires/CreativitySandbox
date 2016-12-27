@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using Assets.Scripts.Classes.Helpers;
+using Assets.Scripts.Classes.IO;
 using Assets.Scripts.Classes.UI;
 using Assets.Scripts.Scripts.UI;
 using UnityEngine;
@@ -23,6 +24,8 @@ namespace Assets.Scripts.Classes.Agent
 
             _pieces = new Dictionary<string, Piece>();
             _piecesUIManagers = new Dictionary<string, PieceUIManager>();
+
+            SessionLogger.Instance.WriteToLogFile("Agent initialization complete.");
         }
 
         public void Update()
@@ -51,6 +54,8 @@ namespace Assets.Scripts.Classes.Agent
 
             //adding the piece to the other agents minds 
             UpdateOtherAutonomousPieces(newPiece);
+
+            SessionLogger.Instance.WriteToLogFile("Added random piece: " + pieceName + " (" + newPiece.Personality + ", " + newPiece.Body.Size + " size, " + CurrentApplicationMode + ").");
         }
 
         public void AddComponent(Configuration.Personality personality, string name = null)
@@ -101,9 +106,11 @@ namespace Assets.Scripts.Classes.Agent
 
             //adding the piece to the other agents minds 
             UpdateOtherAutonomousPieces(newPiece);
+
+            SessionLogger.Instance.WriteToLogFile("Added custom piece: " + pieceName + " (" + newPiece.Personality + ", " + newPiece.Body.Size + " size, " + CurrentApplicationMode + ").");
         }
 
-        
+
         //Allows copying components
         public void AddComponent(Piece piece)
         {
@@ -122,6 +129,8 @@ namespace Assets.Scripts.Classes.Agent
 
             //adding the piece to the other agents minds 
             UpdateOtherAutonomousPieces(newPiece);
+
+            SessionLogger.Instance.WriteToLogFile("Added copy piece: " + pieceName + " (" + newPiece.Personality + ", " + newPiece.Body.Size + " size, " + CurrentApplicationMode + ").");
         }
 
         public void EraseAgentPiece(string pieceName)
@@ -146,6 +155,8 @@ namespace Assets.Scripts.Classes.Agent
             PieceUIManager tempUI = _piecesUIManagers[pieceName];
             _piecesUIManagers.Remove(pieceName);
             tempUI.DestroyPieceUI();
+
+            SessionLogger.Instance.WriteToLogFile("Erased agent piece: " + pieceName + ".");
         }
 
         public void EraseCurrentAgent()
@@ -156,11 +167,15 @@ namespace Assets.Scripts.Classes.Agent
             _pieces.Clear();
 
             _currentPieceIndex = 0;
+
+            SessionLogger.Instance.WriteToLogFile("Erased agent.");
         }
 
         public void ToggleAgentVisibility()
         {
             _piecesUIManagers.ToList().ForEach(p => p.Value.TogglePieceVisibility());
+
+            SessionLogger.Instance.WriteToLogFile("Toggled agent visibility.");
         }
 
         public void UpdateOtherAutonomousPieces(Piece piece)

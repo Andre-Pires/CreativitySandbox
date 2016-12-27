@@ -9,15 +9,17 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
     {
         private readonly Color _behaviorColor = Configuration.Instance.ColorNames[Configuration.Colors.DarkBlue];
 
-        public SadnessBehavior(float standardMultiplier, float excitedMultiplier) : base(standardMultiplier, excitedMultiplier)
+        public SadnessBehavior(float standardMultiplier, float excitedMultiplier, Animator animator = null) : base(standardMultiplier, excitedMultiplier, animator)
         {
             BehaviorType = Configuration.ComposedBehaviors.Sadness;
         }
 
         public override void PrepareBehavior(Body body, Configuration.ActiveBehaviors behaviorToPrepare, float duration)
         {
-            Animator animator = body.Mesh.GetComponent<Animator>();
-            animator.SetTrigger("TriggerSad");
+            if (Animator != null)
+            {
+                Animator.SetTrigger("TriggerSad");
+            }
 
             BehaviorDuration = duration;
             ActiveBehavior = behaviorToPrepare;

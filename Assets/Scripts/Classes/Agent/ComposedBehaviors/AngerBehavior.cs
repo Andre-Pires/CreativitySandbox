@@ -9,21 +9,25 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
     {
         private readonly Color _behaviorColor = Configuration.Instance.ColorNames[Configuration.Colors.DarkRed];
 
-        public AngerBehavior(float standardMultiplier, float excitedMultiplier) : base(standardMultiplier, excitedMultiplier)
+        public AngerBehavior(float standardMultiplier, float excitedMultiplier, Animator animator = null) : base(standardMultiplier, excitedMultiplier, animator)
         {
             BehaviorType = Configuration.ComposedBehaviors.Anger;
         }
 
         public override void PrepareBehavior(Body body, Configuration.ActiveBehaviors behaviorToPrepare, float duration)
         {
-            Animator animator = body.Mesh.GetComponent<Animator>();
-            animator.SetTrigger("TriggerAngry");
+            
 
             BehaviorDuration = duration;
             ActiveBehavior = behaviorToPrepare;
 
             if (ActiveBehavior == Configuration.ActiveBehaviors.ExcitedBehavior)
             {
+                if (Animator != null)
+                {
+                    Animator.SetTrigger("TriggerAngryExcited");
+                }
+
                 foreach (Behavior behavior in ExcitedBehaviors)
                 {
                     switch (behavior.BehaviorType)
@@ -47,6 +51,11 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
             }
             else
             {
+                if (Animator != null)
+                {
+                    Animator.SetTrigger("TriggerAngryStandard");
+                }
+
                 foreach (Behavior behavior in StandardBehaviors)
                 {
                     switch (behavior.BehaviorType)

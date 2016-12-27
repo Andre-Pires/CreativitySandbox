@@ -9,15 +9,17 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
     {
         private readonly Color _behaviorColor = Configuration.Instance.ColorNames[Configuration.Colors.DarkGreen];
 
-        public DisgustBehavior(float standardMultiplier, float excitedMultiplier) : base(standardMultiplier, excitedMultiplier)
+        public DisgustBehavior(float standardMultiplier, float excitedMultiplier, Animator animator = null) : base(standardMultiplier, excitedMultiplier, animator)
         {
             BehaviorType = Configuration.ComposedBehaviors.Disgust;
         }
 
         public override void PrepareBehavior(Body body, Configuration.ActiveBehaviors behaviorToPrepare, float duration)
         {
-            Animator animator = body.Mesh.GetComponent<Animator>();
-            animator.SetTrigger("TriggerDisgust");
+            if (Animator != null)
+            {
+                Animator.SetTrigger("TriggerDisgust");
+            }
 
             BehaviorDuration = duration;
             ActiveBehavior = behaviorToPrepare;

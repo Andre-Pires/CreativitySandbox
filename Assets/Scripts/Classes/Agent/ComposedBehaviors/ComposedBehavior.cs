@@ -30,8 +30,13 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
         public bool IsOver = true;
         public bool BehaviorHalted;
 
-        protected ComposedBehavior(float standardMultiplier, float excitedMultiplier)
+        //animator
+        protected readonly Animator Animator;
+
+        protected ComposedBehavior(float standardMultiplier, float excitedMultiplier, Animator animator)
         {
+            Animator = animator;
+
             StandardBehaviorDrive = Random.Range(0.0f, 35.0f);
             StandardDriveMultiplier = standardMultiplier;
             ExcitedDriveMultiplier = excitedMultiplier;
