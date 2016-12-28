@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 9c793f7d39b81f44699be1df580650b3
-timeCreated: 1482519433
+guid: 99688c428e8215c4a950c74227ab366e
+timeCreated: 1482861106
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     4300000: MainShape
     6400000: //RootNode
-    7400000: idle
+    7400000: fearStandard
     9500000: //RootNode
     13700000: //RootNode
   materials:
@@ -34,17 +34,17 @@ ModelImporter:
     extraExposedTransformPaths: []
     clipAnimations:
     - serializedVersion: 16
-      name: idle
+      name: fearStandard
       takeName: Take 001
       firstFrame: 1
-      lastFrame: 60
+      lastFrame: 260
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
       cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 1
-      loopTime: 1
+      loopTime: 0
       loopBlend: 0
       loopBlendOrientation: 0
       loopBlendPositionY: 0

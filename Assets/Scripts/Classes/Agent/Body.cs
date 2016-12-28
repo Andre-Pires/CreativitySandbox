@@ -208,6 +208,25 @@ namespace Assets.Scripts.Classes.Agent
             }
         }
 
+        void OnDisable()
+        {
+            //only has to reset animator if it an autonomous agent piece
+            if (_pieceMode == Configuration.ApplicationMode.AutonomousAgent)
+            {
+                Mesh.GetComponent<Animator>().enabled = false;
+
+                Mesh.transform.localPosition = new Vector3(Mesh.transform.localPosition.x, 0, Mesh.transform.localPosition.z);
+                Mesh.rotation = new Quaternion(0,0,0,0);
+
+                for (int i = 0; i < Mesh.GetComponent<SkinnedMeshRenderer>().sharedMesh.blendShapeCount; i++)
+                {
+                    Mesh.GetComponent<SkinnedMeshRenderer>().SetBlendShapeWeight(i, 0);
+                }
+
+                Mesh.GetComponent<Animator>().enabled = true;
+            }
+        }
+
         public void Update()
         {
             if (BodyHalted)

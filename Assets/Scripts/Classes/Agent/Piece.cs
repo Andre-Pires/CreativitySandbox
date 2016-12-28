@@ -48,6 +48,10 @@ namespace Assets.Scripts.Classes.Agent
                 Mind = _cubeObject.GetComponent<Mind>();
                 Mind.InitializeParameters(piece.Body, Personality, otherPieces);
             }
+            else
+            {
+                _cubeObject.GetComponentInChildren<Animator>().enabled = false;
+            }
 
             Debug.Log("New agent part added: part " + name + ". " + piece.Body.Size + " size and " + Personality + " personality");
             SessionLogger.Instance.WriteToLogFile("Created  piece's Mind and Body: " + name);
@@ -71,6 +75,10 @@ namespace Assets.Scripts.Classes.Agent
                 _cubeObject.AddComponent<Mind>();
                 Mind = _cubeObject.GetComponent<Mind>();
                 Mind.InitializeParameters(Body, Personality, otherPieces);
+            }
+            else
+            {
+                _cubeObject.GetComponentInChildren<Animator>().enabled = false;
             }
 
             Debug.Log("New agent part added: part " + name + ". " + size + " size and " + personality + " personality");
@@ -129,7 +137,10 @@ namespace Assets.Scripts.Classes.Agent
             _cubeObject.SetActive(_cubeObject.activeSelf != true);
 
             //halt agent modules when piece is invisible
-            Mind.MindHalted = !Mind.MindHalted;
+            if (PieceMode == Configuration.ApplicationMode.AutonomousAgent)
+            {
+                Mind.MindHalted = !Mind.MindHalted;
+            }
             Body.BodyHalted = !Body.BodyHalted;
         }
 

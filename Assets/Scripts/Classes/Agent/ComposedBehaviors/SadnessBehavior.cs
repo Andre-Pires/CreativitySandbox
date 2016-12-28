@@ -16,16 +16,16 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
 
         public override void PrepareBehavior(Body body, Configuration.ActiveBehaviors behaviorToPrepare, float duration)
         {
-            if (Animator != null)
-            {
-                Animator.SetTrigger("TriggerSad");
-            }
-
             BehaviorDuration = duration;
             ActiveBehavior = behaviorToPrepare;
 
             if (ActiveBehavior == Configuration.ActiveBehaviors.ExcitedBehavior)
             {
+                if (Animator != null)
+                {
+                    Animator.SetTrigger("TriggerSadExcited");
+                }
+
                 foreach (Behavior behavior in ExcitedBehaviors)
                 {
                     switch (behavior.BehaviorType)
@@ -49,6 +49,11 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
             }
             else
             {
+                if (Animator != null)
+                {
+                    Animator.SetTrigger("TriggerSadStandard");
+                }
+
                 foreach (Behavior behavior in StandardBehaviors)
                 {
                     switch (behavior.BehaviorType)
