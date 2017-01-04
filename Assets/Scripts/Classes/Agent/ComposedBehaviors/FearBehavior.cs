@@ -12,6 +12,8 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
         public FearBehavior(float standardMultiplier, float excitedMultiplier, Animator animator = null) : base(standardMultiplier, excitedMultiplier, animator)
         {
             BehaviorType = Configuration.ComposedBehaviors.Fear;
+            StandardAnimation = new AnimationBehavior(Animator, "fearStandard", "TriggerFearStandard", "SpeedFearStandard");
+            ExcitedAnimation = new AnimationBehavior(Animator, "fearExcited", "TriggerFearExcited", "SpeedFearExcited");
         }
 
         public override void PrepareBehavior(Body body, Configuration.ActiveBehaviors behaviorToPrepare, float duration)
@@ -22,11 +24,6 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
 
             if (ActiveBehavior == Configuration.ActiveBehaviors.ExcitedBehavior)
             {
-                if (Animator != null)
-                {
-                    Animator.SetTrigger("TriggerFearExcited");
-                }
-
                 foreach (Behavior behavior in ExcitedBehaviors)
                 {
                     switch (behavior.BehaviorType)
@@ -50,11 +47,6 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
             }
             else
             {
-                if (Animator != null)
-                {
-                    Animator.SetTrigger("TriggerFearStandard");
-                }
-
                 foreach (Behavior behavior in StandardBehaviors)
                 {
                     switch (behavior.BehaviorType)

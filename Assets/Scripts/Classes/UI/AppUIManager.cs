@@ -20,6 +20,7 @@ namespace Assets.Scripts.Classes.UI
 
         //Application
         public GameObject ApplicationMode;
+        public GameObject DeleteSavedStatus;
 
         //Agent
         public GameObject PieceSelection;
@@ -90,6 +91,8 @@ namespace Assets.Scripts.Classes.UI
             {
                 CameraModeToggle.SetActive(false);
             }
+
+            DeleteSavedStatus.GetComponent<Button>().onClick.AddListener(PlayerPrefs.DeleteAll);
         }
 
         public void DisplayRecordingStarted()

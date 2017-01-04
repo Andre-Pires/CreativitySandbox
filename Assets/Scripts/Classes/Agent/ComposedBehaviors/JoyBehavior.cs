@@ -13,15 +13,13 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
         public JoyBehavior(float standardMultiplier, float excitedMultiplier, Animator animator = null) : base(standardMultiplier, excitedMultiplier, animator)
         {
             BehaviorType = Configuration.ComposedBehaviors.Joy;
+            StandardAnimation = new AnimationBehavior(Animator, "happyStandard", "TriggerHappyStandard", "SpeedHappyStandard");
+            ExcitedAnimation = new AnimationBehavior(Animator, "happyExcited", "TriggerHappyExcited", "SpeedHappyExcited");
         }
 
         public override void PrepareBehavior(Body body, Configuration.ActiveBehaviors behaviorToPrepare, float duration)
         {
-            if (Animator != null)
-            {
-                Animator.SetTrigger("TriggerHappy");
-            }
-
+            
             BehaviorDuration = duration;
             ActiveBehavior = behaviorToPrepare;
 

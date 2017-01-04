@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: ac249367ac351ce46a3753d6c8f83be2
-timeCreated: 1482668717
+guid: 337b1adc7993d5c45a2af6baa759d9a9
+timeCreated: 1483359309
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     4300000: MainShape
     6400000: //RootNode
-    7400000: disgust
+    7400000: disgustExcited
     9500000: //RootNode
     13700000: //RootNode
   materials:
@@ -34,10 +34,10 @@ ModelImporter:
     extraExposedTransformPaths: []
     clipAnimations:
     - serializedVersion: 16
-      name: disgust
+      name: disgustExcited
       takeName: Take 001
       firstFrame: 1
-      lastFrame: 230
+      lastFrame: 360
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

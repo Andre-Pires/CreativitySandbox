@@ -105,6 +105,7 @@ namespace Assets.Scripts.Classes.Agent
                 _cubeObject.name = Name;
                 _cubeObject.tag = "Cube";
                 _cubeObject.transform.SetParent(_root.transform, false);
+                Utility.GetChild(_cubeObject.gameObject, "AgentMesh").tag = "Cube";
             }
             else
             {

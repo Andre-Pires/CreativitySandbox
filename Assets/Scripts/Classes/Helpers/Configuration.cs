@@ -75,7 +75,8 @@ namespace Assets.Scripts.Classes.Helpers
         {
             Blink,
             Resize,
-            Rotate
+            Rotate,
+            Animate
         }
 
         public enum ComposedBehaviors

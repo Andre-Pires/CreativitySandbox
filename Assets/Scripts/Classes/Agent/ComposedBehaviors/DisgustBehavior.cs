@@ -12,15 +12,12 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
         public DisgustBehavior(float standardMultiplier, float excitedMultiplier, Animator animator = null) : base(standardMultiplier, excitedMultiplier, animator)
         {
             BehaviorType = Configuration.ComposedBehaviors.Disgust;
+            StandardAnimation = new AnimationBehavior(Animator, "disgust", "TriggerDisgustStandard", "SpeedDisgustStandard");
+            ExcitedAnimation = new AnimationBehavior(Animator, "disgust", "TriggerDisgustExcited", "SpeedDisgustExcited");
         }
 
         public override void PrepareBehavior(Body body, Configuration.ActiveBehaviors behaviorToPrepare, float duration)
         {
-            if (Animator != null)
-            {
-                Animator.SetTrigger("TriggerDisgust");
-            }
-
             BehaviorDuration = duration;
             ActiveBehavior = behaviorToPrepare;
 
@@ -32,7 +29,7 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                     {
                         case Configuration.Behaviors.Blink:
                             (behavior as BlinkBehavior).PrepareBehavior(body, _behaviorColor,
-                                Configuration.Transitions.EaseInOut, 3, 4.0f);
+                                Configuration.Transitions.EaseInOut, 3, BehaviorDuration);
                             break;
                         case Configuration.Behaviors.Resize:
                             /*(behavior as ResizeBehavior).PrepareBehavior(body, Configuration.Size.Small,
@@ -55,7 +52,7 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                     {
                         case Configuration.Behaviors.Blink:
                             (behavior as BlinkBehavior).PrepareBehavior(body, _behaviorColor,
-                                Configuration.Transitions.EaseInOut, 2, 3.0f);
+                                Configuration.Transitions.EaseInOut, 2, BehaviorDuration);
                             break;
                         case Configuration.Behaviors.Resize:
                             /*(behavior as ResizeBehavior).PrepareBehavior(body, Configuration.Size.Small,

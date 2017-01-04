@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 99073a5b1f7591048ae3d2cb8713ec22
-timeCreated: 1482859286
+guid: 2aee5fef8a6697f48aa94aa67283dbcd
+timeCreated: 1482936486
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     4300000: MainShape
     6400000: //RootNode
-    7400000: fearExcited
+    7400000: happyStandard
     9500000: //RootNode
     13700000: //RootNode
   materials:
@@ -34,10 +34,10 @@ ModelImporter:
     extraExposedTransformPaths: []
     clipAnimations:
     - serializedVersion: 16
-      name: fearExcited
+      name: happyStandard
       takeName: Take 001
-      firstFrame: 1
-      lastFrame: 500
+      firstFrame: 100
+      lastFrame: 240
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

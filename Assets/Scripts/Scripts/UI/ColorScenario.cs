@@ -49,15 +49,13 @@ namespace Assets.Scripts.Scripts.UI
 
             if (!_alreadyInitialized)
             {
-                /*Debug.Log("set -> " + Utility.GetChild(_setColorPicker, "SetColorPicker").GetComponent<ScrollSnap>().AlreadyInitialized);
-                Debug.Log("sky -> " + Utility.GetChild(_setColorPicker, "SkyboxColorPicker").GetComponent<ScrollSnap>().AlreadyInitialized);*/
                 bool bothScrollSnapsWereInitialized =
                     _setColorPicker.GetComponent<ScrollSnap>().AlreadyInitialized &&
                     _skyboxColorPicker.GetComponent<ScrollSnap>().AlreadyInitialized;
 
                 if (bothScrollSnapsWereInitialized)
                 {
-                    Debug.Log("updating color");
+                    Debug.Log("Updating color");
                     UpdateToInUseColor();
                     _alreadyInitialized = true;
                 }
@@ -73,16 +71,38 @@ namespace Assets.Scripts.Scripts.UI
             SessionLogger.Instance.WriteToLogFile("Updated the set's color.");
         }
 
+        //checks if colors were stored from previous use and assigns them
         private void InitializeSetParameters()
         {
             int numberOfColors = Configuration.Instance.AvailableColors.Count;
 
             {
-                Configuration.Colors randomColor = Configuration.Instance.ColorNames.Keys.ToList()[Random.Range(0, numberOfColors)];
+                Configuration.Colors randomColor;
+                if (!PlayerPrefs.HasKey("setColor"))
+                {
+                    randomColor = Configuration.Instance.ColorNames.Keys.ToList()[Random.Range(0, numberOfColors)];
+                    PlayerPrefs.SetString("setColor", randomColor.ToString());
+                    PlayerPrefs.Save();
+                }
+                else
+                {
+                    randomColor = Configuration.Instance.ColorNames.FirstOrDefault(c => c.Key.ToString() == PlayerPrefs.GetString("setColor", "")).Key;
+                }
                 _currentSetColor = randomColor;
             }
+
             {
-                _currentBackgroundColor = Configuration.Instance.ColorNames.Keys.ToList()[Random.Range(0, numberOfColors)];
+                if (!PlayerPrefs.HasKey("skyColor"))
+                {
+                    _currentBackgroundColor = Configuration.Instance.ColorNames.Keys.ToList()[Random.Range(0, numberOfColors)];
+                    PlayerPrefs.SetString("skyColor", _currentBackgroundColor.ToString());
+                    PlayerPrefs.Save();
+                }
+                else
+                {
+                    _currentBackgroundColor = Configuration.Instance.ColorNames.FirstOrDefault(c => c.Key.ToString() == PlayerPrefs.GetString("skyColor", "")).Key;
+                }
+
                 Color randomColor = Configuration.Instance.ColorNames[_currentBackgroundColor];
                 Camera.main.backgroundColor = Color.Lerp(randomColor, Color.black, 0.2f);
             }
@@ -101,7 +121,10 @@ namespace Assets.Scripts.Scripts.UI
                         plane.GetComponent<Renderer>().material.color = tempButton.GetComponent<Image>().color;
                     }
 
-                    _currentSetColor = Configuration.Instance.ColorNames.FirstOrDefault(c => c.Value == tempButton.GetComponent<Image>().color).Key;
+                    PlayerPrefs.SetString("setColor", tempButton.name);
+                    PlayerPrefs.Save();
+
+                    _currentSetColor = Configuration.Instance.ColorNames.FirstOrDefault(c => c.Key.ToString() == tempButton.name).Key;
                 });
             }
         }
@@ -136,6 +159,9 @@ namespace Assets.Scripts.Scripts.UI
                         {
                             plane.GetComponent<Renderer>().material.color = tempColor;
                         }
+                        PlayerPrefs.SetString("setColor", tempColorName.ToString());
+                        PlayerPrefs.Save();
+
                         _currentSetColor = tempColorName;
                     });
                     item.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Scenario/ColorPickers/stain");
@@ -163,6 +189,9 @@ namespace Assets.Scripts.Scripts.UI
                     {
                         Camera.main.backgroundColor = tempColor;
                         _currentBackgroundColor = tempColorName;
+
+                        PlayerPrefs.SetString("skyColor", tempColorName.ToString());
+                        PlayerPrefs.Save();
                     });
                     item.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Scenario/ColorPickers/stain");
                     item.GetComponent<Image>().color = tempColor;

@@ -452,11 +452,14 @@ namespace Assets.Scripts.Layout
             //NOTE: only works if the programmer selects a flag 
             if(!SelectButtonAutomatically) return;
 
-            Button button = _pageItemGameobjects[buttonIndex].GetComponent<Button>();
-
-            if (button != null)
+            if (_pageItemGameobjects[buttonIndex] != null)
             {
-                button.onClick.Invoke();
+                Button button = _pageItemGameobjects[buttonIndex].GetComponent<Button>();
+
+                if (button != null)
+                {
+                    button.onClick.Invoke();
+                }
             }
         }
 
@@ -599,6 +602,11 @@ namespace Assets.Scripts.Layout
                 }
                 else
                 {
+                    if (CurrentPage() >= pageAnchorPositions.Length)
+                    {
+                        return;
+                    }
+
                     lerp = true;
                     lerpTarget = pageAnchorPositions[CurrentPage()];
 
@@ -620,7 +628,6 @@ namespace Assets.Scripts.Layout
                 lerpTarget = pageAnchorPositions[CurrentPage()];
 
                 //Added by me, I don't see a negative effect
-                // but will leave duplicated in case it needs to be rolled back
                 if (change > 0)
                 {
                     NextScreenCommand();

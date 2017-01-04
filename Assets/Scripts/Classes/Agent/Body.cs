@@ -3,6 +3,7 @@ using System.Linq;
 using Assets.Scripts.Classes.Agent.ComposedBehaviors;
 using Assets.Scripts.Classes.Agent.SimpleBehaviors;
 using Assets.Scripts.Classes.Helpers;
+using Assets.Scripts.Classes.IO;
 using UnityEngine;
 
 namespace Assets.Scripts.Classes.Agent
@@ -16,6 +17,7 @@ namespace Assets.Scripts.Classes.Agent
         private Configuration.ApplicationMode _pieceMode;
         private bool _alreadyInitialized;
         private const float ScenarioPlacementRadius = 26.0f;
+        private const float FloatComparisonEpsilon = 0.1f;
 
         public delegate void OnPropertyChange();
         public event OnPropertyChange NotifyUI;
@@ -276,6 +278,7 @@ namespace Assets.Scripts.Classes.Agent
             #if UNITY_ANDROID
             if (Input.touchCount == 2)
             {
+                float oldRotation = CurrentRotation;
                 var layer = 8;
                 var layerMask = 1 << layer;
 
@@ -304,6 +307,10 @@ namespace Assets.Scripts.Classes.Agent
                 CurrentRotation += touchSlider.deltaPosition.y*rotationSpeed;
                 Transform.rotation = Quaternion.Slerp(Transform.rotation, Quaternion.Euler(0, CurrentRotation, 0),
                     lerpSpeed*Time.deltaTime);
+
+                float minimumRotation = 2.0f;
+                if (Mathf.Abs(oldRotation - CurrentRotation) > FloatComparisonEpsilon + minimumRotation)
+                    SessionLogger.Instance.WriteToLogFile("Agent " + Transform.name + " was rotated.");
             }
             #endif
 
@@ -312,11 +319,16 @@ namespace Assets.Scripts.Classes.Agent
             {
                 if (Utility.Instance.CheckIfClicked(Mesh))
                 {
+                    float oldRotation = CurrentRotation;
                     lerpSpeed = 100.0f;
                     rotationSpeed = 50.0f;
                     CurrentRotation += Input.GetAxis("Mouse ScrollWheel")*rotationSpeed;
                     Transform.rotation = Quaternion.Slerp(Transform.rotation, Quaternion.Euler(0, CurrentRotation, 0),
                         lerpSpeed*Time.deltaTime);
+
+                    float minimumRotation = 2.0f;
+                    if (Mathf.Abs(oldRotation - CurrentRotation) > FloatComparisonEpsilon + minimumRotation)
+                        SessionLogger.Instance.WriteToLogFile("Agent " + Transform.name + " was rotated.");
                 }
             }
             #endif
@@ -336,6 +348,8 @@ namespace Assets.Scripts.Classes.Agent
                     _dragStartPosition = transform.position;
                     _distance = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y,
                         Camera.main.WorldToScreenPoint(_dragStartPosition).z)) - _dragStartPosition;
+
+                    SessionLogger.Instance.WriteToLogFile("Agent " + Transform.name + " was dragged.");
                 }
             }
 

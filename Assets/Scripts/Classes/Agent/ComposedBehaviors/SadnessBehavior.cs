@@ -12,6 +12,8 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
         public SadnessBehavior(float standardMultiplier, float excitedMultiplier, Animator animator = null) : base(standardMultiplier, excitedMultiplier, animator)
         {
             BehaviorType = Configuration.ComposedBehaviors.Sadness;
+            StandardAnimation = new AnimationBehavior(Animator, "sadStandard", "TriggerSadStandard", "SpeedSadStandard");
+            ExcitedAnimation = new AnimationBehavior(Animator, "sadExcited", "TriggerSadExcited", "SpeedSadExcited");
         }
 
         public override void PrepareBehavior(Body body, Configuration.ActiveBehaviors behaviorToPrepare, float duration)
@@ -21,11 +23,6 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
 
             if (ActiveBehavior == Configuration.ActiveBehaviors.ExcitedBehavior)
             {
-                if (Animator != null)
-                {
-                    Animator.SetTrigger("TriggerSadExcited");
-                }
-
                 foreach (Behavior behavior in ExcitedBehaviors)
                 {
                     switch (behavior.BehaviorType)
@@ -49,11 +46,6 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
             }
             else
             {
-                if (Animator != null)
-                {
-                    Animator.SetTrigger("TriggerSadStandard");
-                }
-
                 foreach (Behavior behavior in StandardBehaviors)
                 {
                     switch (behavior.BehaviorType)

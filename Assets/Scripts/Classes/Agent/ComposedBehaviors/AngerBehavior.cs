@@ -12,22 +12,17 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
         public AngerBehavior(float standardMultiplier, float excitedMultiplier, Animator animator = null) : base(standardMultiplier, excitedMultiplier, animator)
         {
             BehaviorType = Configuration.ComposedBehaviors.Anger;
+            StandardAnimation = new AnimationBehavior(Animator, "angryStandard", "TriggerAngryStandard", "SpeedAngryStandard");
+            ExcitedAnimation = new AnimationBehavior(Animator, "angryExcited", "TriggerAngryExcited", "SpeedAngryExcited");
         }
 
         public override void PrepareBehavior(Body body, Configuration.ActiveBehaviors behaviorToPrepare, float duration)
         {
-            
-
             BehaviorDuration = duration;
             ActiveBehavior = behaviorToPrepare;
 
             if (ActiveBehavior == Configuration.ActiveBehaviors.ExcitedBehavior)
             {
-                if (Animator != null)
-                {
-                    Animator.SetTrigger("TriggerAngryExcited");
-                }
-
                 foreach (Behavior behavior in ExcitedBehaviors)
                 {
                     switch (behavior.BehaviorType)
@@ -51,11 +46,6 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
             }
             else
             {
-                if (Animator != null)
-                {
-                    Animator.SetTrigger("TriggerAngryStandard");
-                }
-
                 foreach (Behavior behavior in StandardBehaviors)
                 {
                     switch (behavior.BehaviorType)

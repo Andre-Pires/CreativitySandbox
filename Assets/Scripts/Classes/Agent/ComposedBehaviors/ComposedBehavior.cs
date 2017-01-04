@@ -23,15 +23,17 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
         protected float StandardDriveStep = 3.0f;
         protected List<Behavior> StandardBehaviors;
 
+        //animation behavior
+        protected readonly Animator Animator;
+        protected AnimationBehavior StandardAnimation;
+        protected AnimationBehavior ExcitedAnimation;
+
         //generic variables
         protected Configuration.ActiveBehaviors ActiveBehavior = Configuration.ActiveBehaviors.StandardBehavior;
         protected float BehaviorDuration;
         protected float StartTime;
         public bool IsOver = true;
         public bool BehaviorHalted;
-
-        //animator
-        protected readonly Animator Animator;
 
         protected ComposedBehavior(float standardMultiplier, float excitedMultiplier, Animator animator)
         {
@@ -70,6 +72,11 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                     behavior.StartBehavior();
                 }
 
+                if (ExcitedAnimation != null)
+                {
+                    ExcitedAnimation.StartBehavior();
+                }
+
                 Debug.Log("Starting excited " + BehaviorType);
             }
             else
@@ -79,6 +86,11 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                 foreach (Behavior behavior in StandardBehaviors)
                 {
                     behavior.StartBehavior();
+                }
+
+                if (StandardAnimation != null)
+                {
+                    StandardAnimation.StartBehavior();
                 }
 
                 Debug.Log("Starting standard " + BehaviorType);
@@ -163,13 +175,27 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
         {
             IsOver = true;
             List<Behavior> behaviorsToApply;
+            AnimationBehavior animationToApply;
+
             if (ActiveBehavior == Configuration.ActiveBehaviors.ExcitedBehavior)
             {
                 behaviorsToApply = ExcitedBehaviors;
+                animationToApply = ExcitedAnimation;
             }
             else
             {
                 behaviorsToApply = StandardBehaviors;
+                animationToApply = StandardAnimation;
+            }
+
+            if (animationToApply != null)
+            {
+                animationToApply.ApplyBehavior();
+
+                if (IsOver == true && !animationToApply.IsOver)
+                {
+                    IsOver = false;
+                }
             }
 
             foreach (Behavior behavior in behaviorsToApply)
@@ -184,7 +210,6 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                     IsOver = false;
                 }
             }
-
         }
 
         public abstract void PrepareBehavior(Body body, Configuration.ActiveBehaviors behaviorToPrepare, float duration);

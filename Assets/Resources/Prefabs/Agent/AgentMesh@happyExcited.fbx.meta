@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 8a7663bced3ae5040bfa4a56a6f3520a
-timeCreated: 1482503231
+guid: 32c688d91345a9244af978918b95d6cb
+timeCreated: 1482926127
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -9,9 +9,8 @@ ModelImporter:
     400000: //RootNode
     4300000: MainShape
     6400000: //RootNode
-    7400000: happy
+    7400000: happyExcited
     9500000: //RootNode
-    11100000: //RootNode
     13700000: //RootNode
   materials:
     importMaterials: 1
@@ -27,18 +26,18 @@ ModelImporter:
     animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
-    animationCompression: 3
+    animationCompression: 1
     animationRotationError: 0.5
     animationPositionError: 0.5
     animationScaleError: 0.5
-    animationWrapMode: 1
+    animationWrapMode: 0
     extraExposedTransformPaths: []
     clipAnimations:
     - serializedVersion: 16
-      name: happy
+      name: happyExcited
       takeName: Take 001
       firstFrame: 1
-      lastFrame: 230
+      lastFrame: 240
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

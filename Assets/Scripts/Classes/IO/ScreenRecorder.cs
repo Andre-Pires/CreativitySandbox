@@ -5,6 +5,7 @@ using System.Threading;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.UI;
 using Assets.Scripts.Scripts.UI;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -52,7 +53,15 @@ namespace Assets.Scripts.Classes.IO
             int _applicationResWidth = Mathf.Min(MaxWidth, Screen.width);
             int _applicationResHeight = Mathf.Min(MaxHeight, Screen.height);
             
+            //limiting resolution load 
             Screen.SetResolution(_applicationResWidth, _applicationResHeight, true);
+
+            //initializing screen overlay
+            new Thread(() =>
+            {
+                _rect = new Rect(0, 0, _applicationResWidth, _applicationResHeight);
+                Thread.Sleep(500);
+            }).Start();
 
             //must use local variables since SetResolution isn't instant
             _latestScreenshot = new Texture2D(_applicationResWidth, _applicationResHeight, TextureFormat.RGB24, false);
@@ -70,12 +79,33 @@ namespace Assets.Scripts.Classes.IO
             //clear empty directories
             ClearEmptyDirectories();
 
-            // arrange snapshots in different folders
-            _filePath = _filePath + "video(" + DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss", CultureInfo.InvariantCulture) +")/";
-            Directory.CreateDirectory(_filePath);
+            if (PlayerPrefs.HasKey("imageCount") && PlayerPrefs.HasKey("imageFolder"))
+            {
+                _filePath = PlayerPrefs.GetString("imageFolder", "");
+                _numberOfShots = PlayerPrefs.GetInt("imageCount", 0);
+                //ensuring the "0001" format
+                string stringShotNumber = _numberOfShots.ToString("D" + paddingLength);
+                string fileName = _filePath + FileName + stringShotNumber + FileExtension;
+
+                try
+                {
+                    _latestScreenshot.LoadImage(File.ReadAllBytes(fileName), false);
+                }
+                catch (Exception)
+                {
+                    Debug.Log("Problem loading last screen from previous execution.");
+                }
+            }
+            else
+            {
+                // arrange snapshots in different folders
+                _filePath = _filePath + "video(" + DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss", CultureInfo.InvariantCulture) + ")/";
+                Directory.CreateDirectory(_filePath);
+                PlayerPrefs.SetString("imageFolder", _filePath);
+                PlayerPrefs.Save();
+            }
 
             Debug.Log("Image files path" + _filePath);
-
             SessionLogger.Instance.WriteToLogFile("Screen recorder initialization complete.");
         }
 
@@ -125,6 +155,8 @@ namespace Assets.Scripts.Classes.IO
                 string stringShotNumber = _numberOfShots.ToString("D" + paddingLength);
                 File.Delete(_filePath + FileName + stringShotNumber + FileExtension);
                 _numberOfShots--;
+                PlayerPrefs.SetInt("imageCount", _numberOfShots);
+                PlayerPrefs.Save();
             }
 
             _actScreenMovieDone = true;
@@ -143,6 +175,9 @@ namespace Assets.Scripts.Classes.IO
             Utility.GetChild(AppUIManager.Instance.MovieActScreen, "ActTitle").GetComponent<Text>().text = titleMessage;
 
             _numberOfShots++;
+            PlayerPrefs.SetInt("imageCount", _numberOfShots);
+            PlayerPrefs.Save();
+
             string stringShotNumber = _numberOfShots.ToString("D" + paddingLength);
             UnityEngine.Application.CaptureScreenshot(_filePath + FileName + stringShotNumber + FileExtension);
 
@@ -209,6 +244,10 @@ namespace Assets.Scripts.Classes.IO
             if (_recording && Time.time - _startShotTime >= ShotInterval)
             {
                 _numberOfShots++;
+
+                PlayerPrefs.SetInt("imageCount", _numberOfShots);
+                PlayerPrefs.Save();
+
                 CaptureScreenshot();
                 _startShotTime = Time.time;
             }
@@ -216,8 +255,13 @@ namespace Assets.Scripts.Classes.IO
             if (_readySingleShot)
             {
                 _numberOfShots++;
+
+                PlayerPrefs.SetInt("imageCount", _numberOfShots);
+                PlayerPrefs.Save();
+
                 CaptureScreenshot();
                 _readySingleShot = false;
+
             }
 
             if (_confirmationScreenActive)
@@ -281,6 +325,7 @@ namespace Assets.Scripts.Classes.IO
 
         public void Update()
         {
+            //in order to deal with the screen resize
             #if (UNITY_STANDALONE || UNITY_EDITOR)
                 _rect = new Rect(0, 0, Screen.width, Screen.height);
             #endif
