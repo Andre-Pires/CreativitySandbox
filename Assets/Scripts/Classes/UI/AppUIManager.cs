@@ -45,6 +45,9 @@ namespace Assets.Scripts.Classes.UI
         public GameObject SetColorPicker;
         public GameObject ColorPicker;
 
+        //Scenario backdrop
+        public GameObject SetSelector;
+
         //Canvases
         public GameObject MainCanvas;
         public GameObject ScreenOverlays;
@@ -83,7 +86,6 @@ namespace Assets.Scripts.Classes.UI
             AudioRecordingStoppedInfo.SetActive(false);
             MovieActScreen.SetActive(false);
             ActScreenSave.SetActive(false);
-
             //inactive canvas
             ScreenOverlays.SetActive(false);
 
@@ -93,6 +95,10 @@ namespace Assets.Scripts.Classes.UI
             }
 
             DeleteSavedStatus.GetComponent<Button>().onClick.AddListener(PlayerPrefs.DeleteAll);
+
+            //to allow SetSelector's start to run
+            SetSelector.SetActive(true);
+            SetSelector.SetActive(false);
         }
 
         public void DisplayRecordingStarted()
@@ -128,6 +134,8 @@ namespace Assets.Scripts.Classes.UI
 
         public void Update()
         {
+
+
             if (_recordingStoppedInfoTimeout)
             {
                 AudioRecordingStoppedInfo.SetActive(false);

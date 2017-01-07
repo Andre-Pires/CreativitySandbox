@@ -39,7 +39,8 @@ namespace Assets.Scripts.Classes.UI
                 _popupUI = new PiecePopupUI(_piece, _pieceButton);
             }
 
-            SessionLogger.Instance.WriteToLogFile("Created  piece's UI manager: " + _piece.Name);
+            if (SessionLogger.Instance != null)
+                SessionLogger.Instance.WriteToLogFile("Created  piece's UI manager: " + _piece.Name);
         }
 
 

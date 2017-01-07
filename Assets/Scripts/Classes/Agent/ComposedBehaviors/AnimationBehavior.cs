@@ -45,8 +45,14 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
             }
         }
 
-        public void ApplyBehavior()
+        public void ApplyBehavior(Body agentBody)
         {
+            Vector3 hitNormal;
+            if (agentBody.IsColliding(out hitNormal))
+            {
+                agentBody.transform.position += hitNormal.normalized * 0.1f;
+            }
+
             //when the animation is over we pause before changing color
             if ((Time.time - _startTime) > _clipLength)
             {

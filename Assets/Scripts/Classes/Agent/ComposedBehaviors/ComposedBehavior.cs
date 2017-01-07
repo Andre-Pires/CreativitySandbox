@@ -106,7 +106,8 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                     StandardBehaviorDrive += StandardDriveStep * StandardDriveMultiplier;
                 }
 
-                if (ExcitedBehaviorDrive <= 100)
+                //the drive stepping level should be limited, so it only fires when aproppriate
+                if (ExcitedBehaviorDrive <= 65)
                 {
                     ExcitedBehaviorDrive += ExcitedDriveStep * ExcitedDriveMultiplier;
                 }
@@ -131,7 +132,7 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                 switch (stimuliDistance)
                 {
                     case Configuration.ProxemicDistance.Social:
-                        ExcitedBehaviorDrive += 30;
+                        ExcitedBehaviorDrive += 35;
                         break;
                     case Configuration.ProxemicDistance.Personal:
                         ExcitedBehaviorDrive += 45;
@@ -190,7 +191,7 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
 
             if (animationToApply != null)
             {
-                animationToApply.ApplyBehavior();
+                animationToApply.ApplyBehavior(agentBody);
 
                 if (IsOver == true && !animationToApply.IsOver)
                 {

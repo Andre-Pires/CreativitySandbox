@@ -25,6 +25,12 @@ namespace Assets.Scripts.Classes.IO
         {
             try
             {
+                if (!Directory.Exists(_filePath))
+                {
+                    Debug.Log("Creating logging directory");
+                    Directory.CreateDirectory(_filePath);
+                }
+
                 string date = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss", CultureInfo.InvariantCulture);
                 _fileWriter = File.CreateText(_filePath + "/" + FileName + "(" + date + ")" + FileExtension);
                 _fileWriter.WriteLine("Log starts at: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture));
@@ -56,6 +62,7 @@ namespace Assets.Scripts.Classes.IO
             try
             {
                 _fileWriter.WriteLine(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture) + ": " + logEntry);
+                _fileWriter.Flush();
             }
             catch (Exception e )
             {

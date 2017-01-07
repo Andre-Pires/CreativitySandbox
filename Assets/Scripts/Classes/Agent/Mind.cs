@@ -42,21 +42,22 @@ namespace Assets.Scripts.Classes.Agent
             switch (personality)
             {
                 case Configuration.Personality.Joy:
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Joy, new JoyBehavior(Random.Range(1.0f, 1.5f), 0, body.Mesh.GetComponent<Animator>()));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Joy, new JoyBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 1.3f), body.Mesh.GetComponent<Animator>()));
                     break;
                 case Configuration.Personality.Fear:
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Fear, new FearBehavior(Random.Range(1.0f, 1.5f), 0, body.Mesh.GetComponent<Animator>()));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Fear, new FearBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 1.3f), body.Mesh.GetComponent<Animator>()));
                     break;
                 case Configuration.Personality.Anger:
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Anger, new AngerBehavior(Random.Range(1.0f, 1.5f), 0, body.Mesh.GetComponent<Animator>()));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Anger, new AngerBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 1.3f), body.Mesh.GetComponent<Animator>()));
                     break;
                 case Configuration.Personality.Disgust:
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Disgust, new DisgustBehavior(Random.Range(1.0f, 1.5f), 0, body.Mesh.GetComponent<Animator>()));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Disgust, new DisgustBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 1.3f), body.Mesh.GetComponent<Animator>()));
                     break;
                 case Configuration.Personality.Sadness:
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Sadness, new SadnessBehavior(Random.Range(1.0f, 1.5f), 0, body.Mesh.GetComponent<Animator>()));
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Sadness, new SadnessBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 1.3f), body.Mesh.GetComponent<Animator>()));
                     break;
-                default: //TODO for now default launches one behavior
+                default: 
+                    Debug.Log("Condition shouldn't happen.");
                     AgentBehaviors.Add(Configuration.ComposedBehaviors.Sadness, new SadnessBehavior(Random.Range(1.0f, 1.5f), 0));
                     break;
             }
@@ -181,10 +182,10 @@ namespace Assets.Scripts.Classes.Agent
             }
         }
 
-        public void ReceiveStimulus(Vector3 stimilusPosition, ComposedBehavior stimulatingBehavior)
+        public void ReceiveStimulus(Vector3 stimulusPosition, ComposedBehavior stimulatingBehavior)
         {
             Vector3 piecePosition = transform.localPosition;
-            float sqrDistance = (stimilusPosition - piecePosition).sqrMagnitude;
+            float sqrDistance = (stimulusPosition - piecePosition).sqrMagnitude;
             
             //filtering Behavior to simulate needs at this point; only affecting inactive behaviors
             List<ComposedBehavior> affectedBehaviors = AgentBehaviors.Values.ToList().FindAll(b => b.IsOver);

@@ -46,9 +46,9 @@ GameObject:
   - 64: {fileID: 6401828}
   - 137: {fileID: 13788564}
   - 95: {fileID: 9533988}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: AgentMesh
-  m_TagString: Untagged
+  m_TagString: Cube
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

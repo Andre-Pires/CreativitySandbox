@@ -53,7 +53,8 @@ namespace Assets.Scripts.Classes.IO
             GetMicCaps();
 
             Debug.Log("Sound storage path: " + FilePath);
-            SessionLogger.Instance.WriteToLogFile("Sound recording activate and initialization complete.");
+            if (SessionLogger.Instance != null)
+                SessionLogger.Instance.WriteToLogFile("Sound recording activate and initialization complete.");
         }
 
         private void OnGui()

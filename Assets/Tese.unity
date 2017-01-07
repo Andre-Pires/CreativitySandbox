@@ -3003,7 +3003,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: e80e8e1ba68b64a4f9da7aebb4092391, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 12231f77bbfeb5d49b6569a7d4c83577, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -4767,6 +4767,7 @@ MonoBehaviour:
   SkyboxColorPicker: {fileID: 1542036302}
   SetColorPicker: {fileID: 1187055318}
   ColorPicker: {fileID: 1645391047}
+  SetSelector: {fileID: 1254273325}
   MainCanvas: {fileID: 37629686}
   ScreenOverlays: {fileID: 1574385645}
 --- !u!1 &859803789
@@ -9664,7 +9665,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: e80e8e1ba68b64a4f9da7aebb4092391, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 01ed4eba15a214640a4cfddc39425983, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1

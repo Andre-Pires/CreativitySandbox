@@ -16,7 +16,7 @@ namespace Assets.Scripts.Classes.Helpers
     {
         public Dictionary<Configuration.Personality, string> PersonalitiesStrings;
         public Dictionary<Configuration.BlinkingSpeed, string> SpeedStrings;
-        public const string VideoFolderName = "O meu filme";
+        public const string VideoFolderName = "O_meu_filme";
         //file paths
         public static string ImageFilePath = UnityEngine.Application.platform == RuntimePlatform.Android
             ? "sdcard/"+ VideoFolderName + "/"

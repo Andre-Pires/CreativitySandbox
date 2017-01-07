@@ -4,8 +4,6 @@ using System.IO;
 using System.Threading;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.UI;
-using Assets.Scripts.Scripts.UI;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -79,7 +77,7 @@ namespace Assets.Scripts.Classes.IO
             //clear empty directories
             ClearEmptyDirectories();
 
-            if (PlayerPrefs.HasKey("imageCount") && PlayerPrefs.HasKey("imageFolder"))
+            if (PlayerPrefs.HasKey("imageCount") && PlayerPrefs.HasKey("imageFolder") && Directory.Exists(PlayerPrefs.GetString("imageFolder", "")))
             {
                 _filePath = PlayerPrefs.GetString("imageFolder", "");
                 _numberOfShots = PlayerPrefs.GetInt("imageCount", 0);
@@ -91,9 +89,9 @@ namespace Assets.Scripts.Classes.IO
                 {
                     _latestScreenshot.LoadImage(File.ReadAllBytes(fileName), false);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    Debug.Log("Problem loading last screen from previous execution.");
+                    Debug.Log("Problem loading last screen from previous execution." + e.Message);
                 }
             }
             else
@@ -106,7 +104,8 @@ namespace Assets.Scripts.Classes.IO
             }
 
             Debug.Log("Image files path" + _filePath);
-            SessionLogger.Instance.WriteToLogFile("Screen recorder initialization complete.");
+            if (SessionLogger.Instance != null)
+                SessionLogger.Instance.WriteToLogFile("Screen recorder initialization complete.");
         }
 
         private void SetupCustomActScreen(int width, int height)
@@ -148,6 +147,7 @@ namespace Assets.Scripts.Classes.IO
             }
         }
 
+        //TODO: alterar para este funcionar por tentativas
         public void KeepMovieActScreen(bool keepScreen)
         {
             if (!keepScreen)
@@ -157,6 +157,7 @@ namespace Assets.Scripts.Classes.IO
                 _numberOfShots--;
                 PlayerPrefs.SetInt("imageCount", _numberOfShots);
                 PlayerPrefs.Save();
+                SessionLogger.Instance.WriteToLogFile("Discarded intermission screen");
             }
 
             _actScreenMovieDone = true;
@@ -179,8 +180,38 @@ namespace Assets.Scripts.Classes.IO
             PlayerPrefs.Save();
 
             string stringShotNumber = _numberOfShots.ToString("D" + paddingLength);
-            UnityEngine.Application.CaptureScreenshot(_filePath + FileName + stringShotNumber + FileExtension);
+            string fileName = FileName + stringShotNumber + FileExtension;
 
+            if (UnityEngine.Application.platform == RuntimePlatform.Android)
+            {
+                //I have to move the image from default storage location on /Android to /sdCard 
+                //Unity has different behaviors for the same function depending on OS
+                UnityEngine.Application.CaptureScreenshot(fileName);
+
+                string androidPath = UnityEngine.Application.persistentDataPath;
+                MoveActScreenToFolder(androidPath + "/" + fileName, _filePath + fileName);
+            }
+            else
+            {
+                UnityEngine.Application.CaptureScreenshot(_filePath + fileName);
+            }
+        }
+
+        private void MoveActScreenToFolder (string originFile, string destinationFile)
+        {
+            if (File.Exists(originFile))
+            {
+                File.Move(originFile, destinationFile);
+            }
+            else
+            {
+                Debug.Log("trying to move to final destination");
+                new Thread(() =>
+                {
+                    MoveActScreenToFolder(originFile, destinationFile);
+                    Thread.Sleep(100);
+                }).Start();
+            }
         }
 
         public void TakeSingleSnapshot()

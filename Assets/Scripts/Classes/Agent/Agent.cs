@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Assets.Scripts.Classes.Helpers;
@@ -25,37 +26,20 @@ namespace Assets.Scripts.Classes.Agent
             _pieces = new Dictionary<string, Piece>();
             _piecesUIManagers = new Dictionary<string, PieceUIManager>();
 
-            SessionLogger.Instance.WriteToLogFile("Agent initialization complete.");
+            //check if there are any saved pieces
+            if (PlayerPrefs.GetInt("pieceCount", -1) > 0)
+            {
+                RecoverLastSessionPieces();
+            }
+
+            if (SessionLogger.Instance != null)
+                SessionLogger.Instance.WriteToLogFile("Agent initialization complete.");
         }
 
         public void Update()
         {
             _pieces.ToList().ForEach(p => p.Value.Update());
             _piecesUIManagers.ToList().ForEach(p => p.Value.Update());
-        }
-
-        //create an initial component with random settings
-        public void AddComponent()
-        {
-            var numberOfSizes = Configuration.Instance.SizeValues.Count;
-            var pieceName = Constants.Instance.PersonalitiesStrings[Configuration.Personality.CustomPersonality] + " " + _currentPieceIndex;
-            _currentPieceIndex++;
-
-            List<Piece> autonomousPieces = new List<Piece>();
-            _pieces.ToList().FindAll(p => p.Value.Name != pieceName && p.Value.PieceMode == Configuration.ApplicationMode.AutonomousAgent)
-                .ForEach(p => autonomousPieces.Add(p.Value));
-
-            Piece newPiece = new Piece(pieceName, Configuration.Personality.CustomPersonality,
-                Configuration.Instance.AvailableSizes[Random.Range(0, numberOfSizes)], CurrentApplicationMode, autonomousPieces);
-            _pieces.Add(pieceName, newPiece);
-
-            PieceUIManager newPieceManager = new PieceUIManager(newPiece, this);
-            _piecesUIManagers.Add(pieceName, newPieceManager);
-
-            //adding the piece to the other agents minds 
-            UpdateOtherAutonomousPieces(newPiece);
-
-            SessionLogger.Instance.WriteToLogFile("Added random piece: " + pieceName + " (" + newPiece.Personality + ", " + newPiece.Body.Size + " size, " + CurrentApplicationMode + ").");
         }
 
         public void AddComponent(Configuration.Personality personality, string name = null)
@@ -92,6 +76,7 @@ namespace Assets.Scripts.Classes.Agent
                     pieceName = name + " " + nameExtension;
                 }
             }
+            int pieceIndex = _currentPieceIndex;
             _currentPieceIndex++;
 
             List<Piece> autonomousPieces = new List<Piece>();
@@ -107,6 +92,8 @@ namespace Assets.Scripts.Classes.Agent
             //adding the piece to the other agents minds 
             UpdateOtherAutonomousPieces(newPiece);
 
+            StorePieceInformation(pieceIndex, newPiece);
+
             SessionLogger.Instance.WriteToLogFile("Added custom piece: " + pieceName + " (" + newPiece.Personality + ", " + newPiece.Body.Size + " size, " + CurrentApplicationMode + ").");
         }
 
@@ -114,7 +101,8 @@ namespace Assets.Scripts.Classes.Agent
         //Allows copying components
         public void AddComponent(Piece piece)
         {
-            var pieceName = Constants.Instance.PersonalitiesStrings[piece.Personality] + " " + _currentPieceIndex;
+            int pieceIndex = _currentPieceIndex;
+            string pieceName = Constants.Instance.PersonalitiesStrings[piece.Personality] + " " + pieceIndex;
             _currentPieceIndex++;
 
             List<Piece> autonomousPieces = new List<Piece>();
@@ -130,12 +118,16 @@ namespace Assets.Scripts.Classes.Agent
             //adding the piece to the other agents minds 
             UpdateOtherAutonomousPieces(newPiece);
 
+            StorePieceInformation(pieceIndex, newPiece);
+
             SessionLogger.Instance.WriteToLogFile("Added copy piece: " + pieceName + " (" + newPiece.Personality + ", " + newPiece.Body.Size + " size, " + CurrentApplicationMode + ").");
         }
 
         public void EraseAgentPiece(string pieceName)
         {
             Piece tempPiece =_pieces[pieceName];
+
+            ErasePieceInformation(tempPiece);
 
             if (tempPiece.PieceMode == Configuration.ApplicationMode.AutonomousAgent)
             {
@@ -150,6 +142,10 @@ namespace Assets.Scripts.Classes.Agent
             if (_pieces.Count == 0)
             {
                 _currentPieceIndex = 0;
+                
+                //Update saved pieces - only updates when its 0
+                PlayerPrefs.SetInt("pieceCount", _currentPieceIndex);
+                PlayerPrefs.Save();
             }
 
             PieceUIManager tempUI = _piecesUIManagers[pieceName];
@@ -167,6 +163,10 @@ namespace Assets.Scripts.Classes.Agent
             _pieces.Clear();
 
             _currentPieceIndex = 0;
+            
+            //Update saved pieces
+            PlayerPrefs.SetInt("pieceCount", _currentPieceIndex);
+            PlayerPrefs.Save();
 
             SessionLogger.Instance.WriteToLogFile("Erased agent.");
         }
@@ -187,5 +187,110 @@ namespace Assets.Scripts.Classes.Agent
             }
         }
 
+        public void RecoverLastSessionPieces()
+        {
+            try
+            {
+                int piecesToRecover = PlayerPrefs.GetInt("pieceCount", -1);
+                string name;
+                string personalityString;
+                string pieceModeString;
+                Configuration.Personality personality;
+
+                for (int i = 0; i < piecesToRecover; i++)
+                {
+                    //if key was removed continue
+                    if (!PlayerPrefs.HasKey("piece" + i + "name"))
+                    {
+                        continue;
+                    }
+
+                    name = PlayerPrefs.GetString("piece" + i + "name", "");
+                    personalityString = PlayerPrefs.GetString("piece" + i + "personality", "");
+                    personality = Configuration.Instance.AvailablePersonalities.Find(p => p.ToString() == personalityString);
+                    pieceModeString = PlayerPrefs.GetString("piece" + i + "autonomy", "");
+
+
+                    //we must return application the agent to the current application in certain cases
+                    Configuration.ApplicationMode oldMode = CurrentApplicationMode;
+                    int modeEnumLength = Enum.GetNames(typeof(Configuration.ApplicationMode)).Length;
+                    for (int j = 0; j < modeEnumLength; j++)
+                    {
+                        if (pieceModeString == ((Configuration.ApplicationMode) j).ToString())
+                        {
+                            CurrentApplicationMode = (Configuration.ApplicationMode)j;
+                            break;
+                        }
+                    }
+
+                    if (CurrentApplicationMode == Configuration.ApplicationMode.ManuallyActivatedAgent)
+                    {
+                        Configuration.Size storedPieceSize = Configuration.Size.Medium;
+                        int sizeEnumLength = Enum.GetNames(typeof(Configuration.Size)).Length;
+                        for (int j = 0; j < sizeEnumLength; j++)
+                        {
+                            if (PlayerPrefs.GetString("piece" + i + "size", "") == ((Configuration.Size)j).ToString())
+                            {
+                                storedPieceSize = (Configuration.Size)j;
+                                break;
+                            }
+                        }
+                    
+                        AddComponent(personality, storedPieceSize, name);
+                    }
+                    else
+                    {
+                        AddComponent(personality, name);
+                    }
+
+                    CurrentApplicationMode = oldMode;
+                }
+
+            }
+            catch (Exception)
+            {
+                SessionLogger.Instance.WriteToLogFile("Problem while recovering last session's pieces in agent.");
+            }
+        }
+
+        public void StorePieceInformation(int pieceIndex, Piece piece)
+        {
+            //Update saved pieces
+            PlayerPrefs.SetInt("pieceCount", _currentPieceIndex);
+            PlayerPrefs.SetString("piece" + pieceIndex + "name", piece.Name);
+            PlayerPrefs.SetString("piece" + pieceIndex + "personality", piece.Personality.ToString());
+            PlayerPrefs.SetString("piece" + pieceIndex + "autonomy", CurrentApplicationMode.ToString());
+
+            if (CurrentApplicationMode == Configuration.ApplicationMode.ManuallyActivatedAgent)
+            {
+                PlayerPrefs.SetString("piece" + pieceIndex + "size", piece.Body.Size.ToString());
+            }
+            PlayerPrefs.Save();
+        }
+
+        public void ErasePieceInformation(Piece piece)
+        {
+            if (PlayerPrefs.HasKey("pieceCount"))
+            {
+                for (int i = 0; i < PlayerPrefs.GetInt("pieceCount"); i++)
+                {
+                    Debug.Log("Erase name: " + piece.Name + ", stored name: " + PlayerPrefs.GetString("piece" + i + "name"));
+                    if (piece.Name == PlayerPrefs.GetString("piece" + i + "name"))
+                    {
+                        //Delete saved piece
+                        PlayerPrefs.DeleteKey("piece" + i + "name");
+                        PlayerPrefs.DeleteKey("piece" + i + "personality");
+                        PlayerPrefs.DeleteKey("piece" + i + "autonomy");
+
+                        if (piece.PieceMode == Configuration.ApplicationMode.ManuallyActivatedAgent)
+                        {
+                            PlayerPrefs.DeleteKey("piece" + i + "size");
+                        }
+                        PlayerPrefs.Save();
+                        return;
+                    }
+                }
+            }
+        }
     }
 }

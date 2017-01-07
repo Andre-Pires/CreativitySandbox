@@ -77,24 +77,24 @@ namespace Assets.Scripts.Scripts.UI
             int numberOfColors = Configuration.Instance.AvailableColors.Count;
 
             {
-                Configuration.Colors randomColor;
+                Configuration.Colors setColor;
                 if (!PlayerPrefs.HasKey("setColor"))
                 {
-                    randomColor = Configuration.Instance.ColorNames.Keys.ToList()[Random.Range(0, numberOfColors)];
-                    PlayerPrefs.SetString("setColor", randomColor.ToString());
+                    setColor = Configuration.Colors.White;
+                    PlayerPrefs.SetString("setColor", setColor.ToString());
                     PlayerPrefs.Save();
                 }
                 else
                 {
-                    randomColor = Configuration.Instance.ColorNames.FirstOrDefault(c => c.Key.ToString() == PlayerPrefs.GetString("setColor", "")).Key;
+                    setColor = Configuration.Instance.ColorNames.FirstOrDefault(c => c.Key.ToString() == PlayerPrefs.GetString("setColor", "")).Key;
                 }
-                _currentSetColor = randomColor;
+                _currentSetColor = setColor;
             }
 
             {
                 if (!PlayerPrefs.HasKey("skyColor"))
                 {
-                    _currentBackgroundColor = Configuration.Instance.ColorNames.Keys.ToList()[Random.Range(0, numberOfColors)];
+                    _currentBackgroundColor = Configuration.Colors.White;
                     PlayerPrefs.SetString("skyColor", _currentBackgroundColor.ToString());
                     PlayerPrefs.Save();
                 }

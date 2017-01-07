@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using Assets.Scripts.Classes.Helpers;
 using Assets.Scripts.Classes.IO;
 using Assets.Scripts.Classes.UI;
@@ -19,11 +20,26 @@ namespace Assets.Scripts.Classes
         // Use this for initialization
         public void Start()
         {
+            //recover last session's application mode
+            if (PlayerPrefs.HasKey("applicationMode"))
+            {
+                int enumLength = Enum.GetNames(typeof(Configuration.ApplicationMode)).Length;
+                for (int j = 0; j < enumLength; j++)
+                {
+                    if (PlayerPrefs.GetString("applicationMode", "") == ((Configuration.ApplicationMode)j).ToString())
+                    {
+                        ActiveMode = (Configuration.ApplicationMode)j;
+                        break;
+                    }
+                }
+            }
 
             _scene = GameObject.Find("Scene");
 
             _scene.AddComponent<SessionLogger>();
-            SessionLogger.Instance.WriteToLogFile("Application initialization started.");
+
+            if (SessionLogger.Instance != null)
+                SessionLogger.Instance.WriteToLogFile("Application initialization started.");
 
             if (Configuration.Instance.SoundRecordingActive)
             {
@@ -32,7 +48,8 @@ namespace Assets.Scripts.Classes
             }
             else
             {
-                SessionLogger.Instance.WriteToLogFile("Sound recording deactivated.");
+                if (SessionLogger.Instance != null)
+                    SessionLogger.Instance.WriteToLogFile("Sound recording deactivated.");
             }
 
             //Camera control script
@@ -46,14 +63,17 @@ namespace Assets.Scripts.Classes
 
             //NOTE: should run last to allow the remaining components to setup first
             _UIManager = _scene.GetComponent<AppUIManager>();
-            SessionLogger.Instance.WriteToLogFile("Application UI Manager and Configuration bound.");
+
+            if (SessionLogger.Instance != null)
+                SessionLogger.Instance.WriteToLogFile("Application UI Manager and Configuration bound.");
 
             AppUIManager.Instance.ApplicationMode.GetComponent<Button>().onClick.AddListener(UpdateApplicationMode);
             AppUIManager.Instance.SwitchUIApplicationMode(ActiveMode);
 
             _agent = new Agent.Agent(ActiveMode);
 
-            SessionLogger.Instance.WriteToLogFile("Application initialization complete.");
+            if (SessionLogger.Instance != null)
+                SessionLogger.Instance.WriteToLogFile("Application initialization complete.");
         }
 
         // Update is called once per frame
@@ -84,6 +104,8 @@ namespace Assets.Scripts.Classes
 
             AppUIManager.Instance.SwitchUIApplicationMode(ActiveMode);
             _agent.CurrentApplicationMode = ActiveMode;
+
+            PlayerPrefs.SetString("applicationMode", ActiveMode.ToString());
         }
     }
 }

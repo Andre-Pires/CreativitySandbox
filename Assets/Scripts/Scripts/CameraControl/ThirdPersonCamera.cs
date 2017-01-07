@@ -69,7 +69,8 @@ namespace Assets.Scripts.Scripts.CameraControl
             AppUIManager.Instance.ColorMenuCloseButton.GetComponent<Button>().onClick.AddListener(ToggleColorPickerCameraMode);
             ColorLookAt = GameObject.Find("ColorLookAt").GetComponent<Transform>();
 
-            SessionLogger.Instance.WriteToLogFile("Camera initialization complete");
+            if (SessionLogger.Instance != null)
+                SessionLogger.Instance.WriteToLogFile("Camera initialization complete");
         }
 
         private void Update()
