@@ -102,6 +102,7 @@ namespace Assets.Scripts.Scripts.UI
                 {
                     MainCanvas.SetActive(true);
                     ScreenOverlays.SetActive(false);
+                    pieceSizeInput.SetActive(false);
                 });
 
                 Utility.GetChild(pieceNameInput, "SaveName").GetComponentInChildren<Button>().onClick.AddListener(() =>

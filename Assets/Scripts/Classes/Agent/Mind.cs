@@ -56,9 +56,8 @@ namespace Assets.Scripts.Classes.Agent
                 case Configuration.Personality.Sadness:
                     AgentBehaviors.Add(Configuration.ComposedBehaviors.Sadness, new SadnessBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 1.3f), body.Mesh.GetComponent<Animator>()));
                     break;
-                default: 
-                    Debug.Log("Condition shouldn't happen.");
-                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Sadness, new SadnessBehavior(Random.Range(1.0f, 1.5f), 0));
+                default:
+                    AgentBehaviors.Add(Configuration.ComposedBehaviors.Sadness, new SadnessBehavior(Random.Range(1.0f, 1.5f), Random.Range(1.0f, 1.3f), body.Mesh.GetComponent<Animator>()));
                     break;
             }
 

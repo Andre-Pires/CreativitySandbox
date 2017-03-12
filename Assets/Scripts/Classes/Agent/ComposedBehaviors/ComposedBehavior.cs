@@ -114,8 +114,8 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
             
             }
 
-            /*Debug.Log("inercia state " + StandardBehaviorDrive);
-            Debug.Log("inercia state " + ExcitedBehaviorDrive);*/
+            /*Debug.Log("inercia state standard " + StandardBehaviorDrive);
+            Debug.Log("inercia state excited  " + ExcitedBehaviorDrive);*/
 
             new Thread(() =>
             {

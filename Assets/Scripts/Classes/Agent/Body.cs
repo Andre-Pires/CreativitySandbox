@@ -13,7 +13,6 @@ namespace Assets.Scripts.Classes.Agent
         public bool BodyHalted;
         public Transform Transform;
         public Transform Mesh;
-        private Mind _mind;
         private Configuration.ApplicationMode _pieceMode;
         private bool _alreadyInitialized;
         private const float ScenarioPlacementRadius = 26.0f;
@@ -83,9 +82,6 @@ namespace Assets.Scripts.Classes.Agent
             }
         }
 
-        public BlinkBehavior BlinkBehavior;
-        public ResizeBehavior ResizeBehavior;
-        public RotationBehavior RotationBehavior;
         public Dictionary<Configuration.ComposedBehaviors, ComposedBehavior> AgentBehaviors;
 
         //dragging fields

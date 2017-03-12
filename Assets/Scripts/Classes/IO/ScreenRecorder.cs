@@ -12,7 +12,7 @@ namespace Assets.Scripts.Classes.IO
     public class ScreenRecorder : MonoBehaviour
     {
 
-        public const float OverlayOpacity = 0.2f;
+        public const float OverlayOpacity = 0.3f;
 
         //file path constants
         private const string FileName = "image";
@@ -123,11 +123,7 @@ namespace Assets.Scripts.Classes.IO
 
             Button keepScreenButton = Utility.GetChild(AppUIManager.Instance.ActScreenSave, "YesButton").GetComponent<Button>();
 
-            keepScreenButton.onClick.AddListener(() => KeepMovieActScreen(true));
-
-            Button eraseScreenButton = Utility.GetChild(AppUIManager.Instance.ActScreenSave, "NoButton").GetComponent<Button>();
-
-            eraseScreenButton.onClick.AddListener(() => KeepMovieActScreen(false));
+            keepScreenButton.onClick.AddListener(KeepMovieActScreen);
         }
 
         private void ClearEmptyDirectories()
@@ -147,25 +143,14 @@ namespace Assets.Scripts.Classes.IO
             }
         }
 
-        //TODO: alterar para este funcionar por tentativas
-        public void KeepMovieActScreen(bool keepScreen)
+        public void KeepMovieActScreen()
         {
-            if (!keepScreen)
-            {
-                string stringShotNumber = _numberOfShots.ToString("D" + paddingLength);
-                File.Delete(_filePath + FileName + stringShotNumber + FileExtension);
-                _numberOfShots--;
-                PlayerPrefs.SetInt("imageCount", _numberOfShots);
-                PlayerPrefs.Save();
-                SessionLogger.Instance.WriteToLogFile("Discarded intermission screen");
-            }
-
             _actScreenMovieDone = true;
         }
 
         public void CaptureMovieActScreen()
         {
-            SessionLogger.Instance.WriteToLogFile("Created an intermission screen (can still be discarded)");
+            SessionLogger.Instance.WriteToLogFile("Created an intermission screen");
 
             InputField inputField =
                 Utility.GetChild(AppUIManager.Instance.ActScreenInput, "InputField").GetComponent<InputField>();

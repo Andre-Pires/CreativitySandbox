@@ -56,23 +56,19 @@ namespace Assets.Scripts.Classes.Agent
             }
             else
             {
-                var nameExtension = 0;
+                var nameExtension = 1;
 
-                foreach (var piece in _pieces)
-                {
-                    //allows to detect if the name as already occurred and adds an extension to differenciate it
-                    if (Regex.IsMatch(piece.Key, string.Format(@"({0}|({0}(\s\d*)?))\z", Regex.Escape(name))))
-                    {
-                        nameExtension++;
-                    }
-                }
-
-                if (nameExtension == 0)
+                if (!_pieces.ContainsKey(name))
                 {
                     pieceName = name;
                 }
                 else
                 {
+                    while (_pieces.ContainsKey(name + " " + nameExtension))
+                    {
+                        nameExtension++;
+                    }
+
                     pieceName = name + " " + nameExtension;
                 }
             }
@@ -84,6 +80,7 @@ namespace Assets.Scripts.Classes.Agent
                 .ForEach(p => autonomousPieces.Add(p.Value));
 
             Piece newPiece = new Piece(pieceName, personality, size, CurrentApplicationMode, autonomousPieces);
+
             _pieces.Add(pieceName, newPiece);
 
             PieceUIManager newPieceManager = new PieceUIManager(newPiece, this);

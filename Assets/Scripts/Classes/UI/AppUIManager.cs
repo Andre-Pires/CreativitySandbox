@@ -21,6 +21,8 @@ namespace Assets.Scripts.Classes.UI
         //Application
         public GameObject ApplicationMode;
         public GameObject DeleteSavedStatus;
+        private bool _alreadyClicked;
+        private float _timeForDoubleClick = 0.4f;
 
         //Agent
         public GameObject PieceSelection;
@@ -94,7 +96,7 @@ namespace Assets.Scripts.Classes.UI
                 CameraModeToggle.SetActive(false);
             }
 
-            DeleteSavedStatus.GetComponent<Button>().onClick.AddListener(PlayerPrefs.DeleteAll);
+            DeleteSavedStatus.GetComponent<Button>().onClick.AddListener(ClearAllStoredData);
 
             //to allow SetSelector's start to run
             SetSelector.SetActive(true);
@@ -131,6 +133,35 @@ namespace Assets.Scripts.Classes.UI
                     Resources.Load<Sprite>("Images/ColorfulButtons/OnRobot");
             }
         }
+
+        public void ClearAllStoredData()
+        {
+            //check for double click
+            if (_alreadyClicked)
+            {
+                _alreadyClicked = false;
+                PlayerPrefs.DeleteAll();
+                Debug.Log("Deleted saved data");
+
+                if (SessionLogger.Instance != null)
+                {
+                    SessionLogger.Instance.WriteToLogFile("Deleted all saved data.");
+                }
+            }
+            else
+            {
+                _alreadyClicked = true;
+
+                //wait to reset click
+                new Thread(() =>
+                {
+                    Thread.Sleep((int) (_timeForDoubleClick*1000));
+                    _alreadyClicked = false;
+                }).Start();
+                return;
+            }
+        }
+
 
         public void Update()
         {

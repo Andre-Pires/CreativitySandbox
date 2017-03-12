@@ -31,7 +31,7 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                     {
                         case Configuration.Behaviors.Blink:
                             (behavior as BlinkBehavior).PrepareBehavior(body, _behaviorColor,
-                                Configuration.Transitions.EaseInOut, 1, 1.5f);
+                                Configuration.Transitions.EaseInOut, 3, 1.5f);
                             break;
                         case Configuration.Behaviors.Resize:
                             /*(behavior as ResizeBehavior).PrepareBehavior(body, Configuration.Size.Large,
@@ -54,7 +54,7 @@ namespace Assets.Scripts.Classes.Agent.ComposedBehaviors
                     {
                         case Configuration.Behaviors.Blink:
                             (behavior as BlinkBehavior).PrepareBehavior(body, _behaviorColor,
-                            Configuration.Transitions.EaseInOut, 1, 2.0f);
+                            Configuration.Transitions.EaseInOut, 3, 2.0f);
                             break;
                         case Configuration.Behaviors.Resize:
                             /*(behavior as ResizeBehavior).PrepareBehavior(body, Configuration.Size.Large,
